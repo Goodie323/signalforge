@@ -36,9 +36,9 @@ STATE_FILE          = "state.json"
 RECORD_FILE         = "win_loss.json"
 PAPER_FILE          = "paper_trading.json"
 
-# ── Hardcoded credentials ──
-TELEGRAM_BOT_TOKEN  = "8757904533:AAHSsUNGDzfjnBECVYRY3cjDBPlTd3XEei8" #signalforge_mainbot
-TELEGRAM_CHAT_ID    = "6648446138"
+# ── Credentials from Railway environment variables ──
+TELEGRAM_BOT_TOKEN  = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID    = os.environ.get("TELEGRAM_CHAT_ID", "")
 MARKET_API_URL      = "https://api.limitless.exchange/markets/active"
 
 price_history = deque(maxlen=500)
@@ -385,6 +385,16 @@ def ensemble_signal(current_price, prices, time_left, threshold, rsi):
 # MAIN
 # ────────────────────────────────────────────────
 print("🚀 Starting SignalForge — DOGE 1H bot (convergence + ensemble + Kelly paper trading)...")
+
+# ── Validate required env vars on startup ──
+missing = []
+if not TELEGRAM_BOT_TOKEN: missing.append("TELEGRAM_BOT_TOKEN")
+if not TELEGRAM_CHAT_ID:   missing.append("TELEGRAM_CHAT_ID")
+if missing:
+    print(f"❌ Missing required environment variables: {', '.join(missing)}")
+    print("   Set them in Railway dashboard → Variables tab")
+    exit(1)
+
 send_telegram_message("⚡ SignalForge is live.\n\nWe watch the market so you don't have to.\nWhen confidence is high, you'll know.\n\n⏳ Monitoring DOGE/USD silently...")
 init_log()
 

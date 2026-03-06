@@ -155,14 +155,15 @@ Total return:           +110.1%
 
 ```
 signalforge/
-├── checker.py       — Main bot loop, ensemble logic, convergence tracker
-├── executor.py      — Live trade execution (EIP-712 signing, Limitless API)
-├── requirements.txt — Python dependencies
-├── Procfile         — Railway deployment config
-└── data/
-    ├── doge_market.csv    — Full signal log with indicators + odds
-    ├── win_loss.json      — Persistent win/loss record
-    └── paper_trading.json — Bankroll + PnL state
+   ├──backend/ 
+        ├── checker.py       — Main bot loop, ensemble logic, convergence tracker
+        ├── executor.py      — Live trade execution (EIP-712 signing, Limitless API)
+        ├── requirements.txt — Python dependencies
+        ├── Procfile         — Railway deployment config
+        └── data/
+            ├── doge_market.csv    — Full signal log with indicators + odds
+            ├── win_loss.json      — Persistent win/loss record
+            └── paper_trading.json — Bankroll + PnL state
 ```
 
 ---
