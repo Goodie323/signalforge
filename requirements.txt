@@ -1,0 +1,5 @@
+requests
+pandas
+numpy
+web3>=6.0.0
+eth-account>=0.10.0
