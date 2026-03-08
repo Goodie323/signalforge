@@ -2,8 +2,10 @@ import requests
 import pandas as pd
 import time
 import json
+import threading
 from datetime import datetime, timezone
 from collections import deque
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import csv
 import os
 import numpy as np
@@ -382,6 +384,66 @@ def ensemble_signal(current_price, prices, time_left, threshold, rsi):
 
 
 # ────────────────────────────────────────────────
+# STATS HTTP SERVER
+# Serves /stats as JSON for the live dashboard
+# Runs in background thread on port 8080
+# ────────────────────────────────────────────────
+
+# Shared live state — updated by the main bot loop
+live_stats = {
+    "price":        0.0,
+    "signal":       "WAIT",
+    "prob":         0.0,
+    "votes":        {"yes": 0, "no": 0, "skip": 0},
+    "streak":       0,
+    "elapsed":      0,
+    "rsi":          0.0,
+    "momentum":     0.0,
+    "twap":         0.0,
+    "threshold":    0.0,
+    "edge":         0.0,
+    "market_yes":   0.0,
+    "market_no":    0.0,
+    "pool_size":    0.0,
+    "bankroll":     STARTING_BANKROLL,
+    "daily_pnl":    0.0,
+    "alltime_pnl":  0.0,
+    "wins":         0,
+    "losses":       0,
+    "win_rate":     0.0,
+    "last_signal":  "",
+    "last_bet":     0.0,
+    "updated":      "",
+}
+
+class StatsHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == "/stats":
+            body = json.dumps(live_stats).encode()
+            self.send_response(200)
+            self.send_header("Content-Type",  "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Content-Length", len(body))
+            self.end_headers()
+            self.wfile.write(body)
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+    def log_message(self, format, *args):
+        pass  # suppress request logs
+
+def start_stats_server():
+    port   = int(os.environ.get("PORT", 8080))
+    server = HTTPServer(("0.0.0.0", port), StatsHandler)
+    print(f"📡 Stats server running on port {port} → /stats")
+    server.serve_forever()
+
+# Start in background thread
+threading.Thread(target=start_stats_server, daemon=True).start()
+
+
+# ────────────────────────────────────────────────
 # MAIN
 # ────────────────────────────────────────────────
 print("🚀 Starting SignalForge — DOGE 1H bot (convergence + ensemble + Kelly paper trading)...")
@@ -494,6 +556,37 @@ while True:
             rsi_str  = f"{rsi:.2f}" if rsi is not None else "N/A"
             pool_lbl = pool_urgency_label(elapsed)
             utc      = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+
+            # ── Update live stats for dashboard ──
+            _paper = load_paper()
+            _record = load_record()
+            _decided = _record["wins"] + _record["losses"]
+            _twap = compute_twap(prices)
+            live_stats.update({
+                "price":       round(price, 8),
+                "signal":      signal,
+                "prob":        round(prob, 4),
+                "votes":       {"yes": yes_v, "no": no_v, "skip": skip_v},
+                "streak":      consecutive_count,
+                "elapsed":     round(elapsed_min, 1),
+                "rsi":         round(rsi, 2) if rsi else 0.0,
+                "momentum":    round(momentum, 4),
+                "twap":        round(_twap, 8) if _twap else 0.0,
+                "threshold":   round(THRESHOLD, 8),
+                "edge":        round(edge * 100, 2) if edge else 0.0,
+                "market_yes":  round(yes_price * 100, 2),
+                "market_no":   round(no_price * 100, 2),
+                "pool_size":   round(pool, 2),
+                "bankroll":    round(_paper["bankroll"], 2),
+                "daily_pnl":   round(_paper["daily_pnl"], 2),
+                "alltime_pnl": round(_paper["bankroll"] - STARTING_BANKROLL, 2),
+                "wins":        _record["wins"],
+                "losses":      _record["losses"],
+                "win_rate":    round(_record["wins"] / _decided * 100, 1) if _decided > 0 else 0.0,
+                "last_signal": alert_signal or "",
+                "last_bet":    alert_bet_size,
+                "updated":     utc,
+            })
 
             log_signal([
                 utc, round(elapsed_min, 1), price, distance, rsi_str,

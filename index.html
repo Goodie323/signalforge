@@ -7,18 +7,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:       #080b0f;
-    --surface:  #0d1117;
-    --border:   #1a2332;
-    --accent:   #00ff88;
-    --accent2:  #00bfff;
-    --warn:     #ff4444;
-    --muted:    #3a4a5c;
-    --text:     #c8d8e8;
-    --dim:      #5a7080;
+    --bg:      #080b0f;
+    --surface: #0d1117;
+    --border:  #1a2332;
+    --accent:  #00ff88;
+    --accent2: #00bfff;
+    --warn:    #ff4444;
+    --muted:   #3a4a5c;
+    --text:    #c8d8e8;
+    --dim:     #5a7080;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin:0; padding:0; box-sizing:border-box; }
 
   body {
     background: var(--bg);
@@ -29,541 +29,94 @@
     overflow-x: hidden;
   }
 
-  /* Scanline overlay */
   body::before {
     content: '';
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.08) 2px,
-      rgba(0,0,0,0.08) 4px
+      0deg, transparent, transparent 2px,
+      rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px
     );
-    pointer-events: none;
-    z-index: 999;
+    pointer-events: none; z-index: 999;
   }
 
-  /* Noise texture */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 998;
-    opacity: 0.5;
-  }
-
-  .container {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 32px 24px;
-  }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
 
   /* ── Header ── */
   .header {
-    display: flex;
-    align-items: flex-start;
+    display: flex; align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 40px;
-    padding-bottom: 24px;
+    margin-bottom: 40px; padding-bottom: 24px;
     border-bottom: 1px solid var(--border);
   }
 
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
+  .logo { display: flex; align-items: center; gap: 14px; }
 
   .logo-icon {
-    width: 40px;
-    height: 40px;
+    width: 40px; height: 40px;
     border: 1.5px solid var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    color: var(--accent);
-    box-shadow: 0 0 12px rgba(0,255,136,0.2), inset 0 0 12px rgba(0,255,136,0.05);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: var(--accent);
+    box-shadow: 0 0 12px rgba(0,255,136,0.2);
     animation: pulse-border 3s ease-in-out infinite;
   }
 
   @keyframes pulse-border {
-    0%, 100% { box-shadow: 0 0 12px rgba(0,255,136,0.2), inset 0 0 12px rgba(0,255,136,0.05); }
-    50%       { box-shadow: 0 0 24px rgba(0,255,136,0.4), inset 0 0 20px rgba(0,255,136,0.1); }
+    0%,100% { box-shadow: 0 0 12px rgba(0,255,136,0.2); }
+    50%      { box-shadow: 0 0 28px rgba(0,255,136,0.5); }
   }
 
   .logo-text h1 {
     font-family: 'Syne', sans-serif;
-    font-size: 22px;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.5px;
-    line-height: 1;
+    font-size: 22px; font-weight: 800;
+    color: #fff; letter-spacing: -0.5px;
   }
 
   .logo-text span {
-    color: var(--accent);
-    font-size: 11px;
-    font-family: 'Space Mono', monospace;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+    color: var(--accent); font-size: 11px;
+    letter-spacing: 2px; text-transform: uppercase;
   }
 
-  .status-pill {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .header-right { display: flex; align-items: center; gap: 10px; }
+
+  .nav-link {
     padding: 6px 14px;
     border: 1px solid var(--border);
+    color: var(--dim);
+    text-decoration: none;
+    font-size: 10px; letter-spacing: 2px;
+    font-family: 'Space Mono', monospace;
+    transition: all 0.2s;
+  }
+  .nav-link:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  .status-pill {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 14px;
     background: rgba(0,255,136,0.05);
-    font-size: 11px;
-    letter-spacing: 1px;
-    color: var(--accent);
+    border: 1px solid rgba(0,255,136,0.2);
+    font-size: 11px; letter-spacing: 1px; color: var(--accent);
   }
 
   .status-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
+    width: 7px; height: 7px; border-radius: 50%;
     background: var(--accent);
     animation: blink 1.4s ease-in-out infinite;
   }
 
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.2; }
-  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
-  /* ── Price hero ── */
-  .price-hero {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-
-  .price-block {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 28px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .price-block::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent), transparent);
-  }
-
-  .price-label {
-    font-size: 10px;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: var(--dim);
-    margin-bottom: 12px;
-  }
-
-  .price-value {
-    font-family: 'Syne', sans-serif;
-    font-size: 42px;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -2px;
-    line-height: 1;
-    margin-bottom: 8px;
-  }
-
-  .price-value span {
-    font-size: 20px;
-    color: var(--dim);
-    font-weight: 400;
-    letter-spacing: 0;
-  }
-
-  .price-change {
-    font-size: 12px;
-    color: var(--accent);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .price-change.neg { color: var(--warn); }
-
-  /* Mini chart */
-  .chart-block {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 20px 28px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .chart-block::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent2), transparent);
-  }
-
-  .chart-label {
-    font-size: 10px;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: var(--dim);
-    margin-bottom: 16px;
-  }
-
-  .sparkline {
-    width: 100%;
-    height: 64px;
-  }
-
-  /* ── Ensemble voters ── */
-  .section-title {
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--dim);
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .voters-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .voter-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 18px;
-    position: relative;
-    transition: border-color 0.3s;
-  }
-
-  .voter-card.yes  { border-color: rgba(0,255,136,0.4); }
-  .voter-card.no   { border-color: rgba(255,68,68,0.4); }
-  .voter-card.skip { border-color: rgba(90,112,128,0.4); }
-
-  .voter-name {
-    font-size: 10px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--dim);
-    margin-bottom: 10px;
-  }
-
-  .voter-value {
-    font-family: 'Syne', sans-serif;
-    font-size: 28px;
-    font-weight: 700;
-    line-height: 1;
-    margin-bottom: 6px;
-  }
-
-  .voter-card.yes  .voter-value { color: var(--accent); }
-  .voter-card.no   .voter-value { color: var(--warn); }
-  .voter-card.skip .voter-value { color: var(--dim); }
-
-  .voter-sub {
-    font-size: 11px;
-    color: var(--dim);
-  }
-
-  .voter-badge {
-    position: absolute;
-    top: 14px; right: 14px;
-    font-size: 9px;
-    letter-spacing: 1px;
-    padding: 3px 8px;
-    text-transform: uppercase;
-  }
-
-  .voter-card.yes  .voter-badge { background: rgba(0,255,136,0.1); color: var(--accent); }
-  .voter-card.no   .voter-badge { background: rgba(255,68,68,0.1);  color: var(--warn); }
-  .voter-card.skip .voter-badge { background: rgba(90,112,128,0.1); color: var(--dim); }
-
-  /* ── Signal + Edge row ── */
-  .signal-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .metric-block {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 20px;
-  }
-
-  .metric-label {
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--dim);
-    margin-bottom: 10px;
-  }
-
-  .metric-value {
-    font-family: 'Syne', sans-serif;
-    font-size: 32px;
-    font-weight: 800;
-    line-height: 1;
-    color: #fff;
-  }
-
-  .metric-value.green { color: var(--accent); }
-  .metric-value.red   { color: var(--warn); }
-  .metric-value.blue  { color: var(--accent2); }
-
-  .metric-sub {
-    font-size: 11px;
-    color: var(--dim);
-    margin-top: 6px;
-  }
-
-  /* ── Convergence bar ── */
-  .convergence-block {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 20px 24px;
-    margin-bottom: 20px;
-  }
-
-  .conv-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 14px;
-  }
-
-  .conv-title {
-    font-size: 10px;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: var(--dim);
-  }
-
-  .conv-streak {
-    font-size: 11px;
-    color: var(--accent);
-    letter-spacing: 1px;
-  }
-
-  .checks-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-
-  .check-dot {
-    width: 32px;
-    height: 32px;
-    border: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    color: var(--dim);
-    transition: all 0.4s;
-    position: relative;
-  }
-
-  .check-dot.active {
-    border-color: var(--accent);
-    background: rgba(0,255,136,0.08);
-    color: var(--accent);
-    box-shadow: 0 0 8px rgba(0,255,136,0.2);
-  }
-
-  .check-dot.fire {
-    border-color: var(--accent);
-    background: var(--accent);
-    color: var(--bg);
-    font-weight: 700;
-    box-shadow: 0 0 16px rgba(0,255,136,0.5);
-  }
-
-  .progress-bar {
-    height: 2px;
-    background: var(--border);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent2), var(--accent));
-    transition: width 1s linear;
-  }
-
-  /* ── PnL + bankroll ── */
-  .pnl-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .pnl-block {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 18px;
-  }
-
-  .pnl-label {
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--dim);
-    margin-bottom: 8px;
-  }
-
-  .pnl-value {
-    font-family: 'Syne', sans-serif;
-    font-size: 22px;
-    font-weight: 700;
-    color: #fff;
-    line-height: 1;
-  }
-
-  .pnl-value.pos { color: var(--accent); }
-  .pnl-value.neg { color: var(--warn); }
-
-  .pnl-sub {
-    font-size: 11px;
-    color: var(--dim);
-    margin-top: 4px;
-  }
-
-  /* ── Signal log ── */
-  .log-block {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 0;
-    overflow: hidden;
-  }
-
-  .log-header {
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .log-title {
-    font-size: 10px;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: var(--dim);
-  }
-
-  .log-count {
-    font-size: 10px;
-    color: var(--accent);
-    letter-spacing: 1px;
-  }
-
-  .log-row {
-    display: grid;
-    grid-template-columns: 80px 60px 80px 80px 1fr 60px;
-    gap: 0;
-    padding: 11px 20px;
-    border-bottom: 1px solid rgba(26,35,50,0.5);
-    align-items: center;
-    transition: background 0.15s;
-    animation: row-in 0.4s ease forwards;
-    opacity: 0;
-  }
-
-  @keyframes row-in {
-    from { opacity: 0; transform: translateX(-8px); }
-    to   { opacity: 1; transform: translateX(0); }
-  }
-
-  .log-row:hover { background: rgba(255,255,255,0.02); }
-
-  .log-time   { color: var(--dim); font-size: 11px; }
-  .log-signal { font-weight: 700; font-size: 12px; }
-  .log-signal.yes { color: var(--accent); }
-  .log-signal.no  { color: var(--warn); }
-  .log-price  { color: var(--text); font-size: 11px; }
-  .log-edge   { color: var(--accent2); font-size: 11px; }
-  .log-result { text-align: right; font-size: 11px; }
-  .log-result.win  { color: var(--accent); }
-  .log-result.loss { color: var(--warn); }
-  .log-result.open { color: var(--dim); }
-  .log-bet    { color: var(--dim); font-size: 11px; }
-
-  /* ── Footer ── */
-  .footer {
-    margin-top: 32px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .footer-left {
-    font-size: 10px;
-    color: var(--dim);
-    letter-spacing: 1px;
-  }
-
-  .footer-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 10px;
-    color: var(--dim);
-    letter-spacing: 1px;
-  }
-
-  .pyth-badge {
-    padding: 4px 10px;
-    border: 1px solid var(--border);
-    color: var(--accent2);
-    font-size: 10px;
-    letter-spacing: 1px;
-  }
-
-  /* ── Ticker tape ── */
+  /* ── Ticker ── */
   .ticker {
     overflow: hidden;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
-    padding: 8px 0;
-    margin-bottom: 32px;
+    padding: 8px 0; margin-bottom: 32px;
     white-space: nowrap;
   }
 
   .ticker-inner {
-    display: inline-flex;
-    gap: 48px;
-    animation: scroll 20s linear infinite;
+    display: inline-flex; gap: 48px;
+    animation: scroll 24s linear infinite;
   }
 
   @keyframes scroll {
@@ -571,34 +124,218 @@
     to   { transform: translateX(-50%); }
   }
 
-  .ticker-item {
-    font-size: 11px;
-    color: var(--dim);
-    letter-spacing: 1px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
+  .ticker-item { font-size: 11px; color: var(--dim); letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
   .ticker-item .val { color: var(--text); }
   .ticker-item .pos { color: var(--accent); }
   .ticker-item .neg { color: var(--warn); }
   .ticker-sep { color: var(--border); }
 
-  /* Responsive */
-  @media (max-width: 700px) {
-    .price-hero    { grid-template-columns: 1fr; }
-    .voters-grid   { grid-template-columns: 1fr; }
-    .signal-row    { grid-template-columns: 1fr 1fr; }
-    .pnl-grid      { grid-template-columns: 1fr 1fr; }
-    .price-value   { font-size: 32px; }
-    .log-row       { grid-template-columns: 70px 55px 1fr 55px; }
-    .log-edge, .log-bet { display: none; }
+  /* ── Price hero ── */
+  .price-hero {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin-bottom: 20px;
+  }
+
+  .price-block {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 28px; position: relative; overflow: hidden;
+  }
+
+  .price-block::before {
+    content: ''; position: absolute;
+    top:0; left:0; right:0; height:2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+
+  .price-label {
+    font-size: 10px; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--dim); margin-bottom: 12px;
+  }
+
+  .price-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 42px; font-weight: 800;
+    color: #fff; letter-spacing: -2px; line-height: 1; margin-bottom: 8px;
+  }
+
+  .price-value span { font-size: 20px; color: var(--dim); font-weight: 400; letter-spacing: 0; }
+  .price-change { font-size: 12px; color: var(--accent); display: flex; align-items: center; gap: 6px; }
+  .price-change.neg { color: var(--warn); }
+
+  .chart-block {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 20px 28px; position: relative; overflow: hidden;
+  }
+
+  .chart-block::before {
+    content: ''; position: absolute;
+    top:0; left:0; right:0; height:2px;
+    background: linear-gradient(90deg, var(--accent2), transparent);
+  }
+
+  .chart-label {
+    font-size: 10px; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--dim); margin-bottom: 16px;
+  }
+
+  .sparkline { width: 100%; height: 64px; }
+
+  /* ── Section title ── */
+  .section-title {
+    font-size: 10px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--dim);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* ── Voters ── */
+  .voters-grid {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 12px; margin-bottom: 20px;
+  }
+
+  .voter-card {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 18px; position: relative; transition: border-color 0.4s;
+  }
+
+  .voter-card.yes  { border-color: rgba(0,255,136,0.4); }
+  .voter-card.no   { border-color: rgba(255,68,68,0.4); }
+  .voter-card.skip { border-color: rgba(90,112,128,0.4); }
+
+  .voter-name { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); margin-bottom: 10px; }
+  .voter-value { font-family:'Syne',sans-serif; font-size:28px; font-weight:700; line-height:1; margin-bottom:6px; }
+  .voter-card.yes  .voter-value { color: var(--accent); }
+  .voter-card.no   .voter-value { color: var(--warn); }
+  .voter-card.skip .voter-value { color: var(--dim); }
+  .voter-sub { font-size: 11px; color: var(--dim); }
+
+  .voter-badge {
+    position: absolute; top:14px; right:14px;
+    font-size: 9px; letter-spacing: 1px; padding: 3px 8px; text-transform: uppercase;
+  }
+  .voter-card.yes  .voter-badge { background:rgba(0,255,136,0.1);  color:var(--accent); }
+  .voter-card.no   .voter-badge { background:rgba(255,68,68,0.1);  color:var(--warn); }
+  .voter-card.skip .voter-badge { background:rgba(90,112,128,0.1); color:var(--dim); }
+
+  /* ── Signal row ── */
+  .signal-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px; margin-bottom: 20px;
+  }
+
+  .metric-block { background:var(--surface); border:1px solid var(--border); padding:20px; }
+  .metric-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--dim); margin-bottom:10px; }
+  .metric-value { font-family:'Syne',sans-serif; font-size:32px; font-weight:800; line-height:1; color:#fff; }
+  .metric-value.green { color: var(--accent); }
+  .metric-value.red   { color: var(--warn); }
+  .metric-value.blue  { color: var(--accent2); }
+  .metric-sub { font-size:11px; color:var(--dim); margin-top:6px; }
+
+  /* ── Convergence ── */
+  .convergence-block {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 20px 24px; margin-bottom: 20px;
+  }
+
+  .conv-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .conv-title  { font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:var(--dim); }
+  .conv-streak { font-size:11px; color:var(--accent); letter-spacing:1px; }
+
+  .checks-row { display:flex; gap:8px; margin-bottom:10px; }
+
+  .check-dot {
+    width:32px; height:32px; border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    font-size:10px; color:var(--dim); transition: all 0.4s;
+  }
+
+  .check-dot.active {
+    border-color: var(--accent); background:rgba(0,255,136,0.08);
+    color:var(--accent); box-shadow:0 0 8px rgba(0,255,136,0.2);
+  }
+
+  .check-dot.fire {
+    border-color:var(--accent); background:var(--accent);
+    color:var(--bg); font-weight:700; box-shadow:0 0 16px rgba(0,255,136,0.5);
+  }
+
+  .progress-bar { height:2px; background:var(--border); position:relative; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,var(--accent2),var(--accent)); transition:width 1s linear; }
+
+  /* ── PnL ── */
+  .pnl-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 12px; margin-bottom: 20px;
+  }
+
+  .pnl-block { background:var(--surface); border:1px solid var(--border); padding:18px; }
+  .pnl-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--dim); margin-bottom:8px; }
+  .pnl-value { font-family:'Syne',sans-serif; font-size:22px; font-weight:700; color:#fff; line-height:1; }
+  .pnl-value.pos { color:var(--accent); }
+  .pnl-value.neg { color:var(--warn); }
+  .pnl-sub { font-size:11px; color:var(--dim); margin-top:4px; }
+
+  /* ── Log ── */
+  .log-block { background:var(--surface); border:1px solid var(--border); overflow:hidden; }
+  .log-header { padding:14px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .log-title  { font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:var(--dim); }
+  .log-count  { font-size:10px; color:var(--accent); letter-spacing:1px; }
+
+  .log-row {
+    display:grid; grid-template-columns:80px 60px 80px 80px 1fr 60px;
+    gap:0; padding:11px 20px; border-bottom:1px solid rgba(26,35,50,0.5);
+    align-items:center; transition:background 0.15s;
+    animation:row-in 0.4s ease forwards; opacity:0;
+  }
+
+  @keyframes row-in { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+  .log-row:hover { background:rgba(255,255,255,0.02); }
+
+  .log-time   { color:var(--dim); font-size:11px; }
+  .log-signal { font-weight:700; font-size:12px; }
+  .log-signal.yes { color:var(--accent); }
+  .log-signal.no  { color:var(--warn); }
+  .log-price  { color:var(--text); font-size:11px; }
+  .log-edge   { color:var(--accent2); font-size:11px; }
+  .log-result { text-align:right; font-size:11px; }
+  .log-result.win  { color:var(--accent); }
+  .log-result.loss { color:var(--warn); }
+  .log-result.open { color:var(--dim); }
+  .log-bet    { color:var(--dim); font-size:11px; }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top:32px; padding-top:20px;
+    border-top:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .footer-left  { font-size:10px; color:var(--dim); letter-spacing:1px; }
+  .footer-right { display:flex; align-items:center; gap:8px; font-size:10px; color:var(--dim); }
+  .pyth-badge   { padding:4px 10px; border:1px solid var(--border); color:var(--accent2); font-size:10px; letter-spacing:1px; }
+
+  /* Connection banner */
+  .conn-banner {
+    padding: 8px 16px; margin-bottom: 16px;
+    font-size: 10px; letter-spacing: 1.5px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .conn-banner.connected    { border-color:rgba(0,255,136,0.3); color:var(--accent); background:rgba(0,255,136,0.04); }
+  .conn-banner.disconnected { border-color:rgba(255,68,68,0.3);  color:var(--warn);   background:rgba(255,68,68,0.04); }
+
+  @media (max-width:700px) {
+    .price-hero  { grid-template-columns:1fr; }
+    .voters-grid { grid-template-columns:1fr; }
+    .signal-row  { grid-template-columns:1fr 1fr; }
+    .pnl-grid    { grid-template-columns:1fr 1fr; }
+    .log-row     { grid-template-columns:70px 55px 1fr 55px; }
+    .log-edge, .log-bet { display:none; }
   }
 </style>
 </head>
 <body>
-
 <div class="container">
 
   <!-- Header -->
@@ -610,39 +347,48 @@
         <span>DOGE/USD · Limitless Markets</span>
       </div>
     </div>
-    <div class="status-pill">
-      <div class="status-dot"></div>
-      LIVE · MONITORING
+    <div class="header-right">
+      <a href="pulse.html" class="nav-link">◈ PULSE</a>
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        <span id="status-text">CONNECTING...</span>
+      </div>
     </div>
+  </div>
+
+  <!-- Connection banner -->
+  <div class="conn-banner disconnected" id="conn-banner">
+    <span id="conn-dot">○</span>
+    <span id="conn-msg">Connecting to SignalForge bot...</span>
   </div>
 
   <!-- Ticker -->
   <div class="ticker">
-    <div class="ticker-inner" id="ticker">
-      <span class="ticker-item">DOGE/USD <span class="val" id="t-price">0.094437</span> <span class="pos" id="t-chg">+0.82%</span></span>
+    <div class="ticker-inner" id="ticker-inner">
+      <span class="ticker-item">DOGE/USD <span class="val" id="t-price">—</span> <span id="t-chg">—</span></span>
       <span class="ticker-sep">·</span>
-      <span class="ticker-item">WIN RATE <span class="pos">84.2%</span></span>
+      <span class="ticker-item">WIN RATE <span class="pos" id="t-wr">—</span></span>
       <span class="ticker-sep">·</span>
-      <span class="ticker-item">BANKROLL <span class="pos">$210.06</span></span>
+      <span class="ticker-item">BANKROLL <span class="pos" id="t-bank">—</span></span>
       <span class="ticker-sep">·</span>
-      <span class="ticker-item">ALL-TIME PnL <span class="pos">+110.1%</span></span>
+      <span class="ticker-item">SIGNAL <span class="val" id="t-sig">—</span></span>
       <span class="ticker-sep">·</span>
-      <span class="ticker-item">MARKETS TODAY <span class="val">6</span></span>
+      <span class="ticker-item">STREAK <span class="val" id="t-streak">0/3</span></span>
       <span class="ticker-sep">·</span>
-      <span class="ticker-item">SIGNALS FIRED <span class="val">4</span></span>
+      <span class="ticker-item">EDGE <span class="pos" id="t-edge">—</span></span>
       <span class="ticker-sep">·</span>
       <!-- duplicate for seamless loop -->
-      <span class="ticker-item">DOGE/USD <span class="val" id="t-price2">0.094437</span> <span class="pos">+0.82%</span></span>
+      <span class="ticker-item">DOGE/USD <span class="val" id="t-price2">—</span> <span id="t-chg2">—</span></span>
       <span class="ticker-sep">·</span>
-      <span class="ticker-item">WIN RATE <span class="pos">84.2%</span></span>
+      <span class="ticker-item">WIN RATE <span class="pos" id="t-wr2">—</span></span>
       <span class="ticker-sep">·</span>
-      <span class="ticker-item">BANKROLL <span class="pos">$210.06</span></span>
+      <span class="ticker-item">BANKROLL <span class="pos" id="t-bank2">—</span></span>
       <span class="ticker-sep">·</span>
-      <span class="ticker-item">ALL-TIME PnL <span class="pos">+110.1%</span></span>
+      <span class="ticker-item">SIGNAL <span class="val" id="t-sig2">—</span></span>
       <span class="ticker-sep">·</span>
-      <span class="ticker-item">MARKETS TODAY <span class="val">6</span></span>
+      <span class="ticker-item">STREAK <span class="val" id="t-streak2">0/3</span></span>
       <span class="ticker-sep">·</span>
-      <span class="ticker-item">SIGNALS FIRED <span class="val">4</span></span>
+      <span class="ticker-item">EDGE <span class="pos" id="t-edge2">—</span></span>
       <span class="ticker-sep">·</span>
     </div>
   </div>
@@ -650,12 +396,12 @@
   <!-- Price Hero -->
   <div class="price-hero">
     <div class="price-block">
-      <div class="price-label">DOGE / USD · Live via Pyth</div>
-      <div class="price-value" id="live-price">0.<span id="price-decimals">094437</span></div>
-      <div class="price-change" id="price-change">▲ +0.0082 (+0.82%) last 10s</div>
+      <div class="price-label">DOGE / USD · Live via Pyth Network</div>
+      <div class="price-value" id="live-price">0.<span id="price-dec">——————</span></div>
+      <div class="price-change" id="price-change">Fetching live price...</div>
     </div>
     <div class="chart-block">
-      <div class="chart-label">Price History · Last 20 ticks</div>
+      <div class="chart-label">Price History · Last 20 ticks · Pyth Hermes</div>
       <svg class="sparkline" id="sparkline" viewBox="0 0 400 64" preserveAspectRatio="none">
         <defs>
           <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
@@ -670,35 +416,35 @@
   </div>
 
   <!-- Ensemble Voters -->
-  <div class="section-title">Ensemble Voters</div>
+  <div class="section-title">Ensemble Voters · Live from Bot</div>
   <div class="voters-grid">
-    <div class="voter-card" id="voter0">
+    <div class="voter-card skip" id="voter0">
       <div class="voter-name">Z-Score Probability</div>
       <div class="voter-value" id="v0-val">—</div>
-      <div class="voter-sub" id="v0-sub">Waiting for data...</div>
+      <div class="voter-sub"  id="v0-sub">Awaiting bot data...</div>
       <div class="voter-badge" id="v0-badge">—</div>
     </div>
-    <div class="voter-card" id="voter1">
+    <div class="voter-card skip" id="voter1">
       <div class="voter-name">RSI + Momentum Gate</div>
       <div class="voter-value" id="v1-val">—</div>
-      <div class="voter-sub" id="v1-sub">Waiting for data...</div>
+      <div class="voter-sub"  id="v1-sub">Awaiting bot data...</div>
       <div class="voter-badge" id="v1-badge">—</div>
     </div>
-    <div class="voter-card" id="voter2">
+    <div class="voter-card skip" id="voter2">
       <div class="voter-name">TWAP Alignment</div>
       <div class="voter-value" id="v2-val">—</div>
-      <div class="voter-sub" id="v2-sub">Waiting for data...</div>
+      <div class="voter-sub"  id="v2-sub">Awaiting bot data...</div>
       <div class="voter-badge" id="v2-badge">—</div>
     </div>
   </div>
 
-  <!-- Signal + Edge + Prob -->
-  <div class="section-title">Signal Intelligence</div>
+  <!-- Signal Intelligence -->
+  <div class="section-title">Signal Intelligence · Live</div>
   <div class="signal-row">
     <div class="metric-block">
       <div class="metric-label">Current Signal</div>
       <div class="metric-value" id="signal-val">—</div>
-      <div class="metric-sub" id="signal-sub">Awaiting convergence</div>
+      <div class="metric-sub"  id="signal-sub">Awaiting convergence</div>
     </div>
     <div class="metric-block">
       <div class="metric-label">Model Probability</div>
@@ -713,7 +459,7 @@
   </div>
 
   <!-- Convergence Tracker -->
-  <div class="section-title">Convergence Tracker</div>
+  <div class="section-title">Convergence Tracker · Live</div>
   <div class="convergence-block">
     <div class="conv-header">
       <div class="conv-title">15-min Streak Required · Checks Every 5 Min</div>
@@ -723,8 +469,8 @@
       <div class="check-dot" id="chk0">1</div>
       <div class="check-dot" id="chk1">2</div>
       <div class="check-dot" id="chk2">3</div>
-      <div style="flex:1;"></div>
-      <div style="font-size:11px;color:var(--dim);align-self:center;" id="elapsed-label">Elapsed: 0:00</div>
+      <div style="flex:1"></div>
+      <div style="font-size:11px;color:var(--dim);align-self:center" id="elapsed-label">Elapsed: —</div>
     </div>
     <div class="progress-bar">
       <div class="progress-fill" id="progress-fill" style="width:0%"></div>
@@ -732,36 +478,36 @@
   </div>
 
   <!-- PnL -->
-  <div class="section-title">Paper Trading · Kelly Bankroll</div>
+  <div class="section-title">Paper Trading · Kelly Bankroll · Live</div>
   <div class="pnl-grid">
     <div class="pnl-block">
       <div class="pnl-label">Bankroll</div>
-      <div class="pnl-value pos" id="bankroll">$210.06</div>
+      <div class="pnl-value pos" id="bankroll">—</div>
       <div class="pnl-sub">Started $100.00</div>
     </div>
     <div class="pnl-block">
       <div class="pnl-label">All-Time PnL</div>
-      <div class="pnl-value pos" id="alltime-pnl">+$110.06</div>
-      <div class="pnl-sub">+110.1% return</div>
+      <div class="pnl-value" id="alltime-pnl">—</div>
+      <div class="pnl-sub" id="alltime-sub">—</div>
     </div>
     <div class="pnl-block">
       <div class="pnl-label">Win / Loss</div>
-      <div class="pnl-value" id="wl-display"><span style="color:var(--accent)">16W</span> <span style="font-size:18px;color:var(--dim)">/</span> <span style="color:var(--warn)">3L</span></div>
-      <div class="pnl-sub">84.2% win rate</div>
+      <div class="pnl-value" id="wl-display">— / —</div>
+      <div class="pnl-sub" id="wr-sub">—</div>
     </div>
     <div class="pnl-block">
       <div class="pnl-label">Today's PnL</div>
-      <div class="pnl-value pos" id="daily-pnl">+$0.00</div>
-      <div class="pnl-sub" id="daily-sub">0 markets today</div>
+      <div class="pnl-value" id="daily-pnl">—</div>
+      <div class="pnl-sub" id="daily-sub">—</div>
     </div>
   </div>
 
-  <!-- Signal Log -->
+  <!-- Log -->
   <div class="section-title">Signal Log</div>
   <div class="log-block">
     <div class="log-header">
       <div class="log-title">Recent Markets</div>
-      <div class="log-count" id="log-count">19 decided</div>
+      <div class="log-count" id="log-count">—</div>
     </div>
     <div id="log-body"></div>
   </div>
@@ -778,205 +524,233 @@
 </div>
 
 <script>
-// ── Demo data + live simulation ──────────────────────────────
+// ── CONFIG ──────────────────────────────────────────────────────────
+const DOGE_FEED_ID = 'dcef50dd0a4cd2dcc17e45df1676dcb336a11a61c69df7a0299b0150c672d25c';
+const HERMES_URL   = 'https://hermes.pyth.network/v2/updates/price/latest';
+const PYTH_KEY     = 'iFjW0ZKocvV7r5m0E2HYhrn5mn8p7sNu822-';
 
-const BASE_PRICE = 0.094437;
-let currentPrice = BASE_PRICE;
-let priceHistory = Array.from({length: 20}, (_, i) =>
-  BASE_PRICE + (Math.random() - 0.48) * 0.002
-);
-let elapsed = 0;        // seconds since market open
-let streak  = 0;
-let signalDir = null;
-let convergenceFired = false;
-let marketElapsed = 1523; // start mid-market
+// Replace with your Railway public domain:
+// e.g. "https://signalforge-production.up.railway.app"
+const BOT_STATS_URL = window.BOT_STATS_URL || '';
 
-// Sample signal log
-const signalLog = [
-  { time: "14:00", signal: "NO",  price: "0.09512", edge: "+28.4%", bet: "$18.20", result: "win"  },
-  { time: "13:00", signal: "YES", price: "0.09388", edge: "+41.5%", bet: "$26.14", result: "win"  },
-  { time: "12:00", signal: "NO",  price: "0.09621", edge: "+19.2%", bet: "$9.80",  result: "loss" },
-  { time: "11:00", signal: "YES", price: "0.09341", edge: "+33.7%", bet: "$14.20", result: "win"  },
-  { time: "10:00", signal: "NO",  price: "0.09489", edge: "+22.1%", bet: "$11.40", result: "win"  },
-  { time: "09:00", signal: "YES", price: "0.09302", edge: "+38.9%", bet: "$21.60", result: "win"  },
-  { time: "08:00", signal: "NO",  price: "0.09555", edge: "+15.3%", bet: "$7.40",  result: "open" },
-];
+// ── STATE ────────────────────────────────────────────────────────────
+let priceHistory = [];
+let prevPrice    = null;
+let botConnected = false;
+let lastStats    = null;
 
-// Render log
-function renderLog() {
-  const body = document.getElementById('log-body');
-  body.innerHTML = '';
-  signalLog.forEach((row, i) => {
-    const div = document.createElement('div');
-    div.className = 'log-row';
-    div.style.animationDelay = `${i * 0.06}s`;
-    div.innerHTML = `
-      <div class="log-time">${row.time} UTC</div>
-      <div class="log-signal ${row.signal.toLowerCase()}">${row.signal}</div>
-      <div class="log-price">$${row.price}</div>
-      <div class="log-edge">${row.edge}</div>
-      <div class="log-bet">${row.bet} bet</div>
-      <div class="log-result ${row.result}">${
-        row.result === 'win' ? '✓ WIN' :
-        row.result === 'loss' ? '✗ LOSS' : '⏳ OPEN'
-      }</div>
-    `;
-    body.appendChild(div);
-  });
+// ── PYTH PRICE FEED ──────────────────────────────────────────────────
+async function fetchDOGE() {
+  try {
+    const res  = await fetch(`${HERMES_URL}?ids[]=${DOGE_FEED_ID}`, {
+      headers: { 'Authorization': `Bearer ${PYTH_KEY}` }
+    });
+    const data = await res.json();
+    const p    = data.parsed[0].price;
+    const price = parseFloat(p.price) * Math.pow(10, parseInt(p.expo));
+
+    priceHistory.push(price);
+    if (priceHistory.length > 60) priceHistory.shift();
+
+    updatePrice(price);
+  } catch(e) {
+    console.warn('Pyth fetch failed:', e);
+  }
 }
 
-// Sparkline
-function renderSparkline(prices) {
-  const min = Math.min(...prices);
-  const max = Math.max(...prices);
-  const range = max - min || 0.0001;
-  const w = 400, h = 64, pad = 4;
-
-  const points = prices.map((p, i) => {
-    const x = (i / (prices.length - 1)) * w;
-    const y = h - pad - ((p - min) / range) * (h - pad * 2);
-    return `${x},${y}`;
-  });
-
-  const lineD = `M ${points.join(' L ')}`;
-  const areaD = `M 0,${h} L ${points.join(' L ')} L ${w},${h} Z`;
-
-  document.getElementById('spark-line').setAttribute('d', lineD);
-  document.getElementById('spark-area').setAttribute('d', areaD);
-}
-
-// Update price
-function updatePrice() {
-  const drift = (Math.random() - 0.495) * 0.00012;
-  currentPrice = Math.max(0.085, Math.min(0.110, currentPrice + drift));
-  priceHistory.push(currentPrice);
-  if (priceHistory.length > 20) priceHistory.shift();
-
-  const change    = currentPrice - BASE_PRICE;
-  const changePct = (change / BASE_PRICE) * 100;
-  const isPos     = change >= 0;
+function updatePrice(price) {
+  const chg    = prevPrice ? (price - prevPrice) / prevPrice * 100 : 0;
+  const isPos  = chg >= 0;
+  const parts  = price.toFixed(6).split('.');
 
   document.getElementById('live-price').innerHTML =
-    `0.<span id="price-decimals">${currentPrice.toFixed(6).split('.')[1]}</span>`;
+    `${parts[0]}.<span id="price-dec">${parts[1]}</span>`;
 
   const chgEl = document.getElementById('price-change');
-  chgEl.textContent = `${isPos ? '▲' : '▼'} ${isPos ? '+' : ''}${change.toFixed(6)} (${isPos ? '+' : ''}${changePct.toFixed(2)}%)`;
-  chgEl.className   = `price-change ${isPos ? '' : 'neg'}`;
+  chgEl.textContent = prevPrice
+    ? `${isPos ? '▲' : '▼'} ${isPos ? '+' : ''}${(price - prevPrice).toFixed(6)} (${isPos?'+':''}${chg.toFixed(3)}%)`
+    : 'Fetching live price from Pyth...';
+  chgEl.className = `price-change ${isPos ? '' : 'neg'}`;
 
-  // Update ticker
-  document.getElementById('t-price').textContent  = currentPrice.toFixed(6);
-  document.getElementById('t-price2').textContent = currentPrice.toFixed(6);
+  // Ticker price
+  ['t-price','t-price2'].forEach(id => document.getElementById(id).textContent = price.toFixed(6));
+  ['t-chg','t-chg2'].forEach(id => {
+    const el = document.getElementById(id);
+    el.textContent = prevPrice ? `${isPos?'+':''}${chg.toFixed(3)}%` : '—';
+    el.className   = isPos ? 'pos' : 'neg';
+  });
 
   renderSparkline(priceHistory);
-  updateVoters();
+  prevPrice = price;
 }
 
-// Simulate voters
-function updateVoters() {
-  const prices   = priceHistory;
-  const last     = prices[prices.length - 1];
-  const twap     = prices.reduce((a,b) => a+b, 0) / prices.length;
-  const momentum = ((last - prices[0]) / prices[0]) * 100;
+function renderSparkline(prices) {
+  if (prices.length < 2) return;
+  const min = Math.min(...prices), max = Math.max(...prices);
+  const rng = max - min || 0.0001;
+  const W = 400, H = 64, pad = 4;
+  const pts = prices.map((p,i) => {
+    const x = (i / (prices.length - 1)) * W;
+    const y = H - pad - ((p - min) / rng) * (H - pad * 2);
+    return `${x},${y}`;
+  });
+  document.getElementById('spark-line').setAttribute('d', `M ${pts.join(' L ')}`);
+  document.getElementById('spark-area').setAttribute('d', `M 0,${H} L ${pts.join(' L ')} L ${W},${H} Z`);
+}
 
-  // Simple RSI sim
+// ── BOT STATS ────────────────────────────────────────────────────────
+async function fetchBotStats() {
+  if (!BOT_STATS_URL) {
+    showBotDisconnected('Set BOT_STATS_URL to connect live bot data');
+    renderVotersFromPyth(); // fallback: compute voters from live Pyth price
+    return;
+  }
+
+  try {
+    const res   = await fetch(`${BOT_STATS_URL}/stats`, { cache: 'no-store' });
+    const stats = await res.json();
+    lastStats   = stats;
+    botConnected = true;
+
+    showBotConnected(stats.updated);
+    updateVoters(stats);
+    updateSignal(stats);
+    updateConvergence(stats);
+    updatePnL(stats);
+
+  } catch(e) {
+    botConnected = false;
+    showBotDisconnected('Bot offline or BOT_STATS_URL not set');
+    renderVotersFromPyth();
+  }
+}
+
+function showBotConnected(ts) {
+  const banner = document.getElementById('conn-banner');
+  banner.className = 'conn-banner connected';
+  document.getElementById('conn-dot').textContent = '●';
+  document.getElementById('conn-msg').textContent = `Bot connected · Last update: ${ts} UTC`;
+  document.getElementById('status-text').textContent = 'LIVE · BOT CONNECTED';
+}
+
+function showBotDisconnected(msg) {
+  const banner = document.getElementById('conn-banner');
+  banner.className = 'conn-banner disconnected';
+  document.getElementById('conn-dot').textContent = '○';
+  document.getElementById('conn-msg').textContent = msg;
+  document.getElementById('status-text').textContent = 'LIVE · PYTH ONLY';
+}
+
+// ── VOTER CARDS — from bot stats ─────────────────────────────────────
+function updateVoters(stats) {
+  const sig   = stats.signal;
+  const prob  = stats.prob;
+  const votes = stats.votes;
+  const rsi   = stats.rsi;
+  const mom   = stats.momentum;
+  const twap  = stats.twap;
+  const price = stats.price || priceHistory[priceHistory.length - 1] || 0;
+
+  // Voter 0 — Z-score probability
+  const dir0 = sig === 'YES' ? 'yes' : sig === 'NO' ? 'no' : 'skip';
+  setVoter(0, (prob * 100).toFixed(1) + '%', `prob=${prob.toFixed(3)} · signal=${sig}`, dir0);
+
+  // Voter 1 — RSI + Momentum
+  const dir1 = rsi < 45 ? 'no' : rsi > 55 ? 'yes' : 'skip';
+  setVoter(1, rsi.toFixed(1), `momentum=${mom.toFixed(3)}%`, dir1);
+
+  // Voter 2 — TWAP
+  const dir2 = price < twap ? 'no' : price > twap ? 'yes' : 'skip';
+  setVoter(2, twap.toFixed(6), `price ${price < twap ? 'below' : 'above'} TWAP`, dir2);
+}
+
+// ── VOTER CARDS — computed locally from Pyth price when bot offline ──
+function renderVotersFromPyth() {
+  if (priceHistory.length < 15) return;
+  const prices = priceHistory;
+  const last   = prices[prices.length - 1];
+
+  // TWAP
+  const twap = prices.reduce((a,b) => a+b, 0) / prices.length;
+
+  // Momentum
+  const mom = ((last - prices[0]) / prices[0]) * 100;
+
+  // RSI
   const deltas = prices.slice(1).map((p,i) => p - prices[i]);
   const gains  = deltas.filter(d => d > 0);
   const losses = deltas.filter(d => d < 0).map(d => -d);
-  const avgG   = gains.reduce((a,b) => a+b, 0) / (gains.length || 1);
-  const avgL   = losses.reduce((a,b) => a+b, 0) / (losses.length || 1);
+  const avgG   = gains.reduce((a,b)=>a+b,0)  / (gains.length  || 1);
+  const avgL   = losses.reduce((a,b)=>a+b,0) / (losses.length || 1);
   const rsi    = avgL === 0 ? 100 : 100 - 100 / (1 + avgG / avgL);
 
   // Z-score
-  const mean   = twap;
-  const std    = Math.sqrt(prices.reduce((a,p) => a + (p-mean)**2, 0) / prices.length) || 0.0001;
-  const z      = (last - mean) / std;
-  const prob   = 1 / (1 + Math.exp(-Math.abs(z) * 2));
-  const dir    = last < twap ? 'NO' : 'YES';
+  const mean  = twap;
+  const std   = Math.sqrt(prices.reduce((a,p) => a+(p-mean)**2, 0) / prices.length) || 0.0001;
+  const z     = (last - mean) / std;
+  const prob  = 1 / (1 + Math.exp(-Math.abs(z) * 2));
+  const dir   = last < twap ? 'no' : 'yes';
 
-  // Voter 0: Z-score
-  setVoter(0, prob.toFixed(3), `z=${z.toFixed(2)} | ${dir} signal`, z < 0 ? 'no' : 'yes');
-  // Voter 1: RSI + momentum
-  const rsiSignal = rsi < 45 ? 'no' : rsi > 55 ? 'yes' : 'skip';
-  setVoter(1, rsi.toFixed(1), `mom=${momentum.toFixed(3)}%`, rsiSignal);
-  // Voter 2: TWAP
-  const twapSignal = last < twap ? 'no' : 'yes';
-  setVoter(2, twap.toFixed(6), `price ${last < twap ? 'below' : 'above'} TWAP`, twapSignal);
+  setVoter(0, (prob*100).toFixed(1)+'%', `z=${z.toFixed(2)} (Pyth live)`, dir);
+  setVoter(1, rsi.toFixed(1), `momentum=${mom.toFixed(3)}%`, rsi < 45 ? 'no' : rsi > 55 ? 'yes' : 'skip');
+  setVoter(2, twap.toFixed(6), `price ${last < twap ? 'below' : 'above'} TWAP`, last < twap ? 'no' : 'yes');
 
-  // Tally
-  const votes = [
-    z < 0 ? 'no' : 'yes',
-    rsiSignal,
-    twapSignal
-  ];
-  const yes = votes.filter(v => v === 'yes').length;
-  const no  = votes.filter(v => v === 'no').length;
+  // Signal from local votes
+  const v = [dir, rsi < 45 ? 'no' : rsi > 55 ? 'yes' : 'skip', last < twap ? 'no' : 'yes'];
+  const ys = v.filter(x => x === 'yes').length;
+  const ns = v.filter(x => x === 'no').length;
+  const localSig = ys >= 2 ? 'YES' : ns >= 2 ? 'NO' : 'WAIT';
 
-  signalDir = yes >= 2 ? 'YES' : no >= 2 ? 'NO' : null;
-
-  const sigEl  = document.getElementById('signal-val');
-  const sigSub = document.getElementById('signal-sub');
-  const probEl = document.getElementById('prob-val');
-  const edgeEl = document.getElementById('edge-val');
-  const edgeSub = document.getElementById('edge-sub');
-
-  if (signalDir) {
-    sigEl.textContent  = signalDir;
-    sigEl.className    = `metric-value ${signalDir === 'YES' ? 'green' : 'red'}`;
-    sigSub.textContent = `${yes}/${votes.length} voters agree`;
-    probEl.textContent = (prob * 100).toFixed(1) + '%';
-    // Fake market odds
-    const mktOdds = signalDir === 'YES' ? 0.42 + Math.random()*0.15 : 0.55 + Math.random()*0.1;
-    const edge    = (prob - mktOdds) * 100;
-    edgeEl.textContent  = `${edge >= 0 ? '+' : ''}${edge.toFixed(1)}%`;
-    edgeEl.className    = `metric-value ${edge >= 0 ? 'green' : 'red'}`;
-    edgeSub.textContent = `Model ${(prob*100).toFixed(1)}% vs Mkt ${(mktOdds*100).toFixed(1)}%`;
-  } else {
-    sigEl.textContent   = 'WAIT';
-    sigEl.className     = 'metric-value';
-    sigSub.textContent  = 'No majority vote yet';
-    probEl.textContent  = (prob * 100).toFixed(1) + '%';
-    edgeEl.textContent  = '—';
-    edgeEl.className    = 'metric-value';
-    edgeSub.textContent = 'vs Limitless odds';
-  }
+  document.getElementById('signal-val').textContent   = localSig;
+  document.getElementById('signal-val').className     = `metric-value ${localSig === 'YES' ? 'green' : localSig === 'NO' ? 'red' : ''}`;
+  document.getElementById('signal-sub').textContent   = 'Computed from Pyth (bot offline)';
+  document.getElementById('prob-val').textContent     = (prob*100).toFixed(1) + '%';
+  document.getElementById('edge-val').textContent     = '—';
+  document.getElementById('edge-sub').textContent     = 'Connect bot for live edge';
 }
 
 function setVoter(i, val, sub, dir) {
-  const card  = document.getElementById(`voter${i}`);
-  const valEl = document.getElementById(`v${i}-val`);
-  const subEl = document.getElementById(`v${i}-sub`);
-  const badge = document.getElementById(`v${i}-badge`);
-
-  card.className   = `voter-card ${dir}`;
-  valEl.textContent = val;
-  subEl.textContent = sub;
-  badge.textContent = dir.toUpperCase();
+  document.getElementById(`voter${i}`).className    = `voter-card ${dir}`;
+  document.getElementById(`v${i}-val`).textContent  = val;
+  document.getElementById(`v${i}-sub`).textContent  = sub;
+  document.getElementById(`v${i}-badge`).textContent = dir.toUpperCase();
 }
 
-// Convergence simulation
-function updateConvergence() {
-  marketElapsed += 10;
-  const minutes = Math.floor(marketElapsed / 60);
-  const secs    = marketElapsed % 60;
+// ── SIGNAL PANEL ─────────────────────────────────────────────────────
+function updateSignal(stats) {
+  const sig  = stats.signal;
+  const prob = stats.prob;
+  const edge = stats.edge;
+
+  document.getElementById('signal-val').textContent   = sig || '—';
+  document.getElementById('signal-val').className     = `metric-value ${sig==='YES'?'green':sig==='NO'?'red':''}`;
+  document.getElementById('signal-sub').textContent   = `${stats.votes.yes}/${stats.votes.yes+stats.votes.no+stats.votes.skip} voters agree`;
+  document.getElementById('prob-val').textContent     = prob ? (prob*100).toFixed(1)+'%' : '—';
+  document.getElementById('edge-val').textContent     = edge ? `${edge > 0 ? '+' : ''}${edge.toFixed(1)}%` : '—';
+  document.getElementById('edge-val').className       = `metric-value ${edge > 0 ? 'green' : edge < 0 ? 'red' : ''}`;
+  document.getElementById('edge-sub').textContent     = `YES: ${stats.market_yes}% | NO: ${stats.market_no}%`;
+
+  // Ticker
+  ['t-sig','t-sig2'].forEach(id => document.getElementById(id).textContent = sig || '—');
+  ['t-edge','t-edge2'].forEach(id => document.getElementById(id).textContent = edge ? `${edge>0?'+':''}${edge.toFixed(1)}%` : '—');
+  ['t-streak','t-streak2'].forEach(id => document.getElementById(id).textContent = `${stats.streak}/3`);
+}
+
+// ── CONVERGENCE TRACKER ───────────────────────────────────────────────
+function updateConvergence(stats) {
+  const streak  = Math.min(stats.streak, 3);
+  const elapsed = stats.elapsed;
+
   document.getElementById('elapsed-label').textContent =
-    `Elapsed: ${minutes}:${String(secs).padStart(2,'0')}`;
+    `Elapsed: ${Math.floor(elapsed)}:${String(Math.round((elapsed % 1) * 60)).padStart(2,'0')}m`;
 
-  // Progress bar (0-60 min)
-  const pct = Math.min(100, (marketElapsed / 3600) * 100);
-  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('streak-label').textContent =
+    streak >= 3 ? `🔥 CONVERGED — signal fired at ${elapsed.toFixed(1)}m` : `${streak} / 3 checks`;
 
-  // Simulate streak building up
-  if (signalDir && !convergenceFired) {
-    if (marketElapsed % 300 === 0) { // every 5 min
-      streak = Math.min(3, streak + 1);
-    }
-  }
-
-  // Update check dots
   for (let i = 0; i < 3; i++) {
     const dot = document.getElementById(`chk${i}`);
     if (i < streak) {
-      dot.className = streak === 3 && i === 2 ? 'check-dot fire' : 'check-dot active';
+      dot.className   = streak === 3 && i === 2 ? 'check-dot fire' : 'check-dot active';
       dot.textContent = '✓';
     } else {
       dot.className   = 'check-dot';
@@ -984,23 +758,50 @@ function updateConvergence() {
     }
   }
 
-  document.getElementById('streak-label').textContent =
-    `${streak} / 3 checks · ${streak === 3 ? '🔥 SIGNAL READY' : `${3 - streak} more to fire`}`;
-
-  if (streak === 3) convergenceFired = true;
+  const pct = Math.min(100, (elapsed / 60) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
 }
 
-// Init
-renderLog();
-renderSparkline(priceHistory);
-updateVoters();
+// ── PnL PANEL ────────────────────────────────────────────────────────
+function updatePnL(stats) {
+  const bankroll = stats.bankroll;
+  const alltime  = stats.alltime_pnl;
+  const daily    = stats.daily_pnl;
+  const wins     = stats.wins;
+  const losses   = stats.losses;
+  const wr       = stats.win_rate;
+  const ret      = ((alltime / 100) * 100).toFixed(1);
 
-// Live updates
-setInterval(updatePrice, 3000);        // price every 3s (demo)
-setInterval(updateConvergence, 10000); // convergence every 10s
+  const bEl = document.getElementById('bankroll');
+  bEl.textContent = `$${bankroll.toFixed(2)}`;
+  bEl.className   = 'pnl-value pos';
 
-// Initial render
-updatePrice();
+  const aEl = document.getElementById('alltime-pnl');
+  aEl.textContent = `${alltime >= 0 ? '+' : ''}$${alltime.toFixed(2)}`;
+  aEl.className   = `pnl-value ${alltime >= 0 ? 'pos' : 'neg'}`;
+  document.getElementById('alltime-sub').textContent = `${alltime >= 0 ? '+' : ''}${ret}% return`;
+
+  document.getElementById('wl-display').innerHTML =
+    `<span style="color:var(--accent)">${wins}W</span> <span style="font-size:18px;color:var(--dim)">/</span> <span style="color:var(--warn)">${losses}L</span>`;
+  document.getElementById('wr-sub').textContent = `${wr}% win rate`;
+
+  const dEl = document.getElementById('daily-pnl');
+  dEl.textContent = `${daily >= 0 ? '+' : ''}$${daily.toFixed(2)}`;
+  dEl.className   = `pnl-value ${daily >= 0 ? 'pos' : 'neg'}`;
+
+  // Ticker
+  ['t-wr','t-wr2'].forEach(id   => document.getElementById(id).textContent = `${wr}%`);
+  ['t-bank','t-bank2'].forEach(id => document.getElementById(id).textContent = `$${bankroll.toFixed(2)}`);
+
+  document.getElementById('log-count').textContent = `${wins + losses} decided`;
+}
+
+// ── BOOT ─────────────────────────────────────────────────────────────
+fetchDOGE();
+fetchBotStats();
+
+setInterval(fetchDOGE,     5000);   // Pyth price every 5s
+setInterval(fetchBotStats, 15000);  // Bot stats every 15s
 </script>
 </body>
 </html>
