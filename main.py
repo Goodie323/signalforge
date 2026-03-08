@@ -426,6 +426,14 @@ class StatsHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", len(body))
             self.end_headers()
             self.wfile.write(body)
+        elif self.path == "/" or self.path == "/health":
+            body = b'{"status":"ok","service":"SignalForge"}'
+            self.send_response(200)
+            self.send_header("Content-Type",  "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Content-Length", len(body))
+            self.end_headers()
+            self.wfile.write(body)
         else:
             self.send_response(404)
             self.end_headers()
@@ -434,6 +442,7 @@ class StatsHandler(BaseHTTPRequestHandler):
         pass  # suppress request logs
 
 def start_stats_server():
+    # Railway injects PORT automatically — always use it
     port   = int(os.environ.get("PORT", 8080))
     server = HTTPServer(("0.0.0.0", port), StatsHandler)
     print(f"📡 Stats server running on port {port} → /stats")
