@@ -221,7 +221,7 @@
 
   /* ── Signal row ── */
   .signal-row {
-    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
     gap: 12px; margin-bottom: 20px;
   }
 
@@ -377,6 +377,8 @@
       <span class="ticker-sep">·</span>
       <span class="ticker-item">EDGE <span class="pos" id="t-edge">—</span></span>
       <span class="ticker-sep">·</span>
+      <span class="ticker-item">THRESHOLD <span class="val" id="t-thresh">—</span></span>
+      <span class="ticker-sep">·</span>
       <!-- duplicate for seamless loop -->
       <span class="ticker-item">DOGE/USD <span class="val" id="t-price2">—</span> <span id="t-chg2">—</span></span>
       <span class="ticker-sep">·</span>
@@ -390,6 +392,8 @@
       <span class="ticker-sep">·</span>
       <span class="ticker-item">EDGE <span class="pos" id="t-edge2">—</span></span>
       <span class="ticker-sep">·</span>
+      <span class="ticker-item">THRESHOLD <span class="val" id="t-thresh2">—</span></span>
+      <span class="ticker-sep">·</span>
     </div>
   </div>
 
@@ -399,6 +403,11 @@
       <div class="price-label">DOGE / USD · Live via Pyth Network</div>
       <div class="price-value" id="live-price">0.<span id="price-dec">——————</span></div>
       <div class="price-change" id="price-change">Fetching live price...</div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim)">THRESHOLD</span>
+        <span style="font-size:13px;color:var(--accent2);font-family:'Space Mono',monospace" id="threshold-val">Awaiting market...</span>
+        <span style="font-size:10px;color:var(--dim)" id="threshold-dir"></span>
+      </div>
     </div>
     <div class="chart-block">
       <div class="chart-label">Price History · Last 20 ticks · Pyth Hermes</div>
@@ -455,6 +464,11 @@
       <div class="metric-label">Market Edge</div>
       <div class="metric-value" id="edge-val">—</div>
       <div class="metric-sub" id="edge-sub">vs Limitless odds</div>
+    </div>
+    <div class="metric-block">
+      <div class="metric-label">Limitless Threshold</div>
+      <div class="metric-value blue" id="threshold-block-val">—</div>
+      <div class="metric-sub" id="threshold-block-sub">Market open price</div>
     </div>
   </div>
 
@@ -529,7 +543,8 @@ const DOGE_FEED_ID = 'dcef50dd0a4cd2dcc17e45df1676dcb336a11a61c69df7a0299b0150c6
 const HERMES_URL   = 'https://hermes.pyth.network/v2/updates/price/latest';
 const PYTH_KEY     = 'iFjW0ZKocvV7r5m0E2HYhrn5mn8p7sNu822-';
 
-
+// Replace with your Railway public domain:
+// e.g. "https://signalforge-production.up.railway.app"
 const BOT_STATS_URL = window.BOT_STATS_URL || 'https://signalforge-production-bc9d.up.railway.app';
 
 // ── STATE ────────────────────────────────────────────────────────────
@@ -728,6 +743,20 @@ function updateSignal(stats) {
   document.getElementById('edge-val').textContent     = edge ? `${edge > 0 ? '+' : ''}${edge.toFixed(1)}%` : '—';
   document.getElementById('edge-val').className       = `metric-value ${edge > 0 ? 'green' : edge < 0 ? 'red' : ''}`;
   document.getElementById('edge-sub').textContent     = `YES: ${stats.market_yes}% | NO: ${stats.market_no}%`;
+
+  // Threshold
+  if (stats.threshold && stats.threshold > 0) {
+    const thr     = stats.threshold.toFixed(6);
+    const price   = priceHistory[priceHistory.length - 1] || 0;
+    const above   = price >= stats.threshold;
+    document.getElementById('threshold-val').textContent        = '$' + thr;
+    document.getElementById('threshold-val').style.color        = above ? 'var(--accent)' : 'var(--warn)';
+    document.getElementById('threshold-dir').textContent        = above ? '▲ price above' : '▼ price below';
+    document.getElementById('threshold-block-val').textContent  = '$' + thr;
+    document.getElementById('threshold-block-sub').textContent  = above ? '▲ DOGE above threshold' : '▼ DOGE below threshold';
+    document.getElementById('threshold-block-val').style.color  = above ? 'var(--accent)' : 'var(--warn)';
+    ['t-thresh','t-thresh2'].forEach(id => document.getElementById(id).textContent = '$' + thr);
+  }
 
   // Ticker
   ['t-sig','t-sig2'].forEach(id => document.getElementById(id).textContent = sig || '—');
