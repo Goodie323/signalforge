@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pyth Pulse — Multi-Asset Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Clash+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #03050a;
+  --surface:  #080d14;
+  --card:     #0b1220;
+  --border:   #111e2e;
+  --border2:  #1a2d42;
+  --accent:   #e8f400;
+  --blue:     #00c8ff;
+  --green:    #00ff88;
+  --red:      #ff3c5a;
+  --orange:   #ff8c00;
+  --purple:   #a855f7;
+  --text:     #b8ccd8;
+  --dim:      #445566;
+  --white:    #e8f0f8;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  min-height: 100vh;
+}
+
+/* Grid background */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(232,244,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232,244,0,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 28px 20px; }
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex; align-items: center; gap: 16px;
+}
+
+.brand-icon {
+  width: 44px; height: 44px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  color: var(--bg);
+  font-weight: 700;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  animation: hex-pulse 2s ease-in-out infinite;
+}
+
+@keyframes hex-pulse {
+  0%,100% { filter: drop-shadow(0 0 8px rgba(232,244,0,0.4)); }
+  50%      { filter: drop-shadow(0 0 20px rgba(232,244,0,0.8)); }
+}
+
+.brand-text h1 {
+  font-family: 'DM Mono', monospace;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--white);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.brand-text span {
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.header-right {
+  display: flex; align-items: center; gap: 12px;
+}
+
+.nav-link {
+  padding: 7px 14px;
+  border: 1px solid var(--border2);
+  color: var(--dim);
+  text-decoration: none;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.nav-link:hover, .nav-link.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.live-badge {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 14px;
+  background: rgba(0,255,136,0.06);
+  border: 1px solid rgba(0,255,136,0.2);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--green);
+}
+
+.live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+  animation: blink 1.2s infinite;
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.1} }
+
+/* ── Section label ── */
+.section-label {
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::after {
+  content: ''; flex:1; height:1px; background: var(--border);
+}
+
+/* ── Top stats bar ── */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  opacity: 0.4;
+}
+
+.stat-label {
+  font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--dim);
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 22px; font-weight: 500;
+  color: var(--white); line-height: 1;
+}
+
+.stat-value.up   { color: var(--green); }
+.stat-value.down { color: var(--red); }
+.stat-value.hot  { color: var(--accent); }
+.stat-sub { font-size: 10px; color: var(--dim); margin-top: 4px; }
+
+/* ── Heatmap grid ── */
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.heatmap-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 16px;
+  position: relative;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+  overflow: hidden;
+}
+
+.heatmap-card:hover {
+  transform: translateY(-1px);
+  border-color: var(--border2);
+}
+
+.heatmap-card.selected {
+  border-color: var(--accent) !important;
+  background: rgba(232,244,0,0.03);
+}
+
+/* Volatility color fill */
+.heatmap-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+
+.heatmap-card.vol-high::before   { background: rgba(255,60,90,0.08);   opacity:1; }
+.heatmap-card.vol-med::before    { background: rgba(255,140,0,0.06);   opacity:1; }
+.heatmap-card.vol-low::before    { background: rgba(0,200,255,0.04);   opacity:1; }
+.heatmap-card.vol-calm::before   { background: rgba(0,255,136,0.03);   opacity:1; }
+
+.hm-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.hm-symbol {
+  font-size: 16px; font-weight: 500;
+  color: var(--white); letter-spacing: 1px;
+}
+
+.hm-badge {
+  font-size: 9px; padding: 2px 7px;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.vol-high .hm-badge  { background:rgba(255,60,90,0.15);  color:var(--red);    border:1px solid rgba(255,60,90,0.3); }
+.vol-med .hm-badge   { background:rgba(255,140,0,0.15);  color:var(--orange); border:1px solid rgba(255,140,0,0.3); }
+.vol-low .hm-badge   { background:rgba(0,200,255,0.1);   color:var(--blue);   border:1px solid rgba(0,200,255,0.2); }
+.vol-calm .hm-badge  { background:rgba(0,255,136,0.08);  color:var(--green);  border:1px solid rgba(0,255,136,0.2); }
+
+.hm-price {
+  font-size: 20px; font-weight: 500;
+  color: var(--white); line-height: 1;
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.hm-change {
+  font-size: 11px; margin-bottom: 10px;
+}
+.hm-change.up   { color: var(--green); }
+.hm-change.down { color: var(--red); }
+
+/* Mini sparkline in card */
+.hm-spark { width: 100%; height: 32px; }
+
+.hm-meta {
+  display: flex; justify-content: space-between;
+  margin-top: 8px; font-size: 9px; color: var(--dim);
+  letter-spacing: 1px;
+}
+
+/* Confidence bar */
+.conf-bar {
+  height: 2px; background: var(--border);
+  margin-top: 8px; overflow: hidden;
+}
+.conf-fill {
+  height: 100%;
+  transition: width 1s;
+}
+.vol-high .conf-fill  { background: var(--red); }
+.vol-med  .conf-fill  { background: var(--orange); }
+.vol-low  .conf-fill  { background: var(--blue); }
+.vol-calm .conf-fill  { background: var(--green); }
+
+/* ── Detail panel (slides open on card click) ── */
+.detail-panel {
+  display: none;
+  background: var(--card);
+  border: 1px solid var(--border2);
+  margin-bottom: 20px;
+  overflow: hidden;
+  animation: panel-open 0.25s ease forwards;
+}
+
+.detail-panel.open { display: block; }
+
+@keyframes panel-open {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-title {
+  display: flex; align-items: center; gap: 14px;
+}
+
+.detail-symbol {
+  font-size: 22px; font-weight: 500;
+  color: var(--white); letter-spacing: 2px;
+}
+
+.detail-price {
+  font-size: 28px; font-weight: 500;
+  color: var(--white);
+  font-variant-numeric: tabular-nums;
+}
+
+.detail-close {
+  width: 30px; height: 30px;
+  border: 1px solid var(--border2);
+  background: none;
+  color: var(--dim);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.detail-close:hover { border-color: var(--red); color: var(--red); }
+
+.detail-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 0;
+}
+
+.detail-stat {
+  padding: 18px 22px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.detail-stat:last-child { border-right: none; }
+
+.detail-stat-label {
+  font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--dim);
+  margin-bottom: 8px;
+}
+
+.detail-stat-value {
+  font-size: 20px; font-weight: 500;
+  color: var(--white); line-height: 1;
+}
+.detail-stat-value.up   { color: var(--green); }
+.detail-stat-value.down { color: var(--red); }
+.detail-stat-value.blue { color: var(--blue); }
+.detail-stat-sub { font-size: 10px; color: var(--dim); margin-top: 4px; }
+
+.detail-chart {
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--border);
+  grid-column: span 4;
+}
+
+.detail-chart-label {
+  font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--dim);
+  margin-bottom: 12px;
+}
+
+.detail-sparkline {
+  width: 100%; height: 80px;
+}
+
+.detail-history {
+  grid-column: span 4;
+  padding: 16px 22px;
+  display: flex; gap: 4px; flex-wrap: wrap;
+}
+
+.history-tick {
+  width: 8px; height: 8px;
+  border-radius: 1px;
+  transition: all 0.3s;
+  cursor: default;
+  position: relative;
+}
+
+/* ── Bottom panels ── */
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Correlation matrix */
+.corr-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0;
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.panel-title {
+  font-size: 9px; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--dim);
+}
+
+.panel-sub { font-size: 9px; color: var(--dim); letter-spacing: 1px; }
+
+.corr-table {
+  padding: 16px;
+  overflow-x: auto;
+}
+
+table { border-collapse: collapse; width: 100%; }
+
+th {
+  font-size: 9px; color: var(--dim);
+  letter-spacing: 1px; text-align: center;
+  padding: 4px 6px; font-weight: 400;
+}
+
+td {
+  width: 40px; height: 36px;
+  text-align: center; font-size: 10px;
+  font-weight: 500; position: relative;
+  transition: all 0.5s;
+}
+
+td.corr-self {
+  background: rgba(232,244,0,0.1);
+  color: var(--accent);
+}
+
+/* ── Anomaly feed ── */
+.anomaly-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.anomaly-list { padding: 0; }
+
+.anomaly-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(17,30,46,0.8);
+  animation: slide-in 0.4s ease forwards;
+  opacity: 0;
+}
+
+@keyframes slide-in {
+  from { opacity:0; transform: translateX(12px); }
+  to   { opacity:1; transform: translateX(0); }
+}
+
+.anomaly-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.anomaly-dot.spike  { background: var(--red);    box-shadow: 0 0 6px var(--red); }
+.anomaly-dot.drop   { background: var(--orange);  box-shadow: 0 0 6px var(--orange); }
+.anomaly-dot.calm   { background: var(--green);   box-shadow: 0 0 6px var(--green); }
+.anomaly-dot.forge  { background: var(--accent);  box-shadow: 0 0 6px var(--accent); }
+
+.anomaly-content { flex: 1; }
+
+.anomaly-title {
+  font-size: 11px; color: var(--white);
+  margin-bottom: 2px;
+}
+
+.anomaly-sub { font-size: 10px; color: var(--dim); }
+
+.anomaly-time { font-size: 9px; color: var(--dim); letter-spacing: 1px; }
+
+/* ── SignalForge connection panel ── */
+.forge-panel {
+  background: var(--card);
+  border: 1px solid rgba(232,244,0,0.2);
+  padding: 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.forge-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, var(--accent), transparent 60%);
+}
+
+.forge-left { display: flex; align-items: center; gap: 14px; }
+
+.forge-icon {
+  font-size: 24px; width: 44px; height: 44px;
+  border: 1px solid rgba(232,244,0,0.3);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent);
+}
+
+.forge-info h3 {
+  font-size: 14px; font-weight: 500;
+  color: var(--white); margin-bottom: 3px; letter-spacing: 1px;
+}
+
+.forge-info p { font-size: 10px; color: var(--dim); }
+
+.forge-stats {
+  display: flex; gap: 28px;
+}
+
+.forge-stat { text-align: center; }
+.forge-stat .val { font-size: 18px; font-weight: 500; color: var(--green); }
+.forge-stat .lbl { font-size: 9px; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+.forge-btn {
+  padding: 10px 20px;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase;
+  border: none; cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: opacity 0.2s;
+}
+
+.forge-btn:hover { opacity: 0.85; }
+
+/* ── Footer ── */
+.footer {
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-left { font-size: 9px; color: var(--dim); letter-spacing: 1px; }
+.footer-right { display: flex; align-items: center; gap: 10px; }
+
+.pyth-tag {
+  padding: 5px 12px;
+  border: 1px solid rgba(0,200,255,0.2);
+  color: var(--blue);
+  font-size: 9px; letter-spacing: 2px;
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+  .heatmap-grid { grid-template-columns: repeat(2,1fr); }
+  .stats-bar    { grid-template-columns: repeat(2,1fr); }
+  .bottom-grid  { grid-template-columns: 1fr; }
+  .forge-panel  { flex-direction: column; align-items: flex-start; }
+  .forge-stats  { gap: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">P</div>
+      <div class="brand-text">
+        <h1>Pyth Pulse</h1>
+        <span>Multi-Asset Intelligence · Powered by Pyth Network</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <a href="index.html" class="nav-link">⚡ SignalForge</a>
+      <a href="pulse.html" class="nav-link active">◈ Pulse</a>
+      <div class="live-badge"><div class="live-dot"></div>LIVE DATA</div>
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-label">Pairs Monitored</div>
+      <div class="stat-value hot" id="pairs-count">8</div>
+      <div class="stat-sub">via Pyth Hermes</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Hottest Pair</div>
+      <div class="stat-value up" id="hottest-pair">—</div>
+      <div class="stat-sub" id="hottest-vol">highest volatility</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Anomalies (1h)</div>
+      <div class="stat-value" id="anomaly-count" style="color:var(--orange)">0</div>
+      <div class="stat-sub">2σ+ moves detected</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg Confidence</div>
+      <div class="stat-value" id="avg-conf" style="color:var(--blue)">—</div>
+      <div class="stat-sub">Pyth publisher spread</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Last Update</div>
+      <div class="stat-value" id="last-update" style="font-size:14px;color:var(--white)">—</div>
+      <div class="stat-sub">Pyth Hermes API</div>
+    </div>
+  </div>
+
+  <!-- Heatmap -->
+  <div class="section-label">Volatility Heatmap · Live 5-min</div>
+  <div class="heatmap-grid" id="heatmap-grid"></div>
+
+  <!-- Detail panel — shown on card click -->
+  <div class="detail-panel" id="detail-panel">
+    <div class="detail-header">
+      <div class="detail-title">
+        <div class="detail-symbol" id="dp-symbol">—</div>
+        <div id="dp-badge" class="hm-badge">—</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div class="detail-price" id="dp-price">—</div>
+        <button class="detail-close" onclick="closeDetail()">✕</button>
+      </div>
+    </div>
+    <!-- Full sparkline -->
+    <div class="detail-chart" style="grid-column:span 4">
+      <div class="detail-chart-label">Price History · Last 60 ticks · Live via Pyth</div>
+      <svg class="detail-sparkline" id="dp-spark" viewBox="0 0 800 80" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="dp-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e8f400" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#e8f400" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path id="dp-area" fill="url(#dp-grad)"/>
+        <path id="dp-line" fill="none" stroke="#e8f400" stroke-width="1.5"/>
+        <!-- Price range labels -->
+        <text id="dp-max" x="4" y="12" fill="#445566" font-size="9" font-family="DM Mono,monospace"/>
+        <text id="dp-min" x="4" y="76" fill="#445566" font-size="9" font-family="DM Mono,monospace"/>
+      </svg>
+    </div>
+    <!-- Stats row -->
+    <div class="detail-body">
+      <div class="detail-stat">
+        <div class="detail-stat-label">Current Price</div>
+        <div class="detail-stat-value" id="dp-cur">—</div>
+        <div class="detail-stat-sub" id="dp-change">—</div>
+      </div>
+      <div class="detail-stat">
+        <div class="detail-stat-label">Volatility (5-min)</div>
+        <div class="detail-stat-value" id="dp-vol">—</div>
+        <div class="detail-stat-sub" id="dp-vol-tier">—</div>
+      </div>
+      <div class="detail-stat">
+        <div class="detail-stat-label">Pyth Confidence ±</div>
+        <div class="detail-stat-value blue" id="dp-conf">—</div>
+        <div class="detail-stat-sub">Publisher spread</div>
+      </div>
+      <div class="detail-stat">
+        <div class="detail-stat-label">60-tick Range</div>
+        <div class="detail-stat-value" id="dp-range">—</div>
+        <div class="detail-stat-sub" id="dp-range-pct">—</div>
+      </div>
+      <!-- Tick heatmap row -->
+      <div class="detail-history" id="dp-ticks"></div>
+    </div>
+  </div>
+  <div class="forge-panel">
+    <div class="forge-left">
+      <div class="forge-icon">⚡</div>
+      <div class="forge-info">
+        <h3>SignalForge — DOGE/USD Active</h3>
+        <p>Pulse feeds DOGE volatility data directly into the SignalForge ensemble signal system</p>
+      </div>
+    </div>
+    <div class="forge-stats">
+      <div class="forge-stat">
+        <div class="val" id="forge-wr">84.2%</div>
+        <div class="lbl">Win Rate</div>
+      </div>
+      <div class="forge-stat">
+        <div class="val" id="forge-bank">$210.06</div>
+        <div class="lbl">Bankroll</div>
+      </div>
+      <div class="forge-stat">
+        <div class="val" id="forge-signal" style="color:var(--accent)">—</div>
+        <div class="lbl">Signal</div>
+      </div>
+    </div>
+    <a href="index.html" class="forge-btn">View SignalForge →</a>
+  </div>
+
+  <!-- Bottom panels -->
+  <div class="bottom-grid">
+
+    <!-- Correlation matrix -->
+    <div class="corr-panel">
+      <div class="panel-header">
+        <div class="panel-title">Rolling Correlation Matrix · 30-tick</div>
+        <div class="panel-sub" id="corr-time">updating...</div>
+      </div>
+      <div class="corr-table">
+        <table id="corr-table"></table>
+      </div>
+    </div>
+
+    <!-- Anomaly feed -->
+    <div class="anomaly-panel">
+      <div class="panel-header">
+        <div class="panel-title">Anomaly Feed · 2σ+ Detector</div>
+        <div class="panel-sub" id="anomaly-total">0 events</div>
+      </div>
+      <div class="anomaly-list" id="anomaly-list"></div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-left">PYTH PULSE · PART OF SIGNALFORGE ECOSYSTEM · PYTH COMMUNITY HACKATHON 2026</div>
+    <div class="footer-right">
+      <div class="pyth-tag">⚡ PYTH NETWORK</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Pyth feed IDs (real) ─────────────────────────────────────────────
+const FEEDS = [
+  { symbol: 'BTC',  pair: 'BTC/USD',  id: 'e62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43', decimals: 0 },
+  { symbol: 'ETH',  pair: 'ETH/USD',  id: 'ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace', decimals: 2 },
+  { symbol: 'SOL',  pair: 'SOL/USD',  id: 'ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d', decimals: 3 },
+  { symbol: 'DOGE', pair: 'DOGE/USD', id: 'dcef50dd0a4cd2dcc17e45df1676dcb336a11a61c69df7a0299b0150c672d25c', decimals: 6 },
+  { symbol: 'BNB',  pair: 'BNB/USD',  id: '2f95862b045670cd22bee3114c39763a4a08beeb663b145d283c31d7d1101c4f', decimals: 2 },
+  { symbol: 'XRP',  pair: 'XRP/USD',  id: 'ec5d399846a9209f3fe5881d70aae9268c94339ff9817e8d18ff19fa05eea1c8', decimals: 4 },
+  { symbol: 'AVAX', pair: 'AVAX/USD', id: '93da3352f9f1d105fdfe4971cfa80e9dd777bfc5d0f683ebb6e1294b92137bb7', decimals: 3 },
+  { symbol: 'SUI',  pair: 'SUI/USD',  id: '23d7315113f5b1d3ba7a83604c44b94d79f4fd69af77f804fc7f920a6dc65744', decimals: 4 },
+];
+
+const HERMES   = 'https://hermes.pyth.network/v2/updates/price/latest';
+const PYTH_KEY = 'iFjW0ZKocvV7r5m0E2HYhrn5mn8p7sNu822-';
+
+// State
+const state = {};
+FEEDS.forEach(f => {
+  state[f.symbol] = {
+    price: null, prevPrice: null,
+    history: [], confHistory: [],
+    volatility: 0, anomalyCount: 0,
+    confidence: 0,
+  };
+});
+
+let anomalies  = [];
+let totalAnomalies = 0;
+
+// ── Fetch all feeds from Pyth ────────────────────────────────────────
+async function fetchPyth() {
+  try {
+    const ids    = FEEDS.map(f => `ids[]=${f.id}`).join('&');
+    const url    = `${HERMES}?${ids}`;
+    const res    = await fetch(url, { headers: { 'Authorization': `Bearer ${PYTH_KEY}` } });
+    const data   = await res.json();
+
+    data.parsed.forEach(item => {
+      const feed = FEEDS.find(f => item.id.includes(f.id.toLowerCase()));
+      if (!feed) return;
+
+      const raw   = item.price;
+      const price = parseFloat(raw.price) * Math.pow(10, parseInt(raw.expo));
+      const conf  = parseFloat(raw.conf)  * Math.pow(10, parseInt(raw.expo));
+      const s     = state[feed.symbol];
+
+      s.prevPrice = s.price;
+      s.price     = price;
+      s.confidence = conf;
+
+      s.history.push(price);
+      s.confHistory.push(conf);
+      if (s.history.length > 60)     s.history.shift();
+      if (s.confHistory.length > 60) s.confHistory.shift();
+
+      // Volatility = std dev of last 10 returns (%)
+      if (s.history.length >= 5) {
+        const returns = [];
+        for (let i = 1; i < Math.min(s.history.length, 11); i++) {
+          returns.push((s.history[i] - s.history[i-1]) / s.history[i-1] * 100);
+        }
+        const mean = returns.reduce((a,b) => a+b,0) / returns.length;
+        const variance = returns.reduce((a,r) => a + (r-mean)**2, 0) / returns.length;
+        s.volatility = Math.sqrt(variance);
+      }
+
+      // Anomaly detection — 2σ move
+      if (s.history.length >= 20 && s.prevPrice) {
+        const recentReturns = s.history.slice(-20).map((p,i,a) =>
+          i === 0 ? 0 : (p - a[i-1]) / a[i-1] * 100
+        ).slice(1);
+        const mu  = recentReturns.reduce((a,b)=>a+b,0)/recentReturns.length;
+        const sig = Math.sqrt(recentReturns.reduce((a,r)=>a+(r-mu)**2,0)/recentReturns.length);
+        const chg = (price - s.prevPrice) / s.prevPrice * 100;
+
+        if (Math.abs(chg) > 2 * sig && sig > 0.001) {
+          const type = chg > 0 ? 'spike' : 'drop';
+          addAnomaly(feed.symbol, type, chg, price);
+          s.anomalyCount++;
+          totalAnomalies++;
+        }
+      }
+    });
+
+    renderAll();
+    document.getElementById('last-update').textContent =
+      new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+
+  } catch(e) {
+    console.error('Pyth fetch error:', e);
+  }
+}
+
+// ── Volatility tier ──────────────────────────────────────────────────
+function volTier(v) {
+  if (v > 0.08) return ['vol-high',  'HIGH',  'red'];
+  if (v > 0.04) return ['vol-med',   'ACTIVE','orange'];
+  if (v > 0.01) return ['vol-low',   'LOW',   'blue'];
+  return               ['vol-calm',  'CALM',  'green'];
+}
+
+// ── Format price ─────────────────────────────────────────────────────
+function fmt(price, symbol) {
+  const feed = FEEDS.find(f => f.symbol === symbol);
+  if (!price) return '—';
+  if (price >= 10000) return price.toLocaleString('en-US', {maximumFractionDigits: 0});
+  if (price >= 100)   return price.toFixed(2);
+  if (price >= 1)     return price.toFixed(3);
+  return price.toFixed(feed?.decimals || 5);
+}
+
+// ── Detail panel ─────────────────────────────────────────────────────
+let selectedSymbol = null;
+
+function openDetail(symbol) {
+  selectedSymbol = symbol;
+
+  // Highlight selected card
+  document.querySelectorAll('.heatmap-card').forEach(c => {
+    c.style.borderColor = '';
+    c.style.outline = '';
+  });
+  const card = document.getElementById(`card-${symbol}`);
+  if (card) card.style.outline = '1px solid var(--accent)';
+
+  const panel = document.getElementById('detail-panel');
+  panel.classList.remove('open');
+  void panel.offsetWidth; // force reflow for animation replay
+  panel.classList.add('open');
+
+  // Scroll panel into view
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  updateDetailPanel(symbol);
+}
+
+function closeDetail() {
+  selectedSymbol = null;
+  document.getElementById('detail-panel').classList.remove('open');
+  document.querySelectorAll('.heatmap-card').forEach(c => c.style.outline = '');
+}
+
+function updateDetailPanel(symbol) {
+  if (!symbol) return;
+  const s    = state[symbol];
+  const feed = FEEDS.find(f => f.symbol === symbol);
+  if (!s || !s.price) return;
+
+  const [tierClass, tierLabel] = volTier(s.volatility);
+  const chg  = s.prevPrice ? (s.price - s.prevPrice) / s.prevPrice * 100 : 0;
+  const isUp = chg >= 0;
+
+  // Header
+  document.getElementById('dp-symbol').textContent = `${symbol}/USD`;
+  document.getElementById('dp-price').textContent  = `$${fmt(s.price, symbol)}`;
+
+  const badge = document.getElementById('dp-badge');
+  badge.textContent = tierLabel;
+  badge.className   = `hm-badge`;
+  badge.style.background = tierClass === 'vol-high'  ? 'rgba(255,60,90,0.15)'   :
+                           tierClass === 'vol-med'   ? 'rgba(255,140,0,0.15)'   :
+                           tierClass === 'vol-low'   ? 'rgba(0,200,255,0.1)'    :
+                                                       'rgba(0,255,136,0.08)';
+  badge.style.color = tierClass === 'vol-high'  ? 'var(--red)'    :
+                      tierClass === 'vol-med'   ? 'var(--orange)' :
+                      tierClass === 'vol-low'   ? 'var(--blue)'   : 'var(--green)';
+  badge.style.border = `1px solid ${badge.style.color.replace('var(', 'rgba(').replace('--red)', '255,60,90,0.3)').replace('--orange)', '255,140,0,0.3)').replace('--blue)', '0,200,255,0.2)').replace('--green)', '0,255,136,0.2)')}`;
+
+  // Stats
+  document.getElementById('dp-cur').textContent       = `$${fmt(s.price, symbol)}`;
+  document.getElementById('dp-cur').className         = `detail-stat-value ${isUp ? 'up' : 'down'}`;
+  document.getElementById('dp-change').textContent    = `${isUp ? '▲' : '▼'} ${isUp?'+':''}${chg.toFixed(4)}% last tick`;
+  document.getElementById('dp-vol').textContent       = `${(s.volatility * 100).toFixed(4)}%`;
+  document.getElementById('dp-vol-tier').textContent  = tierLabel + ' volatility';
+  document.getElementById('dp-conf').textContent      = `±${fmt(s.confidence, symbol)}`;
+
+  // Range
+  if (s.history.length > 1) {
+    const hi  = Math.max(...s.history);
+    const lo  = Math.min(...s.history);
+    const rng = ((hi - lo) / lo * 100).toFixed(3);
+    document.getElementById('dp-range').textContent     = `$${fmt(lo, symbol)} – $${fmt(hi, symbol)}`;
+    document.getElementById('dp-range-pct').textContent = `${rng}% swing · ${s.history.length} ticks`;
+  }
+
+  // Full sparkline
+  renderDetailSpark(symbol, s.history, tierClass);
+
+  // Tick heatmap — colour each dot by up/down
+  renderTickDots(symbol, s.history);
+}
+
+function renderDetailSpark(symbol, prices, tierClass) {
+  if (prices.length < 2) return;
+  const min = Math.min(...prices);
+  const max = Math.max(...prices);
+  const rng = max - min || 0.0001;
+  const W = 800, H = 80, pad = 4;
+
+  const pts = prices.map((p, i) => {
+    const x = (i / (prices.length - 1)) * W;
+    const y = H - pad - ((p - min) / rng) * (H - pad * 2);
+    return `${x},${y}`;
+  });
+
+  const color = tierClass === 'vol-high' ? '#ff3c5a' :
+                tierClass === 'vol-med'  ? '#ff8c00' :
+                tierClass === 'vol-low'  ? '#00c8ff' : '#00ff88';
+
+  document.getElementById('dp-line').setAttribute('d', `M ${pts.join(' L ')}`);
+  document.getElementById('dp-line').setAttribute('stroke', color);
+  document.getElementById('dp-area').setAttribute('d',
+    `M 0,${H} L ${pts.join(' L ')} L ${W},${H} Z`
+  );
+  document.getElementById('dp-area').setAttribute('fill', 'url(#dp-grad)');
+  document.getElementById('dp-grad').children[0].setAttribute('stop-color', color);
+
+  document.getElementById('dp-max').textContent = `$${fmt(max, symbol)}`;
+  document.getElementById('dp-min').textContent = `$${fmt(min, symbol)}`;
+}
+
+function renderTickDots(symbol, prices) {
+  const container = document.getElementById('dp-ticks');
+  container.innerHTML = '';
+  for (let i = 1; i < prices.length; i++) {
+    const up  = prices[i] >= prices[i-1];
+    const dot = document.createElement('div');
+    dot.className = 'history-tick';
+    dot.title     = `$${fmt(prices[i], symbol)}`;
+    dot.style.background = up ? 'rgba(0,255,136,0.5)' : 'rgba(255,60,90,0.5)';
+    dot.style.width  = '10px';
+    dot.style.height = '10px';
+    container.appendChild(dot);
+  }
+}
+
+// ── Render heatmap ───────────────────────────────────────────────────
+function renderHeatmap() {
+  const grid = document.getElementById('heatmap-grid');
+
+  FEEDS.forEach(feed => {
+    const s    = state[feed.symbol];
+    const [tierClass, tierLabel] = volTier(s.volatility);
+    const chg  = s.prevPrice ? (s.price - s.prevPrice) / s.prevPrice * 100 : 0;
+    const isUp = chg >= 0;
+
+    let card = document.getElementById(`card-${feed.symbol}`);
+    if (!card) {
+      card = document.createElement('div');
+      card.id        = `card-${feed.symbol}`;
+      card.className = `heatmap-card ${feed.symbol === 'DOGE' ? 'selected' : ''}`;
+      card.onclick   = () => openDetail(feed.symbol);
+      card.innerHTML = `
+        <div class="hm-top">
+          <div class="hm-symbol">${feed.symbol}</div>
+          <div class="hm-badge" id="badge-${feed.symbol}">${tierLabel}</div>
+        </div>
+        <div class="hm-price" id="price-${feed.symbol}">—</div>
+        <div class="hm-change" id="change-${feed.symbol}">—</div>
+        <svg class="hm-spark" id="spark-${feed.symbol}" viewBox="0 0 200 32" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sg-${feed.symbol}" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="currentColor" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path id="sa-${feed.symbol}" fill="url(#sg-${feed.symbol})"/>
+          <path id="sl-${feed.symbol}" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        </svg>
+        <div class="hm-meta">
+          <span id="vol-${feed.symbol}">vol: —</span>
+          <span id="conf-${feed.symbol}">conf: —</span>
+        </div>
+        <div class="conf-bar"><div class="conf-fill" id="cf-${feed.symbol}" style="width:0%"></div></div>
+      `;
+      grid.appendChild(card);
+    }
+
+    // Update values
+    card.className = `heatmap-card ${tierClass} ${feed.symbol === 'DOGE' ? 'selected' : ''}`;
+    document.getElementById(`badge-${feed.symbol}`).textContent = tierLabel;
+    document.getElementById(`price-${feed.symbol}`).textContent = s.price ? `$${fmt(s.price, feed.symbol)}` : '—';
+
+    const chgEl = document.getElementById(`change-${feed.symbol}`);
+    chgEl.textContent = s.prevPrice ? `${isUp?'▲':'▼'} ${isUp?'+':''}${chg.toFixed(4)}%` : '—';
+    chgEl.className   = `hm-change ${isUp ? 'up' : 'down'}`;
+
+    document.getElementById(`vol-${feed.symbol}`).textContent  = `vol: ${(s.volatility*100).toFixed(3)}%`;
+    document.getElementById(`conf-${feed.symbol}`).textContent = `±${fmt(s.confidence, feed.symbol)}`;
+
+    // Confidence bar — higher conf interval = less certain
+    const confPct = s.price ? Math.min(100, (s.confidence / s.price) * 100000) : 0;
+    document.getElementById(`cf-${feed.symbol}`).style.width = confPct + '%';
+
+    // Sparkline
+    renderMiniSpark(feed.symbol, s.history, tierClass);
+  });
+
+  // Update stats bar
+  const sorted = [...FEEDS].sort((a,b) => state[b.symbol].volatility - state[a.symbol].volatility);
+  const hottest = sorted[0];
+  if (hottest && state[hottest.symbol].volatility > 0) {
+    document.getElementById('hottest-pair').textContent = hottest.pair;
+    document.getElementById('hottest-vol').textContent  = `${(state[hottest.symbol].volatility*100).toFixed(3)}% vol`;
+  }
+
+  const avgConf = FEEDS.reduce((a,f) => {
+    const s = state[f.symbol];
+    return a + (s.price ? (s.confidence / s.price) * 100 : 0);
+  }, 0) / FEEDS.length;
+  document.getElementById('avg-conf').textContent = `±${avgConf.toFixed(4)}%`;
+  document.getElementById('anomaly-count').textContent = totalAnomalies;
+
+  // SignalForge DOGE signal
+  const doge = state['DOGE'];
+  if (doge.price && doge.prevPrice) {
+    const dir = doge.price < doge.prevPrice ? 'NO ↓' : 'YES ↑';
+    const el  = document.getElementById('forge-signal');
+    el.textContent  = dir;
+    el.style.color  = doge.price < doge.prevPrice ? 'var(--red)' : 'var(--green)';
+  }
+}
+
+// ── Render mini sparkline ────────────────────────────────────────────
+function renderMiniSpark(symbol, prices, tierClass) {
+  if (prices.length < 2) return;
+  const min = Math.min(...prices);
+  const max = Math.max(...prices);
+  const rng = max - min || 0.0001;
+  const W = 200, H = 32, pad = 2;
+
+  const pts = prices.map((p, i) => {
+    const x = (i / (prices.length - 1)) * W;
+    const y = H - pad - ((p - min) / rng) * (H - pad * 2);
+    return `${x},${y}`;
+  });
+
+  const colors = { 'vol-high': '#ff3c5a', 'vol-med': '#ff8c00', 'vol-low': '#00c8ff', 'vol-calm': '#00ff88' };
+  const color  = colors[tierClass] || '#888';
+
+  const lineD = `M ${pts.join(' L ')}`;
+  const areaD = `M 0,${H} L ${pts.join(' L ')} L ${W},${H} Z`;
+
+  const lineEl = document.getElementById(`sl-${symbol}`);
+  const areaEl = document.getElementById(`sa-${symbol}`);
+  const svgEl  = document.getElementById(`spark-${symbol}`);
+
+  if (lineEl) { lineEl.setAttribute('d', lineD); lineEl.style.color = color; }
+  if (areaEl) { areaEl.setAttribute('d', areaD); areaEl.style.color = color; }
+  if (svgEl)  { svgEl.style.color = color; }
+}
+
+// ── Correlation matrix ───────────────────────────────────────────────
+function renderCorrelation() {
+  const symbols = ['BTC','ETH','SOL','DOGE','BNB','XRP'];
+  const table   = document.getElementById('corr-table');
+
+  // Compute returns
+  const returns = {};
+  symbols.forEach(s => {
+    const h = state[s].history;
+    returns[s] = h.slice(1).map((p,i) => h[i] ? (p - h[i]) / h[i] : 0);
+  });
+
+  // Pearson correlation
+  function corr(a, b) {
+    const n = Math.min(a.length, b.length, 30);
+    if (n < 3) return null;
+    const ax = a.slice(-n), bx = b.slice(-n);
+    const ma = ax.reduce((s,v)=>s+v,0)/n;
+    const mb = bx.reduce((s,v)=>s+v,0)/n;
+    const num = ax.reduce((s,v,i) => s + (v-ma)*(bx[i]-mb), 0);
+    const da  = Math.sqrt(ax.reduce((s,v) => s+(v-ma)**2, 0));
+    const db  = Math.sqrt(bx.reduce((s,v) => s+(v-mb)**2, 0));
+    return (da && db) ? num / (da * db) : null;
+  }
+
+  let html = '<tr><th></th>' + symbols.map(s => `<th>${s}</th>`).join('') + '</tr>';
+
+  symbols.forEach(sa => {
+    html += `<tr><th style="text-align:right;padding-right:8px;color:var(--text)">${sa}</th>`;
+    symbols.forEach(sb => {
+      if (sa === sb) {
+        html += `<td class="corr-self">1.00</td>`;
+      } else {
+        const r = corr(returns[sa], returns[sb]);
+        if (r === null) {
+          html += `<td style="color:var(--dim)">—</td>`;
+        } else {
+          const abs  = Math.abs(r);
+          const col  = r > 0 
+            ? `rgba(0,255,136,${0.1 + abs*0.7})`
+            : `rgba(255,60,90,${0.1 + abs*0.7})`;
+          const text = r > 0.5 ? 'var(--green)' : r < -0.3 ? 'var(--red)' : 'var(--text)';
+          html += `<td style="background:${col};color:${text}">${r.toFixed(2)}</td>`;
+        }
+      }
+    });
+    html += '</tr>';
+  });
+
+  table.innerHTML = html;
+  document.getElementById('corr-time').textContent =
+    new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+}
+
+// ── Anomaly feed ─────────────────────────────────────────────────────
+function addAnomaly(symbol, type, chg, price) {
+  const list = document.getElementById('anomaly-list');
+  const time = new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  const dotClass = symbol === 'DOGE' ? 'forge' : type;
+
+  const isForge = symbol === 'DOGE';
+  const row = document.createElement('div');
+  row.className = 'anomaly-row';
+  row.style.animationDelay = '0s';
+  row.innerHTML = `
+    <div class="anomaly-dot ${dotClass}"></div>
+    <div class="anomaly-content">
+      <div class="anomaly-title">
+        ${symbol}/USD ${type === 'spike' ? '▲ SPIKE' : '▼ DROP'}
+        ${isForge ? ' · <span style="color:var(--accent)">SignalForge target</span>' : ''}
+      </div>
+      <div class="anomaly-sub">
+        ${Math.abs(chg).toFixed(4)}% move · Price: $${fmt(price, symbol)} · 2σ+ event
+      </div>
+    </div>
+    <div class="anomaly-time">${time}</div>
+  `;
+
+  list.insertBefore(row, list.firstChild);
+  while (list.children.length > 10) list.removeChild(list.lastChild);
+
+  anomalies.unshift({ symbol, type, chg, price, time });
+  document.getElementById('anomaly-total').textContent = `${anomalies.length} events`;
+  document.getElementById('pairs-count').textContent   = FEEDS.length;
+}
+
+// ── Master render ────────────────────────────────────────────────────
+function renderAll() {
+  renderHeatmap();
+  renderCorrelation();
+  if (selectedSymbol) updateDetailPanel(selectedSymbol);
+}
+
+// ── Boot ─────────────────────────────────────────────────────────────
+fetchPyth();
+setInterval(fetchPyth, 5000);   // poll Pyth every 5 seconds
+
+// Seed empty heatmap cards immediately
+FEEDS.forEach(feed => {
+  const grid = document.getElementById('heatmap-grid');
+  const card = document.createElement('div');
+  card.id        = `card-${feed.symbol}`;
+  card.className = `heatmap-card vol-calm ${feed.symbol === 'DOGE' ? 'selected' : ''}`;
+  card.onclick   = () => openDetail(feed.symbol);
+  card.innerHTML = `
+    <div class="hm-top">
+      <div class="hm-symbol">${feed.symbol}</div>
+      <div class="hm-badge" id="badge-${feed.symbol}">LOADING</div>
+    </div>
+    <div class="hm-price" id="price-${feed.symbol}">fetching...</div>
+    <div class="hm-change" id="change-${feed.symbol}" class="hm-change">—</div>
+    <svg class="hm-spark" id="spark-${feed.symbol}" viewBox="0 0 200 32" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="sg-${feed.symbol}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="currentColor" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path id="sa-${feed.symbol}" fill="url(#sg-${feed.symbol})"/>
+      <path id="sl-${feed.symbol}" fill="none" stroke="currentColor" stroke-width="1.2"/>
+    </svg>
+    <div class="hm-meta">
+      <span id="vol-${feed.symbol}">vol: —</span>
+      <span id="conf-${feed.symbol}">conf: —</span>
+    </div>
+    <div class="conf-bar"><div class="conf-fill" id="cf-${feed.symbol}" style="width:0%"></div></div>
+  `;
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>
