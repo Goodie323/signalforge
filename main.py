@@ -296,11 +296,12 @@ def get_price():
         data  = r.json()
         p     = data["parsed"][0]["price"]
         price = int(p["price"]) * (10 ** int(p["expo"]))
+        conf  = int(p["conf"])  * (10 ** int(p["expo"]))
         ts    = int(p["publish_time"])
-        return price, ts
+        return price, conf, ts
     except Exception as e:
         print(f"get_price() failed: {e}")
-        return None, None
+        return None, None, None
 
 
 # ────────────────────────────────────────────────
@@ -390,6 +391,8 @@ def ensemble_signal(current_price, prices, time_left, threshold, rsi):
 # ────────────────────────────────────────────────
 
 # Shared live state — updated by the main bot loop
+# Signal history log — last 10 signals
+signal_log = []
 live_stats = {
     "price":        0.0,
     "signal":       "WAIT",
@@ -413,6 +416,9 @@ live_stats = {
     "win_rate":     0.0,
     "last_signal":  "",
     "last_bet":     0.0,
+    "signal_log":   [],
+    "confidence":   0.0,
+    "expiry":       0,
     "updated":      "",
 }
 
@@ -451,6 +457,20 @@ def start_stats_server():
 # Start in background thread
 threading.Thread(target=start_stats_server, daemon=True).start()
 
+# ── Pre-populate live_stats from disk so dashboard shows real data immediately ──
+_boot_paper  = load_paper()
+_boot_record = load_record()
+_boot_decided = _boot_record["wins"] + _boot_record["losses"]
+live_stats.update({
+    "bankroll":    round(_boot_paper["bankroll"], 2),
+    "daily_pnl":   round(_boot_paper.get("daily_pnl", 0.0), 2),
+    "alltime_pnl": round(_boot_paper["bankroll"] - STARTING_BANKROLL, 2),
+    "wins":        _boot_record["wins"],
+    "losses":      _boot_record["losses"],
+    "win_rate":    round(_boot_record["wins"] / _boot_decided * 100, 1) if _boot_decided > 0 else 0.0,
+})
+print(f"📊 Loaded from disk → bankroll: ${_boot_paper['bankroll']:.2f} | W:{_boot_record['wins']} L:{_boot_record['losses']}")
+
 
 # ────────────────────────────────────────────────
 # MAIN
@@ -481,6 +501,7 @@ while True:
     THRESHOLD        = float(poll["metadata"]["openPrice"])
     expiry_timestamp = poll["expirationTimestamp"] / 1000
     title            = poll.get("title", "DOGE/USD")
+    live_stats["threshold"] = round(THRESHOLD, 8)  # instant update on new market
 
     # ── Pull live odds at market open ──
     yes_price_open, no_price_open, pool_size = extract_odds(poll)
@@ -490,6 +511,7 @@ while True:
     if state and time.time() < state["expiry"]:
         THRESHOLD        = state["threshold"]
         expiry_timestamp = state["expiry"]
+        live_stats["threshold"] = round(THRESHOLD, 8)  # instant update on resume
         print(f"♻️  Resuming from saved state → threshold: {THRESHOLD:.6f}")
         send_telegram_message(f"♻️ Resumed after restart\nThreshold: {THRESHOLD:.6f}")
     else:
@@ -522,7 +544,7 @@ while True:
         now     = time.time()
         elapsed = now - market_open_time
 
-        price, ts = get_price()
+        price, conf, ts = get_price()
 
         if price is None:
             print("⚠️  Price fetch returned None — skipping cycle")
@@ -531,6 +553,18 @@ while True:
 
         price_history.append(price)
         prices = list(price_history)
+
+        # ── Update price + threshold on every poll (10s) for live dashboard ──
+        live_stats["price"]      = round(price, 8)
+        live_stats["confidence"] = round(conf, 8) if conf else 0.0
+        live_stats["threshold"]  = round(THRESHOLD, 8)
+        live_stats["elapsed"]    = round(elapsed / 60, 1)
+        live_stats["expiry"]     = int(expiry_timestamp)
+        if len(prices) >= 2:
+            live_stats["momentum"] = round((price - prices[0]) / prices[0] * 100, 4)
+        _twap_fast = compute_twap(prices)
+        if _twap_fast:
+            live_stats["twap"] = round(_twap_fast, 8)
 
         # ───────── MINI CHECK (every 5 minutes, silent) ─────────
         if now - last_mini_check >= MINI_CHECK_INTERVAL:
@@ -594,6 +628,9 @@ while True:
                 "win_rate":    round(_record["wins"] / _decided * 100, 1) if _decided > 0 else 0.0,
                 "last_signal": alert_signal or "",
                 "last_bet":    alert_bet_size,
+                "confidence":  round(conf, 8) if conf else 0.0,
+                "expiry":      int(expiry_timestamp),
+                "signal_log":  signal_log[:],
                 "updated":     utc,
             })
 
@@ -610,6 +647,19 @@ while True:
                 alert_fired        = True
                 alert_fired_at     = elapsed_min
                 alert_signal       = consecutive_signal  # LOCKED — never overwritten
+                # Add to signal log
+                from datetime import datetime, timezone as _tz
+                signal_log.append({
+                    "time":    datetime.now(_tz.utc).strftime("%H:%M"),
+                    "signal":  alert_signal,
+                    "price":   round(price, 6),
+                    "elapsed": round(elapsed_min, 1),
+                    "result":  "open",
+                    "bet":     0.0,
+                })
+                if len(signal_log) > 10:
+                    signal_log.pop(0)
+                live_stats["signal_log"] = signal_log[:]
 
                 # ── Kelly bet sizing ──
                 paper              = load_paper()
@@ -728,6 +778,7 @@ while True:
             if outcome == "WIN":
                 record["wins"]    += 1
                 outcome_emoji      = "✅ WIN"
+                if signal_log: signal_log[-1]["result"] = "win"
                 profit             = round(alert_bet_size * alert_payout_ratio, 2)
                 hourly_pnl         = profit
                 paper["bankroll"] += profit
@@ -737,6 +788,7 @@ while True:
             elif outcome == "LOSS":
                 record["losses"]   += 1
                 outcome_emoji       = "❌ LOSS"
+                if signal_log: signal_log[-1]["result"] = "loss"
                 hourly_pnl          = -alert_bet_size
                 paper["bankroll"]  -= alert_bet_size
                 paper["daily_pnl"] -= alert_bet_size

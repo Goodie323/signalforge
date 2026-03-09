@@ -543,7 +543,7 @@ td.corr-self {
 .forge-info p { font-size: 10px; color: var(--dim); }
 
 .forge-stats {
-  display: flex; gap: 28px;
+  display: flex; gap: 20px; flex-wrap: wrap; align-items: center;
 }
 
 .forge-stat { text-align: center; }
@@ -707,20 +707,36 @@ td.corr-self {
       <div class="forge-info">
         <h3>SignalForge — DOGE/USD Active</h3>
         <p>Pulse feeds DOGE volatility data directly into the SignalForge ensemble signal system</p>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+          <div id="forge-dot" style="width:7px;height:7px;border-radius:50%;background:var(--dim);animation:blink 1.4s ease-in-out infinite"></div>
+          <span id="forge-status" style="font-size:10px;color:var(--dim);letter-spacing:1px">Connecting...</span>
+        </div>
       </div>
     </div>
     <div class="forge-stats">
       <div class="forge-stat">
-        <div class="val" id="forge-wr">84.2%</div>
+        <div class="val" id="forge-signal" style="color:var(--accent)">—</div>
+        <div class="lbl">Signal</div>
+      </div>
+      <div class="forge-stat">
+        <div class="val" id="forge-streak" style="color:var(--dim)">0/3</div>
+        <div class="lbl">Streak</div>
+      </div>
+      <div class="forge-stat">
+        <div class="val" id="forge-threshold" style="color:var(--blue)">—</div>
+        <div class="lbl">Threshold</div>
+      </div>
+      <div class="forge-stat">
+        <div class="val" id="forge-edge" style="color:var(--dim)">—</div>
+        <div class="lbl">Edge</div>
+      </div>
+      <div class="forge-stat">
+        <div class="val" id="forge-wr" style="color:var(--green)">—</div>
         <div class="lbl">Win Rate</div>
       </div>
       <div class="forge-stat">
-        <div class="val" id="forge-bank">$210.06</div>
+        <div class="val" id="forge-bank" style="color:var(--green)">—</div>
         <div class="lbl">Bankroll</div>
-      </div>
-      <div class="forge-stat">
-        <div class="val" id="forge-signal" style="color:var(--accent)">—</div>
-        <div class="lbl">Signal</div>
       </div>
     </div>
     <a href="index.html" class="forge-btn">View SignalForge →</a>
@@ -774,7 +790,8 @@ const FEEDS = [
   { symbol: 'SUI',  pair: 'SUI/USD',  id: '23d7315113f5b1d3ba7a83604c44b94d79f4fd69af77f804fc7f920a6dc65744', decimals: 4 },
 ];
 
-const HERMES   = 'https://hermes.pyth.network/v2/updates/price/latest';
+const HERMES       = 'https://hermes.pyth.network/v2/updates/price/latest';
+const BOT_STATS_URL = 'https://signalforge-production-bc9d.up.railway.app';
 const PYTH_KEY = 'iFjW0ZKocvV7r5m0E2HYhrn5mn8p7sNu822-';
 
 // State
@@ -792,6 +809,58 @@ let anomalies  = [];
 let totalAnomalies = 0;
 
 // ── Fetch all feeds from Pyth ────────────────────────────────────────
+// ── Fetch live bot stats for bridge panel ────────────────────────────
+async function fetchBotStats() {
+  try {
+    const res   = await fetch(`${BOT_STATS_URL}/stats`, { cache: 'no-store' });
+    const stats = await res.json();
+
+    // Win rate
+    const wrEl = document.getElementById('forge-wr');
+    wrEl.textContent = stats.win_rate ? `${stats.win_rate}%` : '—';
+
+    // Bankroll
+    const bankEl = document.getElementById('forge-bank');
+    bankEl.textContent = stats.bankroll ? `$${stats.bankroll.toFixed(2)}` : '—';
+    bankEl.style.color = stats.bankroll >= 100 ? 'var(--green)' : 'var(--red)';
+
+    // Signal from bot (real ensemble, not just price direction)
+    const sigEl = document.getElementById('forge-signal');
+    sigEl.textContent  = stats.signal || '—';
+    sigEl.style.color  = stats.signal === 'YES' ? 'var(--green)' : stats.signal === 'NO' ? 'var(--red)' : 'var(--dim)';
+
+    // Streak
+    const stEl = document.getElementById('forge-streak');
+    if (stEl) {
+      stEl.textContent = stats.streak ? `${stats.streak}/3` : '0/3';
+      stEl.style.color = stats.streak >= 3 ? 'var(--green)' : 'var(--dim)';
+    }
+
+    // Threshold
+    const thrEl = document.getElementById('forge-threshold');
+    if (thrEl && stats.threshold) thrEl.textContent = `$${stats.threshold.toFixed(6)}`;
+
+    // Edge
+    const edgeEl = document.getElementById('forge-edge');
+    if (edgeEl && stats.edge !== undefined) {
+      edgeEl.textContent = stats.edge ? `${stats.edge > 0 ? '+' : ''}${stats.edge.toFixed(1)}%` : '—';
+      edgeEl.style.color = stats.edge > 0 ? 'var(--green)' : stats.edge < 0 ? 'var(--red)' : 'var(--dim)';
+    }
+
+    // Bot status indicator
+    const dotEl = document.getElementById('forge-dot');
+    if (dotEl) { dotEl.style.background = 'var(--green)'; }
+    const statusEl = document.getElementById('forge-status');
+    if (statusEl) statusEl.textContent = `Live · ${stats.updated ? stats.updated.slice(11,16) + ' UTC' : ''}`;
+
+  } catch(e) {
+    const dotEl = document.getElementById('forge-dot');
+    if (dotEl) dotEl.style.background = 'var(--red)';
+    const statusEl = document.getElementById('forge-status');
+    if (statusEl) statusEl.textContent = 'Bot offline';
+  }
+}
+
 async function fetchPyth() {
   try {
     const ids    = FEEDS.map(f => `ids[]=${f.id}`).join('&');
@@ -802,6 +871,10 @@ async function fetchPyth() {
     data.parsed.forEach(item => {
       const feed = FEEDS.find(f => item.id.includes(f.id.toLowerCase()));
       if (!feed) return;
+      // store publishTime for lag indicator
+      if (item.price && item.price.publish_time) {
+        state[feed.symbol].publishTime = item.price.publish_time;
+      }
 
       const raw   = item.price;
       const price = parseFloat(raw.price) * Math.pow(10, parseInt(raw.expo));
@@ -1073,6 +1146,17 @@ function renderHeatmap() {
     return a + (s.price ? (s.confidence / s.price) * 100 : 0);
   }, 0) / FEEDS.length;
   document.getElementById('avg-conf').textContent = `±${avgConf.toFixed(4)}%`;
+
+  // Data freshness — how old is the latest Pyth publish_time
+  const freshFeed = FEEDS.find(f => state[f.symbol] && state[f.symbol].publishTime);
+  if (freshFeed) {
+    const lag = Math.round(Date.now()/1000 - state[freshFeed.symbol].publishTime);
+    const lagEl = document.getElementById('pyth-lag');
+    if (lagEl) {
+      lagEl.textContent = `Pyth lag: ${lag}s`;
+      lagEl.style.color = lag < 5 ? 'var(--green)' : lag < 15 ? 'var(--orange)' : 'var(--red)';
+    }
+  }
   document.getElementById('anomaly-count').textContent = totalAnomalies;
 
   // SignalForge DOGE signal
@@ -1209,7 +1293,9 @@ function renderAll() {
 
 // ── Boot ─────────────────────────────────────────────────────────────
 fetchPyth();
-setInterval(fetchPyth, 5000);   // poll Pyth every 5 seconds
+fetchBotStats();
+setInterval(fetchPyth,     5000);   // poll Pyth every 5 seconds
+setInterval(fetchBotStats, 15000);  // poll bot stats every 15 seconds
 
 // Seed empty heatmap cards immediately
 FEEDS.forEach(feed => {

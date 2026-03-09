@@ -345,6 +345,155 @@
   .conn-banner.connected    { border-color:rgba(0,255,136,0.3); color:var(--accent); background:rgba(0,255,136,0.04); }
   .conn-banner.disconnected { border-color:rgba(255,68,68,0.3);  color:var(--warn);   background:rgba(255,68,68,0.04); }
 
+  /* ── Countdown timer ── */
+  .countdown-block {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 18px 24px; margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .countdown-left { display: flex; align-items: center; gap: 20px; }
+
+  .countdown-digits {
+    font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800;
+    color: #fff; letter-spacing: -1px; line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .countdown-digits.urgent { color: var(--warn); animation: urgent-pulse 1s ease-in-out infinite; }
+  .countdown-digits.caution { color: #ff8c00; }
+
+  @keyframes urgent-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  .countdown-label { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--dim); margin-top: 4px; }
+
+  .countdown-bar-wrap { flex: 1; margin-left: 32px; }
+  .countdown-bar-track { height: 3px; background: var(--border); position: relative; }
+  .countdown-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 1s linear; }
+  .countdown-pct { font-size: 10px; color: var(--dim); letter-spacing: 1px; margin-top: 6px; text-align: right; }
+
+  .alert-cutoff-marker {
+    position: absolute; top: -4px;
+    width: 1px; height: 11px; background: var(--warn);
+    opacity: 0.6;
+  }
+
+  /* ── Confidence interval ── */
+  .conf-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px;
+    background: rgba(0,191,255,0.06);
+    border: 1px solid rgba(0,191,255,0.2);
+    font-size: 11px; color: var(--accent2);
+    margin-top: 8px; letter-spacing: 0.5px;
+  }
+
+  .conf-pill-label { font-size: 9px; color: var(--dim); letter-spacing: 1.5px; text-transform: uppercase; }
+
+  /* ── Equity curve ── */
+  .equity-block {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 0; overflow: hidden; margin-bottom: 20px;
+  }
+
+  .equity-header {
+    padding: 14px 20px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .equity-title { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--dim); }
+  .equity-return { font-size: 14px; font-family: 'Syne', sans-serif; font-weight: 700; color: var(--accent); }
+
+  .equity-chart { padding: 16px 20px 12px; }
+  .equity-svg { width: 100%; height: 80px; }
+
+  /* ── Log rows ── */
+  .log-row {
+    display: grid;
+    grid-template-columns: 55px 55px 90px 90px 1fr 60px;
+    gap: 0; padding: 11px 20px;
+    border-bottom: 1px solid rgba(26,35,50,0.5);
+    align-items: center; transition: background 0.15s;
+    animation: row-in 0.4s ease forwards; opacity: 0;
+  }
+
+  @keyframes row-in { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+  .log-row:hover { background:rgba(255,255,255,0.02); }
+  .log-time   { color:var(--dim); font-size:11px; }
+  .log-signal { font-weight:700; font-size:12px; }
+  .log-signal.yes { color:var(--accent); }
+  .log-signal.no  { color:var(--warn); }
+  .log-price  { color:var(--text); font-size:11px; }
+  .log-elapsed { color:var(--dim); font-size:11px; }
+  .log-bet    { color:var(--dim); font-size:11px; }
+  .log-result { text-align:right; font-size:11px; font-weight:700; }
+  .log-result.win  { color:var(--accent); }
+  .log-result.loss { color:var(--warn); }
+  .log-result.open { color:var(--dim); }
+
+  /* ── Pair selector dropdown ── */
+  .pair-selector {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .pair-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg); border: 1px solid var(--border2);
+    color: var(--text); font-family: 'Space Mono', monospace;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+    padding: 6px 12px; cursor: pointer;
+    transition: all 0.2s; position: relative;
+  }
+
+  .pair-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .pair-btn .arrow {
+    font-size: 9px; color: var(--dim);
+    transition: transform 0.2s;
+  }
+
+  .pair-btn.open .arrow { transform: rotate(180deg); }
+
+  .pair-menu {
+    position: absolute; top: calc(100% + 6px); left: 0;
+    background: var(--surface); border: 1px solid var(--border2);
+    min-width: 180px; z-index: 100;
+    display: none; flex-direction: column;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+  }
+
+  .pair-menu.open { display: flex; }
+
+  .pair-option {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 14px; font-size: 12px; letter-spacing: 0.5px;
+    cursor: pointer; transition: background 0.15s;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pair-option:last-child { border-bottom: none; }
+
+  .pair-option:hover:not(.disabled) { background: rgba(0,255,136,0.05); color: var(--accent); }
+
+  .pair-option.active { color: var(--accent); }
+
+  .pair-option.disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .pair-live {
+    font-size: 8px; letter-spacing: 2px; padding: 2px 6px;
+    background: rgba(0,255,136,0.1); color: var(--accent);
+    border: 1px solid rgba(0,255,136,0.25);
+  }
+
+  .pair-soon {
+    font-size: 8px; letter-spacing: 2px; padding: 2px 6px;
+    background: rgba(90,112,128,0.15); color: var(--dim);
+    border: 1px solid var(--border);
+  }
+
+  .pair-dropdown-wrap { position: relative; }
+
   @media (max-width:700px) {
     .price-hero  { grid-template-columns:1fr; }
     .voters-grid { grid-template-columns:1fr; }
@@ -365,6 +514,7 @@
       <div class="logo-text">
         <h1>SignalForge</h1>
         <span>DOGE/USD · Limitless Markets</span>
+        <span style="font-size:8px;letter-spacing:2px;padding:2px 7px;background:rgba(90,112,128,0.2);color:var(--dim);border:1px solid var(--border);margin-left:8px;vertical-align:middle">MORE PAIRS SOON</span>
       </div>
     </div>
     <div class="header-right">
@@ -382,6 +532,34 @@
   <div class="conn-banner disconnected" id="conn-banner">
     <span id="conn-dot">○</span>
     <span id="conn-msg">Connecting to SignalForge bot...</span>
+  </div>
+
+  <!-- Market Countdown -->
+  <div class="countdown-block" id="countdown-block">
+    <div class="countdown-left">
+      <div>
+        <div class="countdown-digits" id="countdown-digits">—:——</div>
+        <div class="countdown-label">Time remaining in market</div>
+      </div>
+      <div style="width:1px;height:40px;background:var(--border)"></div>
+      <div>
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:6px">Alert Window</div>
+        <div style="font-size:13px;color:var(--accent)" id="alert-window">Open</div>
+      </div>
+      <div style="width:1px;height:40px;background:var(--border)"></div>
+      <div>
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:6px">Market Expiry</div>
+        <div style="font-size:13px;color:var(--text)" id="expiry-time">—</div>
+      </div>
+    </div>
+    <div class="countdown-bar-wrap">
+      <div class="countdown-bar-track">
+        <div class="countdown-bar-fill" id="countdown-fill" style="width:100%"></div>
+        <!-- Alert cutoff marker at 40min = 33% from end -->
+        <div class="alert-cutoff-marker" style="left:66.7%" title="Alert cutoff at 40min"></div>
+      </div>
+      <div class="countdown-pct" id="countdown-pct">100% remaining</div>
+    </div>
   </div>
 
   <!-- Ticker -->
@@ -421,19 +599,67 @@
 
   <!-- Price Hero -->
   <div class="price-hero">
-    <div class="price-block">
-      <div class="price-label">DOGE / USD · Live via Pyth Network</div>
+
+    <!-- LEFT: DOGE/USD price + pair dropdown (swapped to left) -->
+    <div class="price-block" style="position:relative">
+      <!-- Pair selector -->
+      <div class="pair-selector">
+        <div class="price-label" style="margin-bottom:0">Live via Pyth Network</div>
+        <div class="pair-dropdown-wrap">
+          <button class="pair-btn" id="pair-btn" onclick="togglePairMenu()">
+            <span id="pair-label">DOGE / USD</span>
+            <span class="arrow">▾</span>
+          </button>
+          <div class="pair-menu" id="pair-menu">
+            <div class="pair-option active" onclick="selectPair(this, 'DOGE/USD')">
+              <span>DOGE / USD</span>
+              <span class="pair-live">LIVE</span>
+            </div>
+            <div class="pair-option disabled">
+              <span>BTC / USD</span>
+              <span class="pair-soon">SOON</span>
+            </div>
+            <div class="pair-option disabled">
+              <span>ETH / USD</span>
+              <span class="pair-soon">SOON</span>
+            </div>
+            <div class="pair-option disabled">
+              <span>SOL / USD</span>
+              <span class="pair-soon">SOON</span>
+            </div>
+            <div class="pair-option disabled">
+              <span>BNB / USD</span>
+              <span class="pair-soon">SOON</span>
+            </div>
+            <div class="pair-option disabled">
+              <span>XRP / USD</span>
+              <span class="pair-soon">SOON</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Price -->
       <div class="price-value" id="live-price">0.<span id="price-dec">——————</span></div>
       <div class="price-change" id="price-change">Fetching live price...</div>
-      <div style="margin-top:12px;display:flex;align-items:center;gap:10px;">
-        <span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim)">THRESHOLD</span>
-        <span style="font-size:13px;color:var(--accent2);font-family:'Space Mono',monospace" id="threshold-val">Awaiting market...</span>
-        <span style="font-size:10px;color:var(--dim)" id="threshold-dir"></span>
+      <div class="conf-pill" id="conf-pill" style="display:none">
+        <span class="conf-pill-label">Pyth ±</span>
+        <span id="conf-val">—</span>
       </div>
     </div>
+
+    <!-- RIGHT: Limitless market info + sparkline (swapped to right) -->
     <div class="chart-block">
-      <div class="chart-label">Price History · Last 20 ticks · Pyth Hermes</div>
-      <svg class="sparkline" id="sparkline" viewBox="0 0 400 64" preserveAspectRatio="none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div class="chart-label" style="margin-bottom:0">Limitless Market · Active Threshold</div>
+        <div style="font-size:10px;color:var(--dim);letter-spacing:1px" id="threshold-dir"></div>
+      </div>
+      <!-- Threshold big number -->
+      <div style="font-size:26px;font-family:'Syne',sans-serif;font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:6px">
+        <span style="font-size:13px;color:var(--dim);font-weight:400">THRESHOLD </span>
+        <span id="threshold-val" style="color:var(--accent2)">Awaiting...</span>
+      </div>
+      <!-- Sparkline below threshold -->
+      <svg class="sparkline" id="sparkline" viewBox="0 0 400 48" preserveAspectRatio="none" style="height:48px">
         <defs>
           <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stop-color="#00ff88" stop-opacity="0.3"/>
@@ -513,6 +739,32 @@
     </div>
   </div>
 
+  <!-- Equity Curve -->
+  <div class="section-title">Equity Curve · Bankroll History</div>
+  <div class="equity-block">
+    <div class="equity-header">
+      <div class="equity-title">Bankroll over time · Kelly Paper Trading</div>
+      <div class="equity-return" id="equity-return">+0.0%</div>
+    </div>
+    <div class="equity-chart">
+      <svg class="equity-svg" id="equity-svg" viewBox="0 0 800 80" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="eq-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#00ff88" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#00ff88" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- Baseline $100 -->
+        <line id="eq-baseline" x1="0" y1="60" x2="800" y2="60" stroke="#1a2332" stroke-width="1" stroke-dasharray="4,4"/>
+        <path id="eq-area" fill="url(#eq-grad)"/>
+        <path id="eq-line" fill="none" stroke="#00ff88" stroke-width="2"/>
+        <!-- Start label -->
+        <text x="4" y="75" fill="#5a7080" font-size="9" font-family="Space Mono,monospace">$100</text>
+        <text id="eq-end-label" x="796" y="12" fill="#00ff88" font-size="9" font-family="Space Mono,monospace" text-anchor="end"/>
+      </svg>
+    </div>
+  </div>
+
   <!-- PnL -->
   <div class="section-title">Paper Trading · Kelly Bankroll · Live</div>
   <div class="pnl-grid">
@@ -542,8 +794,17 @@
   <div class="section-title">Signal Log</div>
   <div class="log-block">
     <div class="log-header">
-      <div class="log-title">Recent Markets</div>
+      <div class="log-title">Recent Signals</div>
       <div class="log-count" id="log-count">—</div>
+    </div>
+    <!-- Column headers -->
+    <div style="display:grid;grid-template-columns:55px 55px 90px 90px 1fr 60px;gap:0;padding:8px 20px;border-bottom:1px solid var(--border)">
+      <div style="font-size:9px;letter-spacing:2px;color:var(--dim)">TIME</div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--dim)">DIR</div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--dim)">PRICE</div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--dim)">ELAPSED</div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--dim)">BET</div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--dim);text-align:right">RESULT</div>
     </div>
     <div id="log-body"></div>
   </div>
@@ -588,13 +849,13 @@ async function fetchDOGE() {
     priceHistory.push(price);
     if (priceHistory.length > 60) priceHistory.shift();
 
-    updatePrice(price);
+    updatePrice(price, data);
   } catch(e) {
     console.warn('Pyth fetch failed:', e);
   }
 }
 
-function updatePrice(price) {
+function updatePrice(price, data) {
   const chg    = prevPrice ? (price - prevPrice) / prevPrice * 100 : 0;
   const isPos  = chg >= 0;
   const parts  = price.toFixed(6).split('.');
@@ -635,6 +896,143 @@ function renderSparkline(prices) {
 }
 
 // ── BOT STATS ────────────────────────────────────────────────────────
+// ── Equity curve data ────────────────────────────────────────────────
+let equityCurve = [100]; // starts at $100
+
+function renderEquityCurve(bankroll) {
+  // Add current bankroll if changed
+  const last = equityCurve[equityCurve.length - 1];
+  if (Math.abs(bankroll - last) > 0.01) equityCurve.push(bankroll);
+  if (equityCurve.length > 50) equityCurve.shift();
+
+  const prices = equityCurve;
+  if (prices.length < 2) return;
+
+  const min  = Math.min(95, ...prices);
+  const max  = Math.max(105, ...prices);
+  const rng  = max - min || 1;
+  const W = 800, H = 80, padT = 8, padB = 20;
+
+  const pts = prices.map((p, i) => {
+    const x = (i / (prices.length - 1)) * W;
+    const y = padT + (1 - (p - min) / rng) * (H - padT - padB);
+    return `${x},${y}`;
+  });
+
+  const ret    = ((bankroll - 100) / 100 * 100).toFixed(1);
+  const isPos  = bankroll >= 100;
+  const color  = isPos ? '#00ff88' : '#ff4444';
+  const baseY  = padT + (1 - (100 - min) / rng) * (H - padT - padB);
+
+  document.getElementById('eq-line').setAttribute('d', `M ${pts.join(' L ')}`);
+  document.getElementById('eq-line').setAttribute('stroke', color);
+  document.getElementById('eq-area').setAttribute('d', `M 0,${H} L ${pts.join(' L ')} L ${W},${H} Z`);
+  document.getElementById('eq-grad').children[0].setAttribute('stop-color', color);
+  document.getElementById('eq-baseline').setAttribute('y1', baseY);
+  document.getElementById('eq-baseline').setAttribute('y2', baseY);
+  document.getElementById('eq-end-label').textContent = `$${bankroll.toFixed(2)}`;
+  document.getElementById('eq-end-label').setAttribute('fill', color);
+  document.getElementById('equity-return').textContent = `${isPos ? '+' : ''}${ret}%`;
+  document.getElementById('equity-return').style.color = color;
+}
+
+// ── Countdown timer ───────────────────────────────────────────────────
+let countdownInterval = null;
+
+function startCountdown(expiryTs) {
+  if (countdownInterval) clearInterval(countdownInterval);
+
+  function tick() {
+    const now  = Math.floor(Date.now() / 1000);
+    const left = Math.max(0, expiryTs - now);
+    const total = 3600;
+    const pct  = (left / total * 100).toFixed(1);
+
+    const mins = Math.floor(left / 60);
+    const secs = left % 60;
+    const display = `${mins}:${String(secs).padStart(2, '0')}`;
+
+    const el = document.getElementById('countdown-digits');
+    el.textContent = left > 0 ? display : 'EXPIRED';
+    el.className = 'countdown-digits' + (left < 600 ? ' urgent' : left < 1200 ? ' caution' : '');
+
+    document.getElementById('countdown-fill').style.width  = pct + '%';
+    document.getElementById('countdown-fill').style.background =
+      left < 600 ? 'linear-gradient(90deg,#ff4444,#ff8c00)' :
+      left < 1200 ? 'linear-gradient(90deg,#ff8c00,var(--accent2))' :
+      'linear-gradient(90deg,var(--accent),var(--accent2))';
+
+    document.getElementById('countdown-pct').textContent = `${pct}% remaining`;
+
+    // Alert window — open until 40 min elapsed = 20 min left
+    const alertOpen = left > (total - 40 * 60);
+    const awEl = document.getElementById('alert-window');
+    awEl.textContent = alertOpen ? 'Open' : left > 0 ? 'Closed' : '—';
+    awEl.style.color = alertOpen ? 'var(--accent)' : 'var(--warn)';
+
+    // Expiry time
+    const expDate = new Date(expiryTs * 1000);
+    document.getElementById('expiry-time').textContent =
+      expDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    if (left === 0) clearInterval(countdownInterval);
+  }
+
+  tick();
+  countdownInterval = setInterval(tick, 1000);
+}
+
+// ── Signal log renderer ───────────────────────────────────────────────
+let renderedLogCount = 0;
+
+function renderSignalLog(logs, wins, losses) {
+  const body  = document.getElementById('log-body');
+  const total = wins + losses;
+
+  document.getElementById('log-count').textContent =
+    total > 0 ? `${total} decided · ${logs.length} shown` : 'No signals yet';
+
+  if (!logs || logs.length === 0) {
+    body.innerHTML = '<div style="padding:20px;text-align:center;color:var(--dim);font-size:11px;letter-spacing:1px">Waiting for first signal convergence...</div>';
+    return;
+  }
+
+  // Only re-render if count changed
+  if (logs.length === renderedLogCount) return;
+  renderedLogCount = logs.length;
+
+  body.innerHTML = '';
+  [...logs].reverse().forEach((entry, i) => {
+    const row = document.createElement('div');
+    row.className = 'log-row';
+    row.style.animationDelay = `${i * 0.05}s`;
+
+    const resultClass = entry.result === 'win' ? 'win' : entry.result === 'loss' ? 'loss' : 'open';
+    const resultText  = entry.result === 'win' ? '✓ WIN' : entry.result === 'loss' ? '✗ LOSS' : '● OPEN';
+    const sigClass    = entry.signal === 'YES' ? 'yes' : 'no';
+    const betText     = entry.bet > 0 ? `$${entry.bet.toFixed(2)}` : '—';
+
+    row.innerHTML = `
+      <div class="log-time">${entry.time}</div>
+      <div class="log-signal ${sigClass}">${entry.signal}</div>
+      <div class="log-price">$${entry.price}</div>
+      <div class="log-elapsed">${entry.elapsed}m</div>
+      <div class="log-bet">${betText}</div>
+      <div class="log-result ${resultClass}">${resultText}</div>
+    `;
+    body.appendChild(row);
+  });
+}
+
+// ── Confidence interval display ───────────────────────────────────────
+function updateConfidence(conf, price) {
+  if (!conf || conf === 0) return;
+  const pill = document.getElementById('conf-pill');
+  const val  = document.getElementById('conf-val');
+  pill.style.display = 'inline-flex';
+  val.textContent    = `$${conf.toFixed(6)}  (±${(conf/price*100).toFixed(4)}%)`;
+}
+
 async function fetchBotStats() {
   if (!BOT_STATS_URL) {
     showBotDisconnected('Set BOT_STATS_URL to connect live bot data');
@@ -653,6 +1051,9 @@ async function fetchBotStats() {
     updateSignal(stats);
     updateConvergence(stats);
     updatePnL(stats);
+    if (stats.expiry)     startCountdown(stats.expiry);
+    if (stats.confidence) updateConfidence(stats.confidence, stats.price);
+    if (stats.signal_log) renderSignalLog(stats.signal_log, stats.wins, stats.losses);
 
   } catch(e) {
     botConnected = false;
@@ -825,6 +1226,7 @@ function updatePnL(stats) {
   const bEl = document.getElementById('bankroll');
   bEl.textContent = `$${bankroll.toFixed(2)}`;
   bEl.className   = 'pnl-value pos';
+  renderEquityCurve(bankroll);
 
   const aEl = document.getElementById('alltime-pnl');
   aEl.textContent = `${alltime >= 0 ? '+' : ''}$${alltime.toFixed(2)}`;
@@ -852,6 +1254,31 @@ fetchBotStats();
 
 setInterval(fetchDOGE,     5000);   // Pyth price every 5s
 setInterval(fetchBotStats, 15000);  // Bot stats every 15s
+
+// ── Pair dropdown ────────────────────────────────────────────────────
+function togglePairMenu() {
+  const menu = document.getElementById('pair-menu');
+  const btn  = document.getElementById('pair-btn');
+  const open = menu.classList.toggle('open');
+  btn.classList.toggle('open', open);
+}
+
+function selectPair(el, pair) {
+  // Only DOGE is live — ignore clicks on disabled
+  if (el.classList.contains('disabled')) return;
+  document.querySelectorAll('.pair-option').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pair-label').textContent = pair;
+  togglePairMenu();
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.pair-dropdown-wrap')) {
+    document.getElementById('pair-menu').classList.remove('open');
+    document.getElementById('pair-btn').classList.remove('open');
+  }
+});
 
 // ── Sign out ─────────────────────────────────────────────────────────
 async function signOut() {
