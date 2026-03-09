@@ -4,6 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SignalForge — DOGE/USD Intelligence</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── Session guard — redirect to login if not authenticated ──
+(async () => {
+  const sb = supabase.createClient(
+    'https://twmhixudhtmhngllline.supabase.co',
+    'sb_publishable_UGkzDJEtQOake4-L8h7JaQ_Mmf2BlpF'
+  );
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) window.location.href = 'login.html';
+  else {
+    // Show user email in header
+    const email = session.user.email || '';
+    const isWallet = email.includes('@wallet.signalforge');
+    const display  = isWallet ? email.split('@')[0].slice(0,6)+'...'+email.split('@')[0].slice(-4) : email;
+    window.SF_USER  = display;
+    window.SF_SB    = sb;
+  }
+})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -349,6 +369,8 @@
     </div>
     <div class="header-right">
       <a href="pulse.html" class="nav-link">◈ PULSE</a>
+      <span style="font-size:10px;color:var(--dim);letter-spacing:1px;padding:6px 0" id="user-display"></span>
+      <button onclick="signOut()" style="padding:6px 14px;border:1px solid var(--border);background:none;color:var(--dim);font-size:10px;letter-spacing:2px;font-family:Space Mono,monospace;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--warn)';this.style.color='var(--warn)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dim)'">SIGN OUT</button>
       <div class="status-pill">
         <div class="status-dot"></div>
         <span id="status-text">CONNECTING...</span>
@@ -830,6 +852,19 @@ fetchBotStats();
 
 setInterval(fetchDOGE,     5000);   // Pyth price every 5s
 setInterval(fetchBotStats, 15000);  // Bot stats every 15s
+
+// ── Sign out ─────────────────────────────────────────────────────────
+async function signOut() {
+  if (window.SF_SB) await window.SF_SB.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+// ── Show user in header ───────────────────────────────────────────────
+window.addEventListener('load', () => {
+  if (window.SF_USER) {
+    document.getElementById('user-display').textContent = window.SF_USER;
+  }
+});
 </script>
 </body>
 </html>

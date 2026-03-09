@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SignalForge — Access</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #080b0f;
+    --surface: #0d1117;
+    --border:  #1a2332;
+    --border2: #243447;
+    --accent:  #00ff88;
+    --blue:    #00bfff;
+    --warn:    #ff4444;
+    --text:    #c8d8e8;
+    --dim:     #5a7080;
+    --muted:   #3a4a5c;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* ── Grid background ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+
+  /* ── Scanlines ── */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px
+    );
+    pointer-events: none; z-index: 999;
+  }
+
+  /* ── Ambient glow blobs ── */
+  .glow-left {
+    position: fixed;
+    width: 600px; height: 600px;
+    left: -200px; top: 50%;
+    transform: translateY(-50%);
+    background: radial-gradient(circle, rgba(0,255,136,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .glow-right {
+    position: fixed;
+    width: 500px; height: 500px;
+    right: -150px; top: 30%;
+    background: radial-gradient(circle, rgba(0,191,255,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ── Corner decorations ── */
+  .corner {
+    position: fixed;
+    width: 80px; height: 80px;
+    pointer-events: none;
+  }
+  .corner.tl { top:20px; left:20px; border-top:1px solid var(--border2); border-left:1px solid var(--border2); }
+  .corner.tr { top:20px; right:20px; border-top:1px solid var(--border2); border-right:1px solid var(--border2); }
+  .corner.bl { bottom:20px; left:20px; border-bottom:1px solid var(--border2); border-left:1px solid var(--border2); }
+  .corner.br { bottom:20px; right:20px; border-bottom:1px solid var(--border2); border-right:1px solid var(--border2); }
+
+  /* ── Floating stats (background decoration) ── */
+  .bg-stat {
+    position: fixed;
+    font-size: 10px; letter-spacing: 2px;
+    color: var(--border2);
+    text-transform: uppercase;
+    pointer-events: none;
+    animation: float-stat 8s ease-in-out infinite;
+  }
+
+  @keyframes float-stat {
+    0%,100% { opacity: 0.4; transform: translateY(0); }
+    50%      { opacity: 0.7; transform: translateY(-6px); }
+  }
+
+  .bs1 { top: 15%; left: 5%;  animation-delay: 0s; }
+  .bs2 { top: 35%; left: 3%;  animation-delay: 1.5s; }
+  .bs3 { top: 65%; left: 6%;  animation-delay: 3s; }
+  .bs4 { top: 80%; left: 4%;  animation-delay: 0.8s; }
+  .bs5 { top: 20%; right: 5%; animation-delay: 2s; }
+  .bs6 { top: 50%; right: 4%; animation-delay: 4s; }
+  .bs7 { top: 75%; right: 6%; animation-delay: 1s; }
+
+  /* ── Card ── */
+  .card {
+    position: relative; z-index: 10;
+    width: 100%; max-width: 420px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    padding: 0;
+    box-shadow:
+      0 0 0 1px rgba(0,255,136,0.05),
+      0 32px 80px rgba(0,0,0,0.6),
+      0 0 120px rgba(0,255,136,0.03);
+    animation: card-in 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  @keyframes card-in {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Top accent bar */
+  .card-bar {
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--blue), transparent);
+  }
+
+  .card-inner { padding: 36px 36px 32px; }
+
+  /* ── Header ── */
+  .logo {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: var(--accent);
+    animation: pulse-border 3s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse-border {
+    0%,100% { box-shadow: 0 0 8px rgba(0,255,136,0.2); }
+    50%      { box-shadow: 0 0 20px rgba(0,255,136,0.5); }
+  }
+
+  .logo-text h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px; font-weight: 800;
+    color: #fff; letter-spacing: -0.3px;
+    line-height: 1;
+  }
+
+  .logo-text p {
+    font-size: 10px; color: var(--dim);
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  /* ── Access badge ── */
+  .access-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid rgba(0,255,136,0.2);
+    background: rgba(0,255,136,0.04);
+    font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 28px;
+  }
+
+  .badge-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    animation: blink 1.4s ease-in-out infinite;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  /* ── Tab switcher ── */
+  .tabs {
+    display: grid; grid-template-columns: 1fr 1fr;
+    border: 1px solid var(--border); margin-bottom: 24px;
+  }
+
+  .tab {
+    padding: 10px; text-align: center;
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--dim); cursor: pointer;
+    transition: all 0.2s; background: none; border: none;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .tab.active {
+    background: rgba(0,255,136,0.06);
+    color: var(--accent);
+    border-bottom: 1px solid var(--accent);
+  }
+
+  .tab:hover:not(.active) { color: var(--text); background: rgba(255,255,255,0.02); }
+
+  /* ── Form panels ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── Input fields ── */
+  .field { margin-bottom: 16px; }
+
+  .field-label {
+    display: block;
+    font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--dim); margin-bottom: 8px;
+  }
+
+  .field-input {
+    width: 100%; padding: 12px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .field-input:focus {
+    border-color: rgba(0,255,136,0.4);
+    box-shadow: 0 0 0 2px rgba(0,255,136,0.06);
+  }
+
+  .field-input::placeholder { color: var(--muted); }
+
+  /* Password wrapper */
+  .pw-wrap { position: relative; }
+  .pw-toggle {
+    position: absolute; right: 12px; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none;
+    color: var(--dim); cursor: pointer;
+    font-size: 11px; letter-spacing: 1px;
+    font-family: 'Space Mono', monospace;
+    transition: color 0.2s;
+  }
+  .pw-toggle:hover { color: var(--accent); }
+
+  /* ── Primary button ── */
+  .btn-primary {
+    width: 100%; padding: 13px;
+    background: var(--accent);
+    color: var(--bg);
+    border: none; cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    transition: all 0.2s;
+    margin-top: 8px; position: relative; overflow: hidden;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.4s;
+  }
+
+  .btn-primary:hover { background: #00e87a; }
+  .btn-primary:hover::before { transform: translateX(100%); }
+  .btn-primary:active { transform: scale(0.99); }
+
+  .btn-primary.loading {
+    pointer-events: none; opacity: 0.7;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 20px 0; color: var(--dim); font-size: 10px; letter-spacing: 1px;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  /* ── OAuth buttons ── */
+  .oauth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .btn-oauth {
+    padding: 11px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; letter-spacing: 1.5px;
+    text-transform: uppercase; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.2s;
+  }
+
+  .btn-oauth:hover { border-color: var(--border2); background: rgba(255,255,255,0.02); color: #fff; }
+
+  .btn-oauth svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  /* MetaMask btn — full width */
+  .btn-wallet {
+    width: 100%; margin-top: 10px;
+    padding: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .btn-wallet:hover {
+    border-color: rgba(0,191,255,0.4);
+    color: var(--blue);
+    box-shadow: 0 0 12px rgba(0,191,255,0.08);
+  }
+
+  .wallet-addr {
+    font-size: 10px; color: var(--accent);
+    letter-spacing: 1px; margin-top: 8px;
+    text-align: center; display: none;
+  }
+
+  /* ── Footer ── */
+  .card-footer {
+    padding: 16px 36px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .footer-link {
+    font-size: 10px; color: var(--dim);
+    text-decoration: none; letter-spacing: 1px;
+    transition: color 0.2s;
+  }
+  .footer-link:hover { color: var(--accent); }
+
+  .footer-version { font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+
+  /* ── Error / success messages ── */
+  .msg {
+    padding: 10px 14px; margin-bottom: 16px;
+    font-size: 11px; letter-spacing: 1px;
+    display: none;
+  }
+  .msg.error   { border: 1px solid rgba(255,68,68,0.3);   background: rgba(255,68,68,0.06);   color: var(--warn); }
+  .msg.success { border: 1px solid rgba(0,255,136,0.3); background: rgba(0,255,136,0.06); color: var(--accent); }
+  .msg.show { display: block; animation: msg-in 0.3s ease; }
+  @keyframes msg-in { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── Remember me ── */
+  .remember {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 4px; cursor: pointer;
+  }
+
+  .remember input[type="checkbox"] { display: none; }
+
+  .check-box {
+    width: 14px; height: 14px;
+    border: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+
+  .remember input:checked + .check-box {
+    background: var(--accent); border-color: var(--accent);
+  }
+
+  .remember input:checked + .check-box::after {
+    content: '✓'; font-size: 9px; color: var(--bg); font-weight: 700;
+  }
+
+  .remember-label { font-size: 10px; color: var(--dim); letter-spacing: 1px; user-select: none; }
+
+  /* ── Forgot password ── */
+  .form-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px;
+  }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- Ambient glows -->
+<div class="glow-left"></div>
+<div class="glow-right"></div>
+
+<!-- Corner decorations -->
+<div class="corner tl"></div>
+<div class="corner tr"></div>
+<div class="corner bl"></div>
+<div class="corner br"></div>
+
+<!-- Background floating stats -->
+<div class="bg-stat bs1">WIN RATE · 84.2%</div>
+<div class="bg-stat bs2">DOGE/USD · LIVE</div>
+<div class="bg-stat bs3">SIGNALS · ACTIVE</div>
+<div class="bg-stat bs4">PYTH · HERMES</div>
+<div class="bg-stat bs5">KELLY · QUARTER</div>
+<div class="bg-stat bs6">BASE · CHAIN 8453</div>
+<div class="bg-stat bs7">BANKROLL · $210.06</div>
+
+<!-- Auth card -->
+<div class="card">
+  <div class="card-bar"></div>
+  <div class="card-inner">
+
+    <!-- Logo -->
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text">
+        <h1>SignalForge</h1>
+        <p>DOGE/USD · Prediction Intelligence</p>
+      </div>
+    </div>
+
+    <!-- Access badge -->
+    <div class="access-badge">
+      <div class="badge-dot"></div>
+      Restricted Access · Authorized Only
+    </div>
+
+    <!-- Error/success messages -->
+    <div class="msg error" id="msg-error">Invalid credentials. Try again.</div>
+    <div class="msg success" id="msg-success">✓ Access granted — redirecting...</div>
+
+    <!-- Tab switcher -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login')">Sign In</button>
+      <button class="tab" onclick="switchTab('register')">Register</button>
+    </div>
+
+    <!-- LOGIN PANEL -->
+    <div class="panel active" id="panel-login">
+      <div class="field">
+        <label class="field-label">Email Address</label>
+        <input class="field-input" type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label class="field-label">Password</label>
+        <div class="pw-wrap">
+          <input class="field-input" type="password" id="login-pw" placeholder="••••••••••••" autocomplete="current-password">
+          <button class="pw-toggle" onclick="togglePw('login-pw', this)">SHOW</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="remember">
+          <input type="checkbox" id="remember-me">
+          <div class="check-box"></div>
+          <span class="remember-label">Remember me</span>
+        </label>
+        <a href="#" class="footer-link" onclick="forgotPassword()">Forgot password?</a>
+      </div>
+      <button class="btn-primary" id="btn-login" onclick="handleLogin()">
+        Access Dashboard
+      </button>
+    </div>
+
+    <!-- REGISTER PANEL -->
+    <div class="panel" id="panel-register">
+      <div class="field">
+        <label class="field-label">Email Address</label>
+        <input class="field-input" type="email" id="reg-email" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label class="field-label">Password</label>
+        <div class="pw-wrap">
+          <input class="field-input" type="password" id="reg-pw" placeholder="Min 8 characters" oninput="checkPwStrength(this.value)">
+          <button class="pw-toggle" onclick="togglePw('reg-pw', this)">SHOW</button>
+        </div>
+      </div>
+      <!-- Password strength -->
+      <div style="margin-top:-8px;margin-bottom:16px;display:flex;gap:4px" id="pw-bars">
+        <div style="height:2px;flex:1;background:var(--border);transition:background 0.3s" id="bar0"></div>
+        <div style="height:2px;flex:1;background:var(--border);transition:background 0.3s" id="bar1"></div>
+        <div style="height:2px;flex:1;background:var(--border);transition:background 0.3s" id="bar2"></div>
+        <div style="height:2px;flex:1;background:var(--border);transition:background 0.3s" id="bar3"></div>
+      </div>
+      <div class="field">
+        <label class="field-label">Confirm Password</label>
+        <div class="pw-wrap">
+          <input class="field-input" type="password" id="reg-pw2" placeholder="Repeat password">
+          <button class="pw-toggle" onclick="togglePw('reg-pw2', this)">SHOW</button>
+        </div>
+      </div>
+      <button class="btn-primary" id="btn-register" onclick="handleRegister()">
+        Create Account
+      </button>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider">or continue with</div>
+
+    <!-- OAuth -->
+    <div class="oauth-grid">
+      <button class="btn-oauth" onclick="handleGoogle()">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Google
+      </button>
+      <button class="btn-oauth" onclick="handleGithub()">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+        GitHub
+      </button>
+    </div>
+
+    <!-- MetaMask / Wallet -->
+    <button class="btn-wallet" id="btn-wallet" onclick="handleWallet()">
+      <svg width="18" height="18" viewBox="0 0 35 33" fill="none">
+        <path d="M32.958 1L19.25 10.966l2.488-5.87L32.958 1z" fill="#E17726"/>
+        <path d="M2.042 1l13.583 10.058-2.366-5.962L2.042 1z" fill="#E27625"/>
+        <path d="M28.125 23.533l-3.646 5.584 7.792 2.146 2.237-7.606-6.383-.124zM1 23.657l2.221 7.606 7.775-2.146-3.63-5.584-6.366.124z" fill="#E27625"/>
+        <path d="M10.63 14.512l-2.17 3.28 7.727.35-.264-8.313-5.293 4.683zM24.37 14.512l-5.36-4.776-.165 8.406 7.71-.35-2.185-3.28z" fill="#E27625"/>
+        <path d="M10.996 29.117l4.657-2.245-4.013-3.13-.644 5.375zM19.33 26.872l4.674 2.245-.66-5.375-4.014 3.13z" fill="#E27625"/>
+      </svg>
+      Connect Wallet
+    </button>
+    <div class="wallet-addr" id="wallet-addr"></div>
+
+  </div>
+
+  <!-- Card footer -->
+  <div class="card-footer">
+    <a href="index.html" class="footer-link">← Back to dashboard</a>
+    <span class="footer-version">v1.0 · Hackathon Build</span>
+  </div>
+</div>
+
+<script>
+// ── Supabase config ──────────────────────────────────────────────────
+const SUPABASE_URL  = 'https://twmhixudhtmhngllline.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_UGkzDJEtQOake4-L8h7JaQ_Mmf2BlpF';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ── On page load — redirect if already logged in ─────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) window.location.href = 'index.html';
+})();
+
+// ── Tab switching ─────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.tab[onclick*="${tab}"]`).classList.add('active');
+  document.getElementById(`panel-${tab}`).classList.add('active');
+  hideMessages();
+}
+
+// ── Password toggle ───────────────────────────────────────────────────
+function togglePw(id, btn) {
+  const input = document.getElementById(id);
+  const show  = input.type === 'password';
+  input.type  = show ? 'text' : 'password';
+  btn.textContent = show ? 'HIDE' : 'SHOW';
+}
+
+// ── Password strength ─────────────────────────────────────────────────
+function checkPwStrength(pw) {
+  const bars   = [0,1,2,3].map(i => document.getElementById(`bar${i}`));
+  const colors = ['var(--warn)', '#ff8c00', 'var(--blue)', 'var(--accent)'];
+  let score    = 0;
+  if (pw.length >= 8)    score++;
+  if (/[A-Z]/.test(pw))  score++;
+  if (/[0-9]/.test(pw))  score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  bars.forEach((b, i) => {
+    b.style.background = i < score ? colors[score - 1] : 'var(--border)';
+  });
+}
+
+// ── Messages ──────────────────────────────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById('msg-error');
+  el.textContent = msg;
+  el.classList.add('show');
+  document.getElementById('msg-success').classList.remove('show');
+}
+
+function showSuccess(msg) {
+  const el = document.getElementById('msg-success');
+  el.textContent = msg;
+  el.classList.add('show');
+  document.getElementById('msg-error').classList.remove('show');
+}
+
+function hideMessages() {
+  document.getElementById('msg-error').classList.remove('show');
+  document.getElementById('msg-success').classList.remove('show');
+}
+
+// ── Button loading state ──────────────────────────────────────────────
+function setLoading(btnId, text) {
+  const btn = document.getElementById(btnId);
+  btn.classList.add('loading');
+  btn.textContent = text;
+}
+
+function resetBtn(btnId, text) {
+  const btn = document.getElementById(btnId);
+  btn.classList.remove('loading');
+  btn.textContent = text;
+}
+
+// ── LOGIN — Supabase email + password ─────────────────────────────────
+async function handleLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pw    = document.getElementById('login-pw').value;
+
+  if (!email || !pw) { showError('Please enter your email and password.'); return; }
+  if (!email.includes('@')) { showError('Please enter a valid email address.'); return; }
+
+  setLoading('btn-login', 'Authenticating...');
+  hideMessages();
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
+
+  if (error) {
+    resetBtn('btn-login', 'Access Dashboard');
+    showError(error.message || 'Login failed. Check your credentials.');
+    return;
+  }
+
+  showSuccess('✓ Access granted — redirecting...');
+  setTimeout(() => { window.location.href = 'index.html'; }, 900);
+}
+
+// ── REGISTER — Supabase email + password ──────────────────────────────
+async function handleRegister() {
+  const email = document.getElementById('reg-email').value.trim();
+  const pw    = document.getElementById('reg-pw').value;
+  const pw2   = document.getElementById('reg-pw2').value;
+
+  if (!email || !pw) { showError('Please fill in all fields.'); return; }
+  if (!email.includes('@')) { showError('Please enter a valid email address.'); return; }
+  if (pw.length < 8) { showError('Password must be at least 8 characters.'); return; }
+  if (pw !== pw2)   { showError('Passwords do not match.'); return; }
+
+  setLoading('btn-register', 'Creating account...');
+  hideMessages();
+
+  const { data, error } = await sb.auth.signUp({ email, password: pw });
+
+  if (error) {
+    resetBtn('btn-register', 'Create Account');
+    showError(error.message || 'Registration failed.');
+    return;
+  }
+
+  // Supabase sends a confirmation email by default
+  resetBtn('btn-register', 'Create Account');
+  showSuccess('✓ Account created! Check your email to confirm, then sign in.');
+}
+
+// ── METAMASK — sign message, verify, create Supabase session ──────────
+async function handleWallet() {
+  hideMessages();
+
+  if (typeof window.ethereum === 'undefined') {
+    showError('MetaMask not detected. Install MetaMask to use wallet login.');
+    return;
+  }
+
+  setLoading('btn-wallet', 'Connecting...');
+
+  try {
+    // 1. Request wallet connection
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const address  = accounts[0];
+    const short    = address.slice(0, 6) + '...' + address.slice(-4);
+
+    // 2. Ask user to sign a message — proves wallet ownership
+    const message = `SignalForge login\nAddress: ${address}\nTimestamp: ${Date.now()}`;
+    const signature = await window.ethereum.request({
+      method: 'personal_sign',
+      params: [message, address],
+    });
+
+    // 3. Use wallet address as email in Supabase (deterministic)
+    const walletEmail = `${address.toLowerCase()}@wallet.signalforge`;
+    const walletPw    = signature.slice(0, 32); // use part of sig as password
+
+    // Try sign in first, register if new wallet
+    let result = await sb.auth.signInWithPassword({
+      email:    walletEmail,
+      password: walletPw,
+    });
+
+    if (result.error) {
+      // New wallet — register it
+      result = await sb.auth.signUp({
+        email:    walletEmail,
+        password: walletPw,
+        options:  { data: { wallet_address: address } }
+      });
+    }
+
+    if (result.error) {
+      throw new Error(result.error.message);
+    }
+
+    // Update UI
+    document.getElementById('btn-wallet').innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="#00ff88" stroke-width="1.5"/>
+        <path d="M7 12l3 3 7-7" stroke="#00ff88" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      ${short} · Connected
+    `;
+    document.getElementById('btn-wallet').style.borderColor = 'rgba(0,255,136,0.4)';
+    document.getElementById('btn-wallet').style.color = 'var(--accent)';
+    document.getElementById('btn-wallet').classList.remove('loading');
+
+    const addrEl = document.getElementById('wallet-addr');
+    addrEl.textContent = address;
+    addrEl.style.display = 'block';
+
+    showSuccess('✓ Wallet verified — redirecting...');
+    setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+
+  } catch (err) {
+    resetBtn('btn-wallet', 'Connect Wallet');
+    showError(err.code === 4001 ? 'Connection rejected.' : err.message || 'Wallet login failed.');
+  }
+}
+
+// ── Forgot password ───────────────────────────────────────────────────
+async function forgotPassword() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) {
+    showError('Enter your email above first, then click forgot password.');
+    return;
+  }
+
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/login.html',
+  });
+
+  if (error) { showError(error.message); return; }
+  showSuccess(`✓ Password reset link sent to ${email}`);
+}
+
+// ── Enter key support ─────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const loginActive = document.getElementById('panel-login').classList.contains('active');
+  if (loginActive) handleLogin();
+  else handleRegister();
+});
+</script>
+</body>
+</html>
