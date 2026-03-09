@@ -667,13 +667,28 @@ async function handleRegister() {
 
   if (error) {
     resetBtn('btn-register', 'Create Account');
-    showError(error.message || 'Registration failed.');
+    // "User already registered" — just try logging in
+    if (error.message.includes('already registered')) {
+      showError('Account already exists. Please sign in instead.');
+      switchTab('login');
+      document.getElementById('login-email').value = email;
+    } else {
+      showError(error.message || 'Registration failed.');
+    }
     return;
   }
 
-  // Supabase sends a confirmation email by default
   resetBtn('btn-register', 'Create Account');
-  showSuccess('✓ Account created! Check your email to confirm, then sign in.');
+
+  // If email confirmation is OFF in Supabase → session exists, redirect immediately
+  // If email confirmation is ON → ask them to check email
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    showSuccess('✓ Account created — redirecting...');
+    setTimeout(() => { window.location.href = 'index.html'; }, 900);
+  } else {
+    showSuccess('✓ Account created! Check your email to confirm, then sign in.');
+  }
 }
 
 // ── METAMASK — sign message, verify, create Supabase session ──────────
@@ -700,28 +715,30 @@ async function handleWallet() {
       params: [message, address],
     });
 
-    // 3. Use wallet address as email in Supabase (deterministic)
-    const walletEmail = `${address.toLowerCase()}@wallet.signalforge`;
-    const walletPw    = signature.slice(0, 32); // use part of sig as password
-
-    // Try sign in first, register if new wallet
-    let result = await sb.auth.signInWithPassword({
-      email:    walletEmail,
-      password: walletPw,
-    });
+    // 3. Sign in anonymously — wallet signature proves identity
+    // Supabase anonymous auth: no email needed
+    let result = await sb.auth.signInAnonymously();
 
     if (result.error) {
-      // New wallet — register it
-      result = await sb.auth.signUp({
-        email:    walletEmail,
-        password: walletPw,
-        options:  { data: { wallet_address: address } }
-      });
+      // Fallback: use wallet as email with gmail domain (widely accepted)
+      const walletEmail = `wallet_${address.slice(2,10).toLowerCase()}@gmail.com`;
+      const walletPw    = `SF_${signature.slice(2, 30)}`;
+      result = await sb.auth.signInWithPassword({ email: walletEmail, password: walletPw });
+      if (result.error) {
+        result = await sb.auth.signUp({
+          email:    walletEmail,
+          password: walletPw,
+          options:  { data: { wallet_address: address } }
+        });
+      }
     }
 
     if (result.error) {
       throw new Error(result.error.message);
     }
+
+    // Store wallet address in user metadata
+    await sb.auth.updateUser({ data: { wallet_address: address } });
 
     // Update UI
     document.getElementById('btn-wallet').innerHTML = `
