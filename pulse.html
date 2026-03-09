@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pyth Pulse — Multi-Asset Intelligence</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(async () => {
+  const sb = supabase.createClient(
+    'https://twmhixudhtmhngllline.supabase.co',
+    'sb_publishable_UGkzDJEtQOake4-L8h7JaQ_Mmf2BlpF'
+  );
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) window.location.href = 'login.html';
+})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Clash+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
