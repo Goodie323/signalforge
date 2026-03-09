@@ -345,69 +345,6 @@
   .conn-banner.connected    { border-color:rgba(0,255,136,0.3); color:var(--accent); background:rgba(0,255,136,0.04); }
   .conn-banner.disconnected { border-color:rgba(255,68,68,0.3);  color:var(--warn);   background:rgba(255,68,68,0.04); }
 
-  /* ── Pair selector dropdown ── */
-  .pair-selector {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 14px;
-  }
-
-  .pair-btn {
-    display: flex; align-items: center; gap: 8px;
-    background: var(--bg); border: 1px solid var(--border2);
-    color: var(--text); font-family: 'Space Mono', monospace;
-    font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
-    padding: 6px 12px; cursor: pointer;
-    transition: all 0.2s; position: relative;
-  }
-
-  .pair-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  .pair-btn .arrow {
-    font-size: 9px; color: var(--dim);
-    transition: transform 0.2s;
-  }
-
-  .pair-btn.open .arrow { transform: rotate(180deg); }
-
-  .pair-menu {
-    position: absolute; top: calc(100% + 6px); left: 0;
-    background: var(--surface); border: 1px solid var(--border2);
-    min-width: 180px; z-index: 100;
-    display: none; flex-direction: column;
-    box-shadow: 0 16px 40px rgba(0,0,0,0.5);
-  }
-
-  .pair-menu.open { display: flex; }
-
-  .pair-option {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 11px 14px; font-size: 12px; letter-spacing: 0.5px;
-    cursor: pointer; transition: background 0.15s;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .pair-option:last-child { border-bottom: none; }
-
-  .pair-option:hover:not(.disabled) { background: rgba(0,255,136,0.05); color: var(--accent); }
-
-  .pair-option.active { color: var(--accent); }
-
-  .pair-option.disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .pair-live {
-    font-size: 8px; letter-spacing: 2px; padding: 2px 6px;
-    background: rgba(0,255,136,0.1); color: var(--accent);
-    border: 1px solid rgba(0,255,136,0.25);
-  }
-
-  .pair-soon {
-    font-size: 8px; letter-spacing: 2px; padding: 2px 6px;
-    background: rgba(90,112,128,0.15); color: var(--dim);
-    border: 1px solid var(--border);
-  }
-
-  .pair-dropdown-wrap { position: relative; }
-
   @media (max-width:700px) {
     .price-hero  { grid-template-columns:1fr; }
     .voters-grid { grid-template-columns:1fr; }
@@ -428,7 +365,6 @@
       <div class="logo-text">
         <h1>SignalForge</h1>
         <span>DOGE/USD · Limitless Markets</span>
-        <!--<span style="font-size:8px;letter-spacing:2px;padding:2px 7px;background:rgba(90,112,128,0.2);color:var(--dim);border:1px solid var(--border);margin-left:8px;vertical-align:middle">MORE PAIRS SOON</span>-->
       </div>
     </div>
     <div class="header-right">
@@ -485,63 +421,19 @@
 
   <!-- Price Hero -->
   <div class="price-hero">
-
-    <!-- LEFT: DOGE/USD price + pair dropdown (swapped to left) -->
-    <div class="price-block" style="position:relative">
-      <!-- Pair selector -->
-      <div class="pair-selector">
-        <div class="price-label" style="margin-bottom:0">Live via Pyth Network</div>
-        <div class="pair-dropdown-wrap">
-          <button class="pair-btn" id="pair-btn" onclick="togglePairMenu()">
-            <span id="pair-label">DOGE / USD</span>
-            <span class="arrow">▾</span>
-          </button>
-          <div class="pair-menu" id="pair-menu">
-            <div class="pair-option active" onclick="selectPair(this, 'DOGE/USD')">
-              <span>DOGE / USD</span>
-              <span class="pair-live">LIVE</span>
-            </div>
-            <div class="pair-option disabled">
-              <span>BTC / USD</span>
-              <span class="pair-soon">SOON</span>
-            </div>
-            <div class="pair-option disabled">
-              <span>ETH / USD</span>
-              <span class="pair-soon">SOON</span>
-            </div>
-            <div class="pair-option disabled">
-              <span>SOL / USD</span>
-              <span class="pair-soon">SOON</span>
-            </div>
-            <div class="pair-option disabled">
-              <span>BNB / USD</span>
-              <span class="pair-soon">SOON</span>
-            </div>
-            <div class="pair-option disabled">
-              <span>XRP / USD</span>
-              <span class="pair-soon">SOON</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Price -->
+    <div class="price-block">
+      <div class="price-label">DOGE / USD · Live via Pyth Network</div>
       <div class="price-value" id="live-price">0.<span id="price-dec">——————</span></div>
       <div class="price-change" id="price-change">Fetching live price...</div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim)">THRESHOLD</span>
+        <span style="font-size:13px;color:var(--accent2);font-family:'Space Mono',monospace" id="threshold-val">Awaiting market...</span>
+        <span style="font-size:10px;color:var(--dim)" id="threshold-dir"></span>
+      </div>
     </div>
-
-    <!-- RIGHT: Limitless market info + sparkline (swapped to right) -->
     <div class="chart-block">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <div class="chart-label" style="margin-bottom:0">Limitless Market · Active Threshold</div>
-        <div style="font-size:10px;color:var(--dim);letter-spacing:1px" id="threshold-dir"></div>
-      </div>
-      <!-- Threshold big number -->
-      <div style="font-size:26px;font-family:'Syne',sans-serif;font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:6px">
-        <span style="font-size:13px;color:var(--dim);font-weight:400">THRESHOLD </span>
-        <span id="threshold-val" style="color:var(--accent2)">Awaiting...</span>
-      </div>
-      <!-- Sparkline below threshold -->
-      <svg class="sparkline" id="sparkline" viewBox="0 0 400 48" preserveAspectRatio="none" style="height:48px">
+      <div class="chart-label">Price History · Last 20 ticks · Pyth Hermes</div>
+      <svg class="sparkline" id="sparkline" viewBox="0 0 400 64" preserveAspectRatio="none">
         <defs>
           <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stop-color="#00ff88" stop-opacity="0.3"/>
@@ -960,31 +852,6 @@ fetchBotStats();
 
 setInterval(fetchDOGE,     5000);   // Pyth price every 5s
 setInterval(fetchBotStats, 15000);  // Bot stats every 15s
-
-// ── Pair dropdown ────────────────────────────────────────────────────
-function togglePairMenu() {
-  const menu = document.getElementById('pair-menu');
-  const btn  = document.getElementById('pair-btn');
-  const open = menu.classList.toggle('open');
-  btn.classList.toggle('open', open);
-}
-
-function selectPair(el, pair) {
-  // Only DOGE is live — ignore clicks on disabled
-  if (el.classList.contains('disabled')) return;
-  document.querySelectorAll('.pair-option').forEach(o => o.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('pair-label').textContent = pair;
-  togglePairMenu();
-}
-
-// Close dropdown when clicking outside
-document.addEventListener('click', e => {
-  if (!e.target.closest('.pair-dropdown-wrap')) {
-    document.getElementById('pair-menu').classList.remove('open');
-    document.getElementById('pair-btn').classList.remove('open');
-  }
-});
 
 // ── Sign out ─────────────────────────────────────────────────────────
 async function signOut() {
