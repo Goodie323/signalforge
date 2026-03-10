@@ -345,6 +345,20 @@
   .conn-banner.connected    { border-color:rgba(0,255,136,0.3); color:var(--accent); background:rgba(0,255,136,0.04); }
   .conn-banner.disconnected { border-color:rgba(255,68,68,0.3);  color:var(--warn);   background:rgba(255,68,68,0.04); }
 
+  /* ── Skeleton shimmer ── */
+  @keyframes shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position:  400px 0; }
+  }
+
+  .skeleton {
+    background: linear-gradient(90deg, var(--border) 25%, var(--border2) 50%, var(--border) 75%);
+    background-size: 800px 100%;
+    animation: shimmer 1.6s infinite;
+    border-radius: 2px;
+    display: inline-block;
+  }
+
   /* ── Countdown timer ── */
   .countdown-block {
     background: var(--surface); border: 1px solid var(--border);
@@ -514,7 +528,6 @@
       <div class="logo-text">
         <h1>SignalForge</h1>
         <span>DOGE/USD · Limitless Markets</span>
-        <span style="font-size:8px;letter-spacing:2px;padding:2px 7px;background:rgba(90,112,128,0.2);color:var(--dim);border:1px solid var(--border);margin-left:8px;vertical-align:middle">MORE PAIRS SOON</span>
       </div>
     </div>
     <div class="header-right">
@@ -532,34 +545,6 @@
   <div class="conn-banner disconnected" id="conn-banner">
     <span id="conn-dot">○</span>
     <span id="conn-msg">Connecting to SignalForge bot...</span>
-  </div>
-
-  <!-- Market Countdown -->
-  <div class="countdown-block" id="countdown-block">
-    <div class="countdown-left">
-      <div>
-        <div class="countdown-digits" id="countdown-digits">—:——</div>
-        <div class="countdown-label">Time remaining in market</div>
-      </div>
-      <div style="width:1px;height:40px;background:var(--border)"></div>
-      <div>
-        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:6px">Alert Window</div>
-        <div style="font-size:13px;color:var(--accent)" id="alert-window">Open</div>
-      </div>
-      <div style="width:1px;height:40px;background:var(--border)"></div>
-      <div>
-        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:6px">Market Expiry</div>
-        <div style="font-size:13px;color:var(--text)" id="expiry-time">—</div>
-      </div>
-    </div>
-    <div class="countdown-bar-wrap">
-      <div class="countdown-bar-track">
-        <div class="countdown-bar-fill" id="countdown-fill" style="width:100%"></div>
-        <!-- Alert cutoff marker at 40min = 33% from end -->
-        <div class="alert-cutoff-marker" style="left:66.7%" title="Alert cutoff at 40min"></div>
-      </div>
-      <div class="countdown-pct" id="countdown-pct">100% remaining</div>
-    </div>
   </div>
 
   <!-- Ticker -->
@@ -600,45 +585,9 @@
   <!-- Price Hero -->
   <div class="price-hero">
 
-    <!-- LEFT: DOGE/USD price + pair dropdown (swapped to left) -->
-    <div class="price-block" style="position:relative">
-      <!-- Pair selector -->
-      <div class="pair-selector">
-        <div class="price-label" style="margin-bottom:0">Live via Pyth Network</div>
-        <div class="pair-dropdown-wrap">
-          <button class="pair-btn" id="pair-btn" onclick="togglePairMenu()">
-            <span id="pair-label">DOGE / USD</span>
-            <span class="arrow">▾</span>
-          </button>
-          <div class="pair-menu" id="pair-menu">
-            <div class="pair-option active" onclick="selectPair(this, 'DOGE/USD')">
-              <span>DOGE / USD</span>
-              <span class="pair-live">LIVE</span>
-            </div>
-            <div class="pair-option disabled">
-              <span>BTC / USD</span>
-              <span class="pair-soon">SOON</span>
-            </div>
-            <div class="pair-option disabled">
-              <span>ETH / USD</span>
-              <span class="pair-soon">SOON</span>
-            </div>
-            <div class="pair-option disabled">
-              <span>SOL / USD</span>
-              <span class="pair-soon">SOON</span>
-            </div>
-            <div class="pair-option disabled">
-              <span>BNB / USD</span>
-              <span class="pair-soon">SOON</span>
-            </div>
-            <div class="pair-option disabled">
-              <span>XRP / USD</span>
-              <span class="pair-soon">SOON</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Price -->
+    <!-- LEFT: DOGE/USD live price -->
+    <div class="price-block">
+      <div class="price-label">DOGE / USD · Live via Pyth Network</div>
       <div class="price-value" id="live-price">0.<span id="price-dec">——————</span></div>
       <div class="price-change" id="price-change">Fetching live price...</div>
       <div class="conf-pill" id="conf-pill" style="display:none">
@@ -656,7 +605,7 @@
       <!-- Threshold big number -->
       <div style="font-size:26px;font-family:'Syne',sans-serif;font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:6px">
         <span style="font-size:13px;color:var(--dim);font-weight:400">THRESHOLD </span>
-        <span id="threshold-val" style="color:var(--accent2)">Awaiting...</span>
+        <span id="threshold-val" style="color:var(--accent2)">Fetching...</span>
       </div>
       <!-- Sparkline below threshold -->
       <svg class="sparkline" id="sparkline" viewBox="0 0 400 48" preserveAspectRatio="none" style="height:48px">
@@ -672,36 +621,76 @@
     </div>
   </div>
 
+  <!-- Why Pyth callout -->
+  <div style="border:1px solid rgba(0,191,255,0.15);background:rgba(0,191,255,0.04);padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px">
+    <div style="font-size:20px">⬡</div>
+    <div>
+      <div style="font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent2);margin-bottom:4px">Why Pyth Network</div>
+      <div style="font-size:11px;color:var(--dim);line-height:1.6">
+        SignalForge signals and Limitless Exchange settlements both use the <strong style="color:var(--text)">same Pyth DOGE/USD oracle</strong> — eliminating any discrepancy between signal source and resolution source. The bot watches what the market resolves against.
+      </div>
+    </div>
+  </div>
+
   <!-- Ensemble Voters -->
   <div class="section-title">Ensemble Voters · Live from Bot</div>
   <div class="voters-grid">
     <div class="voter-card skip" id="voter0">
       <div class="voter-name">Z-Score Probability</div>
-      <div class="voter-value" id="v0-val">—</div>
-      <div class="voter-sub"  id="v0-sub">Awaiting bot data...</div>
+      <div class="voter-value" id="v0-val"><span class="skeleton" style="width:60px;height:18px"> </span></div>
+      <div class="voter-sub"  id="v0-sub">Polling every 5 min</div>
       <div class="voter-badge" id="v0-badge">—</div>
     </div>
     <div class="voter-card skip" id="voter1">
       <div class="voter-name">RSI + Momentum Gate</div>
-      <div class="voter-value" id="v1-val">—</div>
-      <div class="voter-sub"  id="v1-sub">Awaiting bot data...</div>
+      <div class="voter-value" id="v1-val"><span class="skeleton" style="width:60px;height:18px"> </span></div>
+      <div class="voter-sub"  id="v1-sub">Polling every 5 min</div>
       <div class="voter-badge" id="v1-badge">—</div>
     </div>
     <div class="voter-card skip" id="voter2">
       <div class="voter-name">TWAP Alignment</div>
-      <div class="voter-value" id="v2-val">—</div>
-      <div class="voter-sub"  id="v2-sub">Awaiting bot data...</div>
+      <div class="voter-value" id="v2-val"><span class="skeleton" style="width:60px;height:18px"> </span></div>
+      <div class="voter-sub"  id="v2-sub">Polling every 5 min</div>
       <div class="voter-badge" id="v2-badge">—</div>
     </div>
   </div>
+
+  <!-- Market Countdown -->
+  <div class="countdown-block" id="countdown-block">
+    <div class="countdown-left">
+      <div>
+        <div class="countdown-digits" id="countdown-digits">—:——</div>
+        <div class="countdown-label">Time remaining in market</div>
+      </div>
+      <div style="width:1px;height:40px;background:var(--border)"></div>
+      <div>
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:6px">Alert Window</div>
+        <div style="font-size:13px;color:var(--accent)" id="alert-window">Open</div>
+      </div>
+      <div style="width:1px;height:40px;background:var(--border)"></div>
+      <div>
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:6px">Market Expiry</div>
+        <div style="font-size:13px;color:var(--text)" id="expiry-time">—</div>
+      </div>
+    </div>
+    <div class="countdown-bar-wrap">
+      <div class="countdown-bar-track">
+        <div class="countdown-bar-fill" id="countdown-fill" style="width:100%"></div>
+        <!-- Alert cutoff marker at 40min = 33% from end -->
+        <div class="alert-cutoff-marker" style="left:66.7%" title="Alert cutoff at 40min"></div>
+      </div>
+      <div class="countdown-pct" id="countdown-pct">100% remaining</div>
+    </div>
+  </div>
+
 
   <!-- Signal Intelligence -->
   <div class="section-title">Signal Intelligence · Live</div>
   <div class="signal-row">
     <div class="metric-block">
       <div class="metric-label">Current Signal</div>
-      <div class="metric-value" id="signal-val">—</div>
-      <div class="metric-sub"  id="signal-sub">Awaiting convergence</div>
+      <div class="metric-value" id="signal-val"><span class="skeleton" style="width:50px;height:22px"> </span></div>
+      <div class="metric-sub"  id="signal-sub">Monitoring live</div>
     </div>
     <div class="metric-block">
       <div class="metric-label">Model Probability</div>
@@ -828,7 +817,7 @@ const PYTH_KEY     = 'iFjW0ZKocvV7r5m0E2HYhrn5mn8p7sNu822-';
 
 // Replace with your Railway public domain:
 // e.g. "https://signalforge-production.up.railway.app"
-const BOT_STATS_URL = window.BOT_STATS_URL || 'https://signalforge-production-bc9d.up.railway.app';
+const BOT_STATS_URL = window.BOT_STATS_URL || '';
 
 // ── STATE ────────────────────────────────────────────────────────────
 let priceHistory = [];
@@ -993,7 +982,15 @@ function renderSignalLog(logs, wins, losses) {
     total > 0 ? `${total} decided · ${logs.length} shown` : 'No signals yet';
 
   if (!logs || logs.length === 0) {
-    body.innerHTML = '<div style="padding:20px;text-align:center;color:var(--dim);font-size:11px;letter-spacing:1px">Waiting for first signal convergence...</div>';
+    body.innerHTML = `
+      <div style="padding:28px 20px;text-align:center">
+        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-bottom:10px">No signals fired yet</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;max-width:340px;margin:0 auto">
+          Bot checks every 5 min. A signal fires when all 3 voters agree for 3 consecutive checks — a 15 min streak.
+          <br><br>
+          <span style="color:var(--accent2)">Live monitoring is active.</span>
+        </div>
+      </div>`;
     return;
   }
 
@@ -1035,7 +1032,7 @@ function updateConfidence(conf, price) {
 
 async function fetchBotStats() {
   if (!BOT_STATS_URL) {
-    showBotDisconnected('Set BOT_STATS_URL to connect live bot data');
+    showBotDisconnected('Dashboard running on Pyth live data · Bot stats reconnecting...');
     renderVotersFromPyth(); // fallback: compute voters from live Pyth price
     return;
   }
@@ -1080,6 +1077,11 @@ function showBotDisconnected(msg) {
 
 // ── VOTER CARDS — from bot stats ─────────────────────────────────────
 function updateVoters(stats) {
+  // Clear all skeletons on first data
+  document.querySelectorAll('.skeleton').forEach(el => {
+    el.classList.remove('skeleton');
+    el.style.width = ''; el.style.height = '';
+  });
   const sig   = stats.signal;
   const prob  = stats.prob;
   const votes = stats.votes;
