@@ -298,6 +298,20 @@ body::before {
 .vol-low  .conf-fill  { background: var(--blue); }
 .vol-calm .conf-fill  { background: var(--green); }
 
+/* ── Skeleton shimmer ── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #1a2332 25%, #243447 50%, #1a2332 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s infinite;
+  border-radius: 2px;
+  display: inline-block;
+  min-width: 40px;
+}
+
 /* ── Detail panel (slides open on card click) ── */
 .detail-panel {
   display: none;
@@ -622,28 +636,54 @@ td.corr-self {
     </div>
     <div class="stat-card">
       <div class="stat-label">Hottest Pair</div>
-      <div class="stat-value up" id="hottest-pair">—</div>
+      <div class="stat-value up" id="hottest-pair"><span class="skeleton" style="width:60px;height:16px"> </span></div>
       <div class="stat-sub" id="hottest-vol">highest volatility</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Anomalies (1h)</div>
-      <div class="stat-value" id="anomaly-count" style="color:var(--orange)">0</div>
+      <div class="stat-value" id="anomaly-count" style="color:var(--orange)"><span class="skeleton" style="width:24px;height:16px"> </span></div>
       <div class="stat-sub">2σ+ moves detected</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Avg Confidence</div>
-      <div class="stat-value" id="avg-conf" style="color:var(--blue)">—</div>
+      <div class="stat-value" id="avg-conf" style="color:var(--blue)"><span class="skeleton" style="width:70px;height:16px"> </span></div>
       <div class="stat-sub">Pyth publisher spread</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Last Update</div>
-      <div class="stat-value" id="last-update" style="font-size:14px;color:var(--white)">—</div>
+      <div class="stat-value" id="last-update" style="font-size:14px;color:var(--white)"><span class="skeleton" style="width:80px;height:14px"> </span></div>
       <div class="stat-sub">Pyth Hermes API</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Data Freshness</div>
+      <div class="stat-value" id="pyth-lag" style="color:var(--green)"><span class="skeleton" style="width:40px;height:16px"> </span></div>
+      <div class="stat-sub">publish_time lag</div>
+    </div>
+  </div>
+
+  <!-- Intro banner -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);margin-bottom:20px;border:1px solid var(--border)">
+    <div style="background:var(--surface);padding:16px 20px">
+      <div style="font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin-bottom:6px">What is Pyth Pulse</div>
+      <div style="font-size:11px;color:var(--dim);line-height:1.7">A live multi-asset intelligence layer built on Pyth Network's Hermes API. Eight crypto pairs monitored simultaneously, updated every 5 seconds.</div>
+    </div>
+    <div style="background:var(--surface);padding:16px 20px">
+      <div style="font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin-bottom:6px">Volatility Tiers</div>
+      <div style="display:flex;flex-direction:column;gap:5px;margin-top:2px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;background:#ff3c5a;display:inline-block;flex-shrink:0"></span><span style="font-size:10px;color:var(--dim)">HIGH — σ move &gt;0.1%</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;background:#ff8c00;display:inline-block;flex-shrink:0"></span><span style="font-size:10px;color:var(--dim)">MED — σ move 0.05–0.1%</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;background:#00c8ff;display:inline-block;flex-shrink:0"></span><span style="font-size:10px;color:var(--dim)">LOW — σ move 0.01–0.05%</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;background:#00ff88;display:inline-block;flex-shrink:0"></span><span style="font-size:10px;color:var(--dim)">CALM — σ move &lt;0.01%</span></div>
+      </div>
+    </div>
+    <div style="background:var(--surface);padding:16px 20px">
+      <div style="font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin-bottom:6px">SignalForge Link</div>
+      <div style="font-size:11px;color:var(--dim);line-height:1.7">DOGE/USD volatility and confidence from Pulse feeds directly into the SignalForge ensemble. High confidence = tighter Pyth publisher spread = more reliable signal.</div>
     </div>
   </div>
 
   <!-- Heatmap -->
-  <div class="section-label">Volatility Heatmap · Live 5-min</div>
+  <div class="section-label">Volatility Heatmap · Click any card for detail · Live 5-min</div>
   <div class="heatmap-grid" id="heatmap-grid"></div>
 
   <!-- Detail panel — shown on card click -->
@@ -749,7 +789,7 @@ td.corr-self {
     <div class="corr-panel">
       <div class="panel-header">
         <div class="panel-title">Rolling Correlation Matrix · 30-tick</div>
-        <div class="panel-sub" id="corr-time">updating...</div>
+        <div class="panel-sub" id="corr-time"><span class="skeleton" style="width:80px;height:10px"> </span></div>
       </div>
       <div class="corr-table">
         <table id="corr-table"></table>
