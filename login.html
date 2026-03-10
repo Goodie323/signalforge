@@ -110,10 +110,12 @@
   /* ── Card ── */
   .card {
     position: relative; z-index: 10;
-    width: 100%; max-width: 420px;
+    width: 100%; max-width: 880px;
     background: var(--surface);
     border: 1px solid var(--border2);
     padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     box-shadow:
       0 0 0 1px rgba(0,255,136,0.05),
       0 32px 80px rgba(0,0,0,0.6),
@@ -121,6 +123,92 @@
     animation: card-in 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
     opacity: 0;
     transform: translateY(16px);
+  }
+
+  /* Left explainer panel */
+  .explainer {
+    padding: 44px 36px;
+    border-right: 1px solid var(--border2);
+    display: flex; flex-direction: column; justify-content: space-between;
+    background: linear-gradient(160deg, rgba(0,255,136,0.03) 0%, transparent 60%);
+  }
+
+  .explainer-logo {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 36px;
+  }
+
+  .explainer-logo-icon {
+    width: 36px; height: 36px; background: rgba(0,255,136,0.1);
+    border: 1px solid rgba(0,255,136,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .explainer-logo h1 {
+    font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800;
+    color: #fff; letter-spacing: -0.5px;
+  }
+
+  .explainer-logo p {
+    font-size: 9px; letter-spacing: 2px; color: var(--dim); text-transform: uppercase; margin-top: 2px;
+  }
+
+  .explainer-tagline {
+    font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700;
+    color: #fff; line-height: 1.3; letter-spacing: -0.5px; margin-bottom: 20px;
+  }
+
+  .explainer-tagline span { color: var(--accent); }
+
+  .explainer-desc {
+    font-size: 12px; color: var(--dim); line-height: 1.7;
+    letter-spacing: 0.2px; margin-bottom: 32px;
+  }
+
+  .explainer-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px;
+  }
+
+  .ex-stat {
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    background: rgba(0,0,0,0.2);
+  }
+
+  .ex-stat-val {
+    font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800;
+    color: var(--accent); letter-spacing: -0.5px;
+  }
+
+  .ex-stat-lbl {
+    font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--dim); margin-top: 3px;
+  }
+
+  .explainer-stack {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+
+  .stack-pill {
+    padding: 4px 10px; border: 1px solid var(--border);
+    font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--dim); background: rgba(0,0,0,0.2);
+  }
+
+  .stack-pill.live { border-color: rgba(0,255,136,0.3); color: var(--accent); background: rgba(0,255,136,0.05); }
+
+  /* Right auth panel — span the card bar across both columns */
+  .card-bar {
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--blue), transparent);
+    grid-column: 1 / -1;
+  }
+
+  .card-inner { padding: 36px 36px 32px; }
+
+  @media (max-width: 720px) {
+    .card { grid-template-columns: 1fr; max-width: 420px; }
+    .explainer { display: none; }
   }
 
   @keyframes card-in {
@@ -441,16 +529,58 @@
 <!-- Auth card -->
 <div class="card">
   <div class="card-bar"></div>
-  <div class="card-inner">
 
-    <!-- Logo -->
-    <div class="logo">
-      <div class="logo-icon">⚡</div>
-      <div class="logo-text">
-        <h1>SignalForge</h1>
-        <p>DOGE/USD · Prediction Intelligence</p>
+  <!-- LEFT: Explainer -->
+  <div class="explainer">
+    <div>
+      <div class="explainer-logo">
+        <div class="explainer-logo-icon">⚡</div>
+        <div>
+          <h1>SignalForge</h1>
+          <p>Pyth Community Hackathon 2026</p>
+        </div>
+      </div>
+
+      <div class="explainer-tagline">
+        AI signals on<br><span>Pyth-powered</span><br>prediction markets
+      </div>
+
+      <div class="explainer-desc">
+        SignalForge watches DOGE/USD live via Pyth Network's Hermes API and fires ensemble signals when 3 independent voters agree — then bets on Limitless Exchange markets that resolve using the same Pyth oracle.
+      </div>
+
+      <div class="explainer-stats">
+        <div class="ex-stat">
+          <div class="ex-stat-val">84.2%</div>
+          <div class="ex-stat-lbl">Win Rate</div>
+        </div>
+        <div class="ex-stat">
+          <div class="ex-stat-val">+110%</div>
+          <div class="ex-stat-lbl">Paper Return</div>
+        </div>
+        <div class="ex-stat">
+          <div class="ex-stat-val">5s</div>
+          <div class="ex-stat-lbl">Pyth Latency</div>
+        </div>
+        <div class="ex-stat">
+          <div class="ex-stat-val">3/3</div>
+          <div class="ex-stat-lbl">Voters Required</div>
+        </div>
       </div>
     </div>
+
+    <div class="explainer-stack">
+      <span class="stack-pill live">● Live on Railway</span>
+      <span class="stack-pill">Pyth Hermes</span>
+      <span class="stack-pill">Limitless Exchange</span>
+      <span class="stack-pill">Base Chain</span>
+      <span class="stack-pill">Kelly Criterion</span>
+      <span class="stack-pill">EIP-712</span>
+    </div>
+  </div>
+
+  <!-- RIGHT: Auth form -->
+  <div class="card-inner">
 
     <!-- Access badge -->
     <div class="access-badge">
