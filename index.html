@@ -509,13 +509,79 @@
 
   .pair-dropdown-wrap { position: relative; }
 
-  @media (max-width:700px) {
-    .price-hero  { grid-template-columns:1fr; }
-    .voters-grid { grid-template-columns:1fr; }
+  /* ── 900px — tablets ── */
+  @media (max-width:900px) {
+    .container   { padding:24px 18px; }
     .signal-row  { grid-template-columns:1fr 1fr; }
     .pnl-grid    { grid-template-columns:1fr 1fr; }
-    .log-row     { grid-template-columns:70px 55px 1fr 55px; }
-    .log-edge, .log-bet { display:none; }
+  }
+
+  /* ── 700px — large phones / landscape ── */
+  @media (max-width:700px) {
+    .container   { padding:16px 14px; }
+
+    /* Header */
+    .header      { flex-wrap:wrap; gap:8px; padding:10px 14px; height:auto; min-height:56px; }
+    .header-right{ flex-wrap:wrap; gap:8px; }
+
+    /* Price hero */
+    .price-hero  { grid-template-columns:1fr; }
+    .price-value { font-size:36px; }
+    .price-block, .chart-block { padding:20px 18px; }
+
+    /* Voters */
+    .voters-grid { grid-template-columns:1fr; }
+
+    /* Signal row — 2x2 */
+    .signal-row  { grid-template-columns:1fr 1fr; gap:1px; }
+
+    /* Countdown — stack vertically */
+    .countdown-block     { flex-direction:column; align-items:flex-start; gap:14px; padding:16px 18px; }
+    .countdown-left      { flex-wrap:wrap; gap:14px; width:100%; }
+    .countdown-bar-wrap  { margin-left:0; width:100%; }
+    .countdown-digits    { font-size:30px; }
+
+    /* Convergence */
+    .checks-row  { flex-wrap:wrap; gap:8px; }
+
+    /* PnL */
+    .pnl-grid    { grid-template-columns:1fr 1fr; }
+
+    /* Equity */
+    .equity-svg  { height:60px; }
+
+    /* Log — hide elapsed + bet cols */
+    .log-row     { grid-template-columns:50px 45px 1fr 52px; padding:10px 12px; }
+    .log-elapsed, .log-bet { display:none; }
+    .log-col-headers { grid-template-columns:50px 45px 1fr 52px !important; padding:8px 12px !important; }
+    .log-col-elapsed, .log-col-bet { display:none !important; }
+
+    /* Conn banner */
+    .conn-banner { font-size:10px; padding:8px 14px; }
+
+    /* Section titles */
+    .section-title { font-size:8px; letter-spacing:2px; }
+  }
+
+  /* ── 480px — phones ── */
+  @media (max-width:480px) {
+    .price-value     { font-size:28px; }
+    .countdown-digits{ font-size:24px; }
+    .signal-row      { grid-template-columns:1fr 1fr; }
+    .pnl-grid        { grid-template-columns:1fr 1fr; }
+    .voter-card      { padding:16px; }
+    .metric-value    { font-size:22px; }
+    .pnl-value       { font-size:22px; }
+  }
+
+  /* ── 380px — small phones (iPhone SE) ── */
+  @media (max-width:380px) {
+    .container       { padding:12px 10px; }
+    .signal-row      { grid-template-columns:1fr; }
+    .pnl-grid        { grid-template-columns:1fr; }
+    .price-value     { font-size:24px; }
+    .countdown-digits{ font-size:20px; }
+    .header-right    { gap:6px; }
   }
 </style>
 </head>
