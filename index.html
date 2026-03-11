@@ -425,6 +425,7 @@
   .log-row {
     display: grid;
     grid-template-columns: 55px 55px 90px 90px 1fr 60px;
+    word-break: break-all;
     gap: 0; padding: 11px 20px;
     border-bottom: 1px solid rgba(26,35,50,0.5);
     align-items: center; transition: background 0.15s;
@@ -787,12 +788,12 @@
       <div class="log-count" id="log-count">—</div>
     </div>
     <!-- Column headers -->
-    <div style="display:grid;grid-template-columns:55px 55px 90px 90px 1fr 60px;gap:0;padding:8px 20px;border-bottom:1px solid var(--border)">
+    <div class="log-col-headers" style="display:grid;grid-template-columns:55px 55px 90px 90px 1fr 60px;gap:0;padding:8px 20px;border-bottom:1px solid var(--border)">
       <div style="font-size:9px;letter-spacing:2px;color:var(--dim)">TIME</div>
       <div style="font-size:9px;letter-spacing:2px;color:var(--dim)">DIR</div>
       <div style="font-size:9px;letter-spacing:2px;color:var(--dim)">PRICE</div>
-      <div style="font-size:9px;letter-spacing:2px;color:var(--dim)">ELAPSED</div>
-      <div style="font-size:9px;letter-spacing:2px;color:var(--dim)">BET</div>
+      <div class="log-col-elapsed" style="font-size:9px;letter-spacing:2px;color:var(--dim)">ELAPSED</div>
+      <div class="log-col-bet" style="font-size:9px;letter-spacing:2px;color:var(--dim)">BET</div>
       <div style="font-size:9px;letter-spacing:2px;color:var(--dim);text-align:right">RESULT</div>
     </div>
     <div id="log-body"></div>

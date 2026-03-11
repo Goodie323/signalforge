@@ -207,12 +207,26 @@
   .card-inner { padding: 36px 36px 32px; }
 
   @media (max-width: 720px) {
-    .card { grid-template-columns: 1fr; max-width: 420px; }
+    body { align-items: flex-start; padding: 20px 14px; min-height: 100vh; }
+    .card { grid-template-columns: 1fr; max-width: 100%; width: 100%; }
     .explainer { display: none; }
+    .card-inner { padding: 28px 24px 24px; }
     .btn-primary { padding: 18px; font-size: 14px; }
     .btn-wallet  { padding: 16px; }
     .field-input { padding: 15px 16px; font-size: 14px; }
     .tab { padding: 12px; font-size: 11px; }
+    .oauth-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .card-footer { padding: 14px 24px; flex-direction: column; gap: 8px; text-align: center; }
+    .glow-left, .glow-right { display: none; }
+    .corner { display: none; }
+  }
+
+  @media (max-width: 400px) {
+    .card-inner { padding: 24px 18px 20px; }
+    .tabs { gap: 2px; padding: 3px; }
+    .tab { padding: 10px 8px; font-size: 10px; }
+    .btn-primary { font-size: 13px; }
+    .oauth-grid { grid-template-columns: 1fr; }
   }
 
   @keyframes card-in {

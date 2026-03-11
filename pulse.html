@@ -620,12 +620,33 @@ td.corr-self {
 }
 
 /* Responsive */
-@media (max-width: 800px) {
-  .heatmap-grid { grid-template-columns: repeat(2,1fr); }
-  .stats-bar    { grid-template-columns: repeat(2,1fr); }
+@media (max-width: 900px) {
+  .wrap         { padding: 16px 14px; }
+  .stats-bar    { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .heatmap-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .bottom-grid  { grid-template-columns: 1fr; }
-  .forge-panel  { flex-direction: column; align-items: flex-start; }
-  .forge-stats  { gap: 16px; }
+  .forge-panel  { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .forge-stats  { gap: 16px; flex-wrap: wrap; }
+  .detail-body  { grid-template-columns: repeat(2, 1fr); }
+  .intro-banner { grid-template-columns: 1fr !important; }
+  .corr-table   { overflow-x: auto; }
+}
+
+@media (max-width: 600px) {
+  .stats-bar    { grid-template-columns: repeat(2, 1fr); }
+  .header       { flex-wrap: wrap; gap: 10px; padding: 14px; height: auto; }
+  .header-right { gap: 8px; flex-wrap: wrap; }
+  .nav-link     { font-size: 9px; padding: 5px 8px; }
+  .forge-stats  { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .forge-left   { width: 100%; }
+}
+
+@media (max-width: 400px) {
+  .stats-bar    { grid-template-columns: 1fr 1fr; }
+  .heatmap-grid { grid-template-columns: 1fr 1fr; }
+  .forge-stats  { grid-template-columns: repeat(2, 1fr); }
+  .stat-value   { font-size: 18px; }
+  .detail-body  { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -679,7 +700,7 @@ td.corr-self {
   <span id="pyth-lag" style="display:none"></span>
 
   <!-- Intro banner -->
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);margin-bottom:20px;border:1px solid var(--border)">
+  <div class="intro-banner" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);margin-bottom:20px;border:1px solid var(--border)">
     <div style="background:var(--surface);padding:16px 20px">
       <div style="font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin-bottom:6px">What is Pyth Pulse</div>
       <div style="font-size:11px;color:var(--dim);line-height:1.7">A live multi-asset intelligence layer built on Pyth Network's Hermes API. Eight crypto pairs monitored simultaneously, updated every 5 seconds.</div>
