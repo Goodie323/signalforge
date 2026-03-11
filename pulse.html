@@ -168,35 +168,50 @@ body::before {
 .stat-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  padding: 16px;
+  border-radius: 8px;
+  padding: 18px 20px;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  border-color: var(--border2);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
 }
 
 .stat-card::after {
   content: '';
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, var(--accent), transparent);
-  opacity: 0.4;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--blue), transparent);
+  opacity: 0.5;
+}
+
+.stat-icon {
+  font-size: 16px; margin-bottom: 8px; display: block;
 }
 
 .stat-label {
   font-size: 9px; letter-spacing: 2px;
   text-transform: uppercase; color: var(--dim);
   margin-bottom: 8px;
+  font-family: 'DM Mono', monospace;
 }
 
 .stat-value {
-  font-size: 22px; font-weight: 500;
+  font-size: 24px; font-weight: 600;
   color: var(--white); line-height: 1;
+  font-family: 'Inter', 'DM Mono', monospace;
+  letter-spacing: -0.5px;
 }
 
 .stat-value.up   { color: var(--green); }
 .stat-value.down { color: var(--red); }
 .stat-value.hot  { color: var(--accent); }
-.stat-sub { font-size: 10px; color: var(--dim); margin-top: 4px; }
+.stat-sub { font-size: 10px; color: var(--dim); margin-top: 6px; line-height: 1.4; }
 
 /* ── Heatmap grid ── */
 .heatmap-grid {
@@ -209,11 +224,13 @@ body::before {
 .heatmap-card {
   background: var(--card);
   border: 1px solid var(--border);
-  padding: 16px;
+  border-radius: 10px;
+  padding: 18px;
   position: relative;
   cursor: pointer;
-  transition: border-color 0.2s, transform 0.15s;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
   overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .heatmap-card:hover {
@@ -431,6 +448,10 @@ body::before {
 }
 
 /* Correlation matrix */
+.corr-panel, .anomaly-panel {
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
 .corr-panel {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -630,36 +651,32 @@ td.corr-self {
   <!-- Stats Bar -->
   <div class="stats-bar">
     <div class="stat-card">
-      <div class="stat-label">Pairs Monitored</div>
+      <span class="stat-icon">🔗</span><div class="stat-label">Pairs Monitored</div>
       <div class="stat-value hot" id="pairs-count">8</div>
       <div class="stat-sub">via Pyth Hermes</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Hottest Pair</div>
+      <span class="stat-icon">🔥</span><div class="stat-label">Hottest Pair</div>
       <div class="stat-value up" id="hottest-pair"><span class="skeleton" style="width:60px;height:16px"> </span></div>
       <div class="stat-sub" id="hottest-vol">highest volatility</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Anomalies (1h)</div>
+      <span class="stat-icon">⚡</span><div class="stat-label">Anomalies (1h)</div>
       <div class="stat-value" id="anomaly-count" style="color:var(--orange)"><span class="skeleton" style="width:24px;height:16px"> </span></div>
       <div class="stat-sub">2σ+ moves detected</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Avg Confidence</div>
+      <span class="stat-icon">📡</span><div class="stat-label">Avg Confidence</div>
       <div class="stat-value" id="avg-conf" style="color:var(--blue)"><span class="skeleton" style="width:70px;height:16px"> </span></div>
       <div class="stat-sub">Pyth publisher spread</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Last Update</div>
+      <span class="stat-icon">⏱️</span><div class="stat-label">Last Update</div>
       <div class="stat-value" id="last-update" style="font-size:14px;color:var(--white)"><span class="skeleton" style="width:80px;height:14px"> </span></div>
       <div class="stat-sub">Pyth Hermes API</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Data Freshness</div>
-      <div class="stat-value" id="pyth-lag" style="color:var(--green)"><span class="skeleton" style="width:40px;height:16px"> </span></div>
-      <div class="stat-sub">publish_time lag</div>
-    </div>
   </div>
+  <span id="pyth-lag" style="display:none"></span>
 
   <!-- Intro banner -->
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);margin-bottom:20px;border:1px solid var(--border)">
