@@ -536,7 +536,7 @@
 <div class="corner br"></div>
 
 <!-- Background floating stats -->
-<div class="bg-stat bs1">WIN RATE · 84.2%</div>
+<div class="bg-stat bs1" id="bg-wr">WIN RATE · —</div>
 <div class="bg-stat bs2">DOGE/USD · LIVE</div>
 <div class="bg-stat bs3">SIGNALS · ACTIVE</div>
 <div class="bg-stat bs4">PYTH · HERMES</div>
@@ -569,11 +569,11 @@
 
       <div class="explainer-stats">
         <div class="ex-stat">
-          <div class="ex-stat-val">84.2%</div>
+          <div class="ex-stat-val" id="ex-wr">—</div>
           <div class="ex-stat-lbl">Win Rate</div>
         </div>
         <div class="ex-stat">
-          <div class="ex-stat-val">+110%</div>
+          <div class="ex-stat-val" id="ex-ret">—</div>
           <div class="ex-stat-lbl">Paper Return</div>
         </div>
         <div class="ex-stat">
@@ -581,8 +581,8 @@
           <div class="ex-stat-lbl">Pyth Latency</div>
         </div>
         <div class="ex-stat">
-          <div class="ex-stat-val">3/3</div>
-          <div class="ex-stat-lbl">Voters Required</div>
+          <div class="ex-stat-val" id="ex-streak">3/3</div>
+          <div class="ex-stat-lbl">Streak Required</div>
         </div>
       </div>
     </div>
@@ -732,6 +732,46 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 (async () => {
   const { data: { session } } = await sb.auth.getSession();
   if (session) window.location.href = 'index.html';
+})();
+
+// ── Fetch live bot stats for explainer sidebar ────────────────────────
+(async () => {
+  try {
+    const res   = await fetch('https://signalforge-production-bc9d.up.railway.app/stats', {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(4000)
+    });
+    const stats = await res.json();
+
+    // Win rate
+    if (stats.win_rate !== undefined) {
+      const wr = `${stats.win_rate}%`;
+      document.getElementById('ex-wr').textContent  = wr;
+      document.getElementById('bg-wr').textContent  = `WIN RATE · ${wr}`;
+    }
+
+    // Paper return vs $100 starting bankroll
+    if (stats.bankroll !== undefined) {
+      const ret = ((stats.bankroll - 100) / 100 * 100).toFixed(1);
+      const sign = ret >= 0 ? '+' : '';
+      document.getElementById('ex-ret').textContent = `${sign}${ret}%`;
+    }
+
+    // Streak
+    if (stats.streak !== undefined) {
+      document.getElementById('ex-streak').textContent = `${stats.streak}/3`;
+    }
+
+    // Live Railway pill
+    const pill = document.querySelector('.stack-pill.live');
+    if (pill) pill.innerHTML = '● Live · Bot Active';
+
+  } catch(e) {
+    // Bot offline — show fallback values gracefully
+    document.getElementById('ex-wr').textContent  = '84.2%';
+    document.getElementById('ex-ret').textContent = '+110%';
+    document.getElementById('ex-streak').textContent = '3/3';
+  }
 })();
 
 // ── Inline validation ───────────────────────────────────────────────

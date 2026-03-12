@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pyth Pulse — Multi-Asset Intelligence</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (async () => {
@@ -697,7 +698,7 @@ td.corr-self {
       <div class="stat-sub">Pyth Hermes API</div>
     </div>
   </div>
-  <span id="pyth-lag" style="display:none"></span>
+
 
   <!-- Intro banner -->
   <div class="intro-banner" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);margin-bottom:20px;border:1px solid var(--border)">
@@ -1245,16 +1246,8 @@ function renderHeatmap() {
   }, 0) / FEEDS.length;
   document.getElementById('avg-conf').textContent = `±${avgConf.toFixed(4)}%`;
 
-  // Data freshness — how old is the latest Pyth publish_time
+  // Update last-update timestamp
   const freshFeed = FEEDS.find(f => state[f.symbol] && state[f.symbol].publishTime);
-  if (freshFeed) {
-    const lag = Math.round(Date.now()/1000 - state[freshFeed.symbol].publishTime);
-    const lagEl = document.getElementById('pyth-lag');
-    if (lagEl) {
-      lagEl.textContent = `Pyth lag: ${lag}s`;
-      lagEl.style.color = lag < 5 ? 'var(--green)' : lag < 15 ? 'var(--orange)' : 'var(--red)';
-    }
-  }
   document.getElementById('anomaly-count').textContent = totalAnomalies;
 
   // SignalForge DOGE signal
@@ -1300,6 +1293,15 @@ function renderMiniSpark(symbol, prices, tierClass) {
 function renderCorrelation() {
   const symbols = ['BTC','ETH','SOL','DOGE','BNB','XRP'];
   const table   = document.getElementById('corr-table');
+
+  // Check if we have enough data — need at least 3 ticks per symbol
+  const ready = symbols.every(s => state[s].history.length >= 3);
+  if (!ready) {
+    table.innerHTML = `<tr><td colspan="${symbols.length + 1}" style="padding:28px;text-align:center;color:var(--dim);font-size:11px;letter-spacing:1.5px">
+      WAITING FOR PRICE TICKS · UPDATES IN ~15s
+    </td></tr>`;
+    return;
+  }
 
   // Compute returns
   const returns = {};
@@ -1471,6 +1473,27 @@ function fallbackToPulseREST() {
   fetchPyth();
   setInterval(fetchPyth, 5000);
 }
+
+// ── Keyboard navigation ─────────────────────────────────────────────
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const panel = document.getElementById('detail-panel');
+    if (panel && panel.style.display !== 'none') {
+      panel.style.display = 'none';
+      document.querySelectorAll('.heatmap-card').forEach(c => c.style.outline = '');
+      selectedSymbol = null;
+    }
+  }
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+    if (!selectedSymbol) return;
+    const syms = FEEDS.map(f => f.symbol);
+    const idx  = syms.indexOf(selectedSymbol);
+    const next = e.key === 'ArrowRight'
+      ? syms[(idx + 1) % syms.length]
+      : syms[(idx - 1 + syms.length) % syms.length];
+    openDetail(next);
+  }
+});
 
 // Start WebSocket stream
 connectPulseStream();
