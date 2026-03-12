@@ -1066,7 +1066,7 @@ function updateDetailPanel(symbol) {
   const isUp = chg >= 0;
 
   // Header
-  document.getElementById('dp-symbol').innerHTML = `<span style='font-size:20px;margin-right:8px;vertical-align:middle'>${COIN_SYMBOLS[symbol] || ''}</span>${symbol}/USD`;
+  document.getElementById('dp-symbol').innerHTML = `${coinLogo(symbol, 28)}<span style='vertical-align:middle'>${symbol}/USD</span>`;
   document.getElementById('dp-price').textContent  = `$${fmt(s.price, symbol)}`;
 
   const badge = document.getElementById('dp-badge');
@@ -1168,7 +1168,7 @@ function renderHeatmap() {
       card.innerHTML = `
         <div class="hm-top">
           <div class="hm-symbol">
-            <span style="font-size:18px;line-height:1;margin-right:6px">${COIN_SYMBOLS[feed.symbol] || ''}</span>${feed.symbol}
+            ${coinLogo(feed.symbol, 22)}${feed.symbol}
           </div>
           <div class="hm-badge" id="badge-${feed.symbol}">${tierLabel}</div>
         </div>
@@ -1217,7 +1217,7 @@ function renderHeatmap() {
   const sorted = [...FEEDS].sort((a,b) => state[b.symbol].volatility - state[a.symbol].volatility);
   const hottest = sorted[0];
   if (hottest && state[hottest.symbol].volatility > 0) {
-    document.getElementById('hottest-pair').innerHTML = `<span style='margin-right:5px'>${COIN_SYMBOLS[hottest.symbol] || ''}</span>${hottest.pair}`;
+    document.getElementById('hottest-pair').innerHTML = `${coinLogo(hottest.symbol, 16)}${hottest.pair}`;
     document.getElementById('hottest-vol').textContent  = `${(state[hottest.symbol].volatility*100).toFixed(3)}% vol`;
   }
 
@@ -1303,10 +1303,10 @@ function renderCorrelation() {
     return (da && db) ? num / (da * db) : null;
   }
 
-  let html = '<tr><th></th>' + symbols.map(s => `<th title="${s}">${COIN_SYMBOLS[s] || ''}<br><span style="font-size:8px">${s}</span></th>`).join('') + '</tr>';
+  let html = '<tr><th></th>' + symbols.map(s => `<th title="${s}">${coinLogo(s,14)}<span style="font-size:8px;vertical-align:middle">${s}</span></th>`).join('') + '</tr>';
 
   symbols.forEach(sa => {
-    html += `<tr><th style="text-align:right;padding-right:8px;color:var(--text)">${COIN_SYMBOLS[sa] || ''} ${sa}</th>`;
+    html += `<tr><th style="text-align:right;padding-right:8px;color:var(--text)">${coinLogo(sa,14)}<span style="vertical-align:middle">${sa}</span></th>`;
     symbols.forEach(sb => {
       if (sa === sb) {
         html += `<td class="corr-self">1.00</td>`;
@@ -1346,7 +1346,7 @@ function addAnomaly(symbol, type, chg, price) {
     <div class="anomaly-dot ${dotClass}"></div>
     <div class="anomaly-content">
       <div class="anomaly-title">
-        <span style="margin-right:4px">${COIN_SYMBOLS[symbol] || ''}</span>${symbol}/USD ${type === 'spike' ? '▲ SPIKE' : '▼ DROP'}
+        ${coinLogo(symbol, 16)}${symbol}/USD ${type === 'spike' ? '▲ SPIKE' : '▼ DROP'}
         ${isForge ? ' · <span style="color:var(--accent)">SignalForge target</span>' : ''}
       </div>
       <div class="anomaly-sub">

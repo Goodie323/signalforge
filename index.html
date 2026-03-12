@@ -456,9 +456,10 @@
     display: flex; align-items: center; gap: 8px;
     background: var(--bg); border: 1px solid var(--border2);
     color: var(--text); font-family: 'Space Mono', monospace;
-    font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
     padding: 6px 12px; cursor: pointer;
     transition: all 0.2s; position: relative;
+    border-radius: 4px;
   }
 
   .pair-btn:hover { border-color: var(--accent); color: var(--accent); }
@@ -471,11 +472,12 @@
   .pair-btn.open .arrow { transform: rotate(180deg); }
 
   .pair-menu {
-    position: absolute; top: calc(100% + 6px); left: 0;
+    position: absolute; top: calc(100% + 6px); right: 0;
     background: var(--surface); border: 1px solid var(--border2);
-    min-width: 180px; z-index: 100;
+    min-width: 200px; z-index: 100;
     display: none; flex-direction: column;
     box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+    border-radius: 6px; overflow: hidden;
   }
 
   .pair-menu.open { display: flex; }
@@ -653,8 +655,45 @@
   <div class="price-hero">
 
     <!-- LEFT: DOGE/USD live price -->
-    <div class="price-block">
-      <div class="price-label">DOGE / USD · Live via Pyth Network</div>
+    <div class="price-block" style="position:relative">
+
+      <!-- Pair selector -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div class="price-label" style="margin-bottom:0">Live via Pyth Network</div>
+        <div class="pair-dropdown-wrap">
+          <button class="pair-btn" id="pair-btn" onclick="togglePairMenu()">
+            <img src="https://assets.coingecko.com/coins/images/5/small/dogecoin.png" width="18" height="18" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'">
+            <span id="pair-label">DOGE / USD</span>
+            <span class="arrow">▾</span>
+          </button>
+          <div class="pair-menu" id="pair-menu">
+            <div class="pair-option active" onclick="selectPair(this,'DOGE / USD')">
+              <span style="display:flex;align-items:center;gap:8px"><img src="https://assets.coingecko.com/coins/images/5/small/dogecoin.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> DOGE / USD</span>
+              <span class="pair-live">LIVE</span>
+            </div>
+            <div class="pair-option disabled">
+              <span style="display:flex;align-items:center;gap:8px"><img src="https://assets.coingecko.com/coins/images/1/small/bitcoin.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> BTC / USD</span>
+              <span class="pair-soon">SOON</span>
+            </div>
+            <div class="pair-option disabled">
+              <span style="display:flex;align-items:center;gap:8px"><img src="https://assets.coingecko.com/coins/images/279/small/ethereum.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> ETH / USD</span>
+              <span class="pair-soon">SOON</span>
+            </div>
+            <div class="pair-option disabled">
+              <span style="display:flex;align-items:center;gap:8px"><img src="https://assets.coingecko.com/coins/images/4128/small/solana.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> SOL / USD</span>
+              <span class="pair-soon">SOON</span>
+            </div>
+            <div class="pair-option disabled">
+              <span style="display:flex;align-items:center;gap:8px"><img src="https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> BNB / USD</span>
+              <span class="pair-soon">SOON</span>
+            </div>
+            <div class="pair-option disabled">
+              <span style="display:flex;align-items:center;gap:8px"><img src="https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> XRP / USD</span>
+              <span class="pair-soon">SOON</span>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="price-value" id="live-price">0.<span id="price-dec">——————</span></div>
       <div class="price-change" id="price-change">Fetching live price...</div>
       <div class="conf-pill" id="conf-pill" style="display:none">
@@ -880,6 +919,7 @@
 // ── CONFIG ──────────────────────────────────────────────────────────
 const DOGE_FEED_ID = 'dcef50dd0a4cd2dcc17e45df1676dcb336a11a61c69df7a0299b0150c672d25c';
 const HERMES_URL   = 'https://hermes.pyth.network/v2/updates/price/latest';
+const HERMES_WSS   = 'wss://hermes.pyth.network/ws';
 const PYTH_KEY     = 'iFjW0ZKocvV7r5m0E2HYhrn5mn8p7sNu822-';
 
 // Replace with your Railway public domain:
@@ -893,7 +933,77 @@ let botConnected = false;
 let lastStats    = null;
 
 // ── PYTH PRICE FEED ──────────────────────────────────────────────────
-async function fetchDOGE() {
+// ── Pyth WebSocket stream — sub-second price updates ─────────────────
+let pythWs        = null;
+let pythWsRetries = 0;
+let lastWsPrice   = null;
+
+function connectPythStream() {
+  try {
+    pythWs = new WebSocket(HERMES_WSS);
+
+    pythWs.onopen = () => {
+      pythWsRetries = 0;
+      // Subscribe to DOGE/USD feed
+      pythWs.send(JSON.stringify({
+        type:  'subscribe',
+        ids:   [DOGE_FEED_ID],
+        api_key: PYTH_KEY
+      }));
+      console.log('✅ Pyth WebSocket connected');
+    };
+
+    pythWs.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type !== 'price_update') return;
+
+        const p     = msg.price_feed.price;
+        const price = parseFloat(p.price) * Math.pow(10, parseInt(p.expo));
+        const conf  = parseFloat(p.conf)  * Math.pow(10, parseInt(p.expo));
+
+        if (!price || price <= 0) return;
+        lastWsPrice = price;
+
+        priceHistory.push(price);
+        if (priceHistory.length > 60) priceHistory.shift();
+
+        // Build data-like object for updatePrice
+        const syntheticData = { parsed: [{ price: p }] };
+        updatePrice(price, syntheticData);
+        updateConfidence(conf, price);
+
+      } catch(e) { console.warn('Pyth WS parse error:', e); }
+    };
+
+    pythWs.onerror = (e) => {
+      console.warn('Pyth WS error — falling back to REST polling');
+      fallbackToREST();
+    };
+
+    pythWs.onclose = () => {
+      // Reconnect with backoff — cap at 30s
+      const delay = Math.min(1000 * Math.pow(2, pythWsRetries), 30000);
+      pythWsRetries++;
+      console.log(`Pyth WS closed — reconnecting in ${delay}ms`);
+      setTimeout(connectPythStream, delay);
+    };
+
+  } catch(e) {
+    fallbackToREST();
+  }
+}
+
+// ── REST fallback if WebSocket unavailable ────────────────────────────
+let restFallbackActive = false;
+function fallbackToREST() {
+  if (restFallbackActive) return;
+  restFallbackActive = true;
+  fetchDOGE_REST();
+  setInterval(fetchDOGE_REST, 5000);
+}
+
+async function fetchDOGE_REST() {
   try {
     const res  = await fetch(`${HERMES_URL}?ids[]=${DOGE_FEED_ID}`, {
       headers: { 'Authorization': `Bearer ${PYTH_KEY}` }
@@ -901,15 +1011,17 @@ async function fetchDOGE() {
     const data = await res.json();
     const p    = data.parsed[0].price;
     const price = parseFloat(p.price) * Math.pow(10, parseInt(p.expo));
+    const conf  = parseFloat(p.conf)  * Math.pow(10, parseInt(p.expo));
 
     priceHistory.push(price);
     if (priceHistory.length > 60) priceHistory.shift();
-
     updatePrice(price, data);
-  } catch(e) {
-    console.warn('Pyth fetch failed:', e);
-  }
+    updateConfidence(conf, price);
+  } catch(e) { console.warn('Pyth REST fetch failed:', e); }
 }
+
+// Keep fetchDOGE as alias for compatibility
+const fetchDOGE = fetchDOGE_REST;
 
 function updatePrice(price, data) {
   const chg    = prevPrice ? (price - prevPrice) / prevPrice * 100 : 0;
