@@ -1195,6 +1195,11 @@ function renderHeatmap() {
 
     // Update values
     card.className = `heatmap-card ${tierClass} ${feed.symbol === 'DOGE' ? 'selected' : ''}`;
+    // Ensure logo is present (seed may have run before coinLogo was ready)
+    const symEl = card.querySelector('.hm-symbol');
+    if (symEl && !symEl.querySelector('img')) {
+      symEl.innerHTML = `${coinLogo(feed.symbol, 22)}${feed.symbol}`;
+    }
     document.getElementById(`badge-${feed.symbol}`).textContent = tierLabel;
     document.getElementById(`price-${feed.symbol}`).textContent = s.price ? `$${fmt(s.price, feed.symbol)}` : '—';
 
@@ -1468,7 +1473,7 @@ FEEDS.forEach(feed => {
   card.onclick   = () => openDetail(feed.symbol);
   card.innerHTML = `
     <div class="hm-top">
-      <div class="hm-symbol">${feed.symbol}</div>
+      <div class="hm-symbol">${coinLogo(feed.symbol, 22)}${feed.symbol}</div>
       <div class="hm-badge" id="badge-${feed.symbol}">LOADING</div>
     </div>
     <div class="hm-price" id="price-${feed.symbol}">fetching...</div>
