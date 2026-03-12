@@ -856,6 +856,24 @@ td.corr-self {
 </div>
 
 <script>
+// ── Coin logos ───────────────────────────────────────────────────────
+const COIN_LOGOS = {
+  BTC:  'https://assets.coingecko.com/coins/images/1/small/bitcoin.png',
+  ETH:  'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+  SOL:  'https://assets.coingecko.com/coins/images/4128/small/solana.png',
+  DOGE: 'https://assets.coingecko.com/coins/images/5/small/dogecoin.png',
+  BNB:  'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png',
+  XRP:  'https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png',
+  AVAX: 'https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png',
+  SUI:  'https://assets.coingecko.com/coins/images/26375/small/sui_asset.jpeg',
+};
+function coinLogo(symbol, size) {
+  size = size || 20;
+  var src = COIN_LOGOS[symbol];
+  if (!src) return '';
+  return '<img src="' + src + '" width="' + size + '" height="' + size + '" style="border-radius:50%;vertical-align:middle;margin-right:5px" onerror="this.style.display=\'none\'">';
+}
+
 // ── Pyth feed IDs (real) ─────────────────────────────────────────────
 const FEEDS = [
   { symbol: 'BTC',  pair: 'BTC/USD',  id: 'e62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43', decimals: 0 },
@@ -1067,7 +1085,7 @@ function updateDetailPanel(symbol) {
   const isUp = chg >= 0;
 
   // Header
-  document.getElementById('dp-symbol').textContent = `${symbol}/USD`;
+  document.getElementById('dp-symbol').innerHTML = coinLogo(symbol, 26) + symbol + '/USD';
   document.getElementById('dp-price').textContent  = `$${fmt(s.price, symbol)}`;
 
   const badge = document.getElementById('dp-badge');
@@ -1168,7 +1186,7 @@ function renderHeatmap() {
       card.onclick   = () => openDetail(feed.symbol);
       card.innerHTML = `
         <div class="hm-top">
-          <div class="hm-symbol">${feed.symbol}</div>
+          <div class="hm-symbol">${coinLogo(feed.symbol, 20)}${feed.symbol}</div>
           <div class="hm-badge" id="badge-${feed.symbol}">${tierLabel}</div>
         </div>
         <div class="hm-price" id="price-${feed.symbol}">—</div>
@@ -1217,7 +1235,7 @@ function renderHeatmap() {
   const sorted = [...FEEDS].sort((a,b) => state[b.symbol].volatility - state[a.symbol].volatility);
   const hottest = sorted[0];
   if (hottest && state[hottest.symbol].volatility > 0) {
-    document.getElementById('hottest-pair').textContent = hottest.pair;
+    document.getElementById('hottest-pair').innerHTML = coinLogo(hottest.symbol, 15) + hottest.pair;
     document.getElementById('hottest-vol').textContent  = `${(state[hottest.symbol].volatility*100).toFixed(3)}% vol`;
   }
 
@@ -1303,10 +1321,10 @@ function renderCorrelation() {
     return (da && db) ? num / (da * db) : null;
   }
 
-  let html = '<tr><th></th>' + symbols.map(s => `<th>${s}</th>`).join('') + '</tr>';
+  let html = '<tr><th></th>' + symbols.map(s => '<th>' + coinLogo(s, 13) + s + '</th>').join('') + '</tr>';
 
   symbols.forEach(sa => {
-    html += `<tr><th style="text-align:right;padding-right:8px;color:var(--text)">${sa}</th>`;
+    html += '<tr><th style="text-align:right;padding-right:8px;color:var(--text)">' + coinLogo(sa, 13) + sa + '</th>';
     symbols.forEach(sb => {
       if (sa === sb) {
         html += `<td class="corr-self">1.00</td>`;
@@ -1346,7 +1364,7 @@ function addAnomaly(symbol, type, chg, price) {
     <div class="anomaly-dot ${dotClass}"></div>
     <div class="anomaly-content">
       <div class="anomaly-title">
-        ${symbol}/USD ${type === 'spike' ? '▲ SPIKE' : '▼ DROP'}
+        ${coinLogo(symbol, 15)}${symbol}/USD ${type === 'spike' ? '▲ SPIKE' : '▼ DROP'}
         ${isForge ? ' · <span style="color:var(--accent)">SignalForge target</span>' : ''}
       </div>
       <div class="anomaly-sub">
@@ -1468,7 +1486,7 @@ FEEDS.forEach(feed => {
   card.onclick   = () => openDetail(feed.symbol);
   card.innerHTML = `
     <div class="hm-top">
-      <div class="hm-symbol">${feed.symbol}</div>
+      <div class="hm-symbol">${coinLogo(feed.symbol, 20)}${feed.symbol}</div>
       <div class="hm-badge" id="badge-${feed.symbol}">LOADING</div>
     </div>
     <div class="hm-price" id="price-${feed.symbol}">fetching...</div>
