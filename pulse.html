@@ -856,6 +856,25 @@ td.corr-self {
 </div>
 
 <script>
+// ── Coin logos ────────────────────────────────────────────────────────
+const COIN_LOGOS = {
+  BTC:  'https://assets.coingecko.com/coins/images/1/small/bitcoin.png',
+  ETH:  'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+  SOL:  'https://assets.coingecko.com/coins/images/4128/small/solana.png',
+  DOGE: 'https://assets.coingecko.com/coins/images/5/small/dogecoin.png',
+  BNB:  'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png',
+  XRP:  'https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png',
+  AVAX: 'https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png',
+  SUI:  'https://assets.coingecko.com/coins/images/26375/small/sui_asset.jpeg',
+};
+
+function coinLogo(symbol, size) {
+  size = size || 20;
+  var src = COIN_LOGOS[symbol];
+  if (!src) return '';
+  return '<img src="' + src + '" width="' + size + '" height="' + size + '" style="border-radius:50%;vertical-align:middle;margin-right:5px" onerror="this.style.display='none'">';
+}
+
 // ── Pyth feed IDs (real) ─────────────────────────────────────────────
 const FEEDS = [
   { symbol: 'BTC',  pair: 'BTC/USD',  id: 'e62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43', decimals: 0 },
