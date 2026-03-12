@@ -1066,7 +1066,7 @@ function updateDetailPanel(symbol) {
   const isUp = chg >= 0;
 
   // Header
-  document.getElementById('dp-symbol').textContent = `${symbol}/USD`;
+  document.getElementById('dp-symbol').innerHTML = `<span style='font-size:20px;margin-right:8px;vertical-align:middle'>${COIN_SYMBOLS[symbol] || ''}</span>${symbol}/USD`;
   document.getElementById('dp-price').textContent  = `$${fmt(s.price, symbol)}`;
 
   const badge = document.getElementById('dp-badge');
@@ -1167,7 +1167,9 @@ function renderHeatmap() {
       card.onclick   = () => openDetail(feed.symbol);
       card.innerHTML = `
         <div class="hm-top">
-          <div class="hm-symbol">${feed.symbol}</div>
+          <div class="hm-symbol">
+            <span style="font-size:18px;line-height:1;margin-right:6px">${COIN_SYMBOLS[feed.symbol] || ''}</span>${feed.symbol}
+          </div>
           <div class="hm-badge" id="badge-${feed.symbol}">${tierLabel}</div>
         </div>
         <div class="hm-price" id="price-${feed.symbol}">—</div>
@@ -1215,7 +1217,7 @@ function renderHeatmap() {
   const sorted = [...FEEDS].sort((a,b) => state[b.symbol].volatility - state[a.symbol].volatility);
   const hottest = sorted[0];
   if (hottest && state[hottest.symbol].volatility > 0) {
-    document.getElementById('hottest-pair').textContent = hottest.pair;
+    document.getElementById('hottest-pair').innerHTML = `<span style='margin-right:5px'>${COIN_SYMBOLS[hottest.symbol] || ''}</span>${hottest.pair}`;
     document.getElementById('hottest-vol').textContent  = `${(state[hottest.symbol].volatility*100).toFixed(3)}% vol`;
   }
 
@@ -1301,10 +1303,10 @@ function renderCorrelation() {
     return (da && db) ? num / (da * db) : null;
   }
 
-  let html = '<tr><th></th>' + symbols.map(s => `<th>${s}</th>`).join('') + '</tr>';
+  let html = '<tr><th></th>' + symbols.map(s => `<th title="${s}">${COIN_SYMBOLS[s] || ''}<br><span style="font-size:8px">${s}</span></th>`).join('') + '</tr>';
 
   symbols.forEach(sa => {
-    html += `<tr><th style="text-align:right;padding-right:8px;color:var(--text)">${sa}</th>`;
+    html += `<tr><th style="text-align:right;padding-right:8px;color:var(--text)">${COIN_SYMBOLS[sa] || ''} ${sa}</th>`;
     symbols.forEach(sb => {
       if (sa === sb) {
         html += `<td class="corr-self">1.00</td>`;
@@ -1344,7 +1346,7 @@ function addAnomaly(symbol, type, chg, price) {
     <div class="anomaly-dot ${dotClass}"></div>
     <div class="anomaly-content">
       <div class="anomaly-title">
-        ${symbol}/USD ${type === 'spike' ? '▲ SPIKE' : '▼ DROP'}
+        <span style="margin-right:4px">${COIN_SYMBOLS[symbol] || ''}</span>${symbol}/USD ${type === 'spike' ? '▲ SPIKE' : '▼ DROP'}
         ${isForge ? ' · <span style="color:var(--accent)">SignalForge target</span>' : ''}
       </div>
       <div class="anomaly-sub">
@@ -1370,10 +1372,92 @@ function renderAll() {
 }
 
 // ── Boot ─────────────────────────────────────────────────────────────
-fetchPyth();
+// ── Pyth WebSocket stream for Pulse ──────────────────────────────────
+let pulseWs        = null;
+let pulseWsRetries = 0;
+
+function connectPulseStream() {
+  try {
+    pulseWs = new WebSocket(HERMES_WSS);
+
+    pulseWs.onopen = () => {
+      pulseWsRetries = 0;
+      // Subscribe to all 8 feeds at once
+      pulseWs.send(JSON.stringify({
+        type:    'subscribe',
+        ids:     FEEDS.map(f => f.id),
+        api_key: PYTH_KEY
+      }));
+      console.log('✅ Pyth Pulse WebSocket connected');
+    };
+
+    pulseWs.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type !== 'price_update') return;
+
+        const item   = msg.price_feed;
+        const feed   = FEEDS.find(f => item.id && item.id.includes(f.id.toLowerCase()));
+        if (!feed) return;
+
+        const p     = item.price;
+        const price = parseFloat(p.price) * Math.pow(10, parseInt(p.expo));
+        const conf  = parseFloat(p.conf)  * Math.pow(10, parseInt(p.expo));
+        if (!price || price <= 0) return;
+
+        const s = state[feed.symbol];
+        s.prevPrice   = s.price;
+        s.price       = price;
+        s.confidence  = conf;
+        s.publishTime = p.publish_time;
+
+        if (s.prevPrice) {
+          const ret = (price - s.prevPrice) / s.prevPrice;
+          s.returns.push(ret);
+          if (s.returns.length > 60) s.returns.shift();
+          s.volatility = Math.sqrt(s.returns.reduce((a, r) => a + r * r, 0) / s.returns.length);
+          s.prices.push(price);
+          if (s.prices.length > 60) s.prices.shift();
+        }
+
+        // Throttle UI updates to max 4 per second
+        if (!pulseWs._updatePending) {
+          pulseWs._updatePending = true;
+          setTimeout(() => {
+            updateCards();
+            pulseWs._updatePending = false;
+          }, 250);
+        }
+
+      } catch(e) { console.warn('Pulse WS parse error:', e); }
+    };
+
+    pulseWs.onerror = () => {
+      console.warn('Pulse WS error — falling back to REST');
+      fallbackToPulseREST();
+    };
+
+    pulseWs.onclose = () => {
+      const delay = Math.min(1000 * Math.pow(2, pulseWsRetries), 30000);
+      pulseWsRetries++;
+      setTimeout(connectPulseStream, delay);
+    };
+
+  } catch(e) { fallbackToPulseREST(); }
+}
+
+let pulseRESTActive = false;
+function fallbackToPulseREST() {
+  if (pulseRESTActive) return;
+  pulseRESTActive = true;
+  fetchPyth();
+  setInterval(fetchPyth, 5000);
+}
+
+// Start WebSocket stream
+connectPulseStream();
 fetchBotStats();
-setInterval(fetchPyth,     5000);   // poll Pyth every 5 seconds
-setInterval(fetchBotStats, 15000);  // poll bot stats every 15 seconds
+setInterval(fetchBotStats, 15000);  // bot stats still on REST polling
 
 // Seed empty heatmap cards immediately
 FEEDS.forEach(feed => {
