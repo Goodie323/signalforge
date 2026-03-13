@@ -6,6 +6,7 @@
 <title>Pyth Pulse — Multi-Asset Intelligence</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 (async () => {
   const sb = supabase.createClient(
@@ -649,6 +650,129 @@ td.corr-self {
   .stat-value   { font-size: 18px; }
   .detail-body  { grid-template-columns: 1fr; }
 }
+
+/* ── Social Card ─────────────────────────────────────────────────── */
+.share-fab {
+  position: fixed; bottom: 28px; right: 28px; z-index: 200;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--accent); color: var(--bg);
+  border: none; cursor: pointer; font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 24px rgba(232,244,0,0.35);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.share-fab:hover { transform: scale(1.1); box-shadow: 0 6px 32px rgba(232,244,0,0.55); }
+
+.hm-share-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(232,244,0,0.08); border: 1px solid rgba(232,244,0,0.2);
+  color: var(--accent); font-size: 10px; letter-spacing: 1px;
+  padding: 3px 7px; cursor: pointer; border-radius: 3px;
+  opacity: 0; transition: opacity 0.15s;
+  font-family: 'DM Mono', monospace;
+}
+.heatmap-card:hover .hm-share-btn { opacity: 1; }
+
+/* Modal overlay */
+.sc-overlay {
+  display: none; position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center;
+}
+.sc-overlay.open { display: flex; }
+
+/* Modal container */
+.sc-modal {
+  width: 520px; max-width: 95vw;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+}
+
+/* Tab bar */
+.sc-tabs {
+  display: flex; border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.sc-tab {
+  flex: 1; padding: 12px; text-align: center;
+  font-size: 9px; letter-spacing: 2px; color: var(--dim);
+  cursor: pointer; border: none; background: none;
+  font-family: 'DM Mono', monospace; transition: color 0.15s;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.sc-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.sc-tab:hover:not(.active) { color: var(--text); }
+
+/* Card preview area */
+.sc-preview { padding: 20px; background: var(--bg); }
+
+/* The actual shareable card */
+.sc-card {
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--border2);
+  font-family: 'DM Mono', monospace;
+}
+
+.sc-card-header {
+  background: linear-gradient(135deg, #080d14 0%, #0b1525 100%);
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sc-card-brand { display: flex; align-items: center; gap: 10px; }
+.sc-card-hex {
+  width: 28px; height: 28px; background: var(--accent);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: var(--bg); font-weight: 700;
+}
+.sc-card-title { font-size: 13px; color: var(--white); letter-spacing: 2px; }
+.sc-card-sub   { font-size: 9px; color: var(--dim); letter-spacing: 1px; margin-top: 2px; }
+.sc-card-ts    { font-size: 9px; color: var(--dim); }
+
+.sc-card-body  { background: #080d14; padding: 16px 18px; }
+.sc-card-body.asset { background: linear-gradient(180deg, #0b1220 0%, #080d14 100%); }
+
+.sc-pair-name  { font-size: 22px; color: var(--white); font-weight: 500; letter-spacing: 1px; margin-bottom: 2px; display: flex; align-items: center; gap: 10px; }
+.sc-pair-price { font-size: 32px; color: var(--accent); font-weight: 700; letter-spacing: -1px; margin-bottom: 8px; }
+.sc-pair-change { font-size: 12px; margin-bottom: 14px; }
+
+.sc-stats-row  { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 12px; }
+.sc-stat-box   { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
+.sc-stat-label { font-size: 8px; color: var(--dim); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+.sc-stat-val   { font-size: 15px; color: var(--white); font-weight: 500; }
+
+.sc-card-footer {
+  background: #03050a; padding: 10px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid var(--border);
+}
+.sc-card-url   { font-size: 9px; color: var(--dim); letter-spacing: 1px; }
+.sc-pyth-badge { font-size: 9px; color: var(--accent); letter-spacing: 1.5px; }
+
+/* Action row */
+.sc-actions {
+  padding: 16px 20px; display: flex; gap: 10px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+.sc-btn {
+  flex: 1; padding: 11px; border-radius: 6px; cursor: pointer;
+  font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px;
+  border: 1px solid var(--border2); transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+}
+.sc-btn-tweet  { background: #1da1f2; color: #fff; border-color: #1da1f2; }
+.sc-btn-tweet:hover  { background: #1a91da; }
+.sc-btn-copy   { background: var(--bg); color: var(--accent); border-color: var(--accent); }
+.sc-btn-copy:hover   { background: rgba(232,244,0,0.06); }
+.sc-btn-close  { background: var(--bg); color: var(--dim); flex: 0; padding: 11px 16px; }
+.sc-btn-close:hover  { color: var(--text); border-color: var(--text); }
+.sc-btn-png    { background: var(--bg); color: var(--purple); border-color: var(--purple); }
+.sc-btn-png:hover    { background: rgba(168,85,247,0.06); }
+.sc-btn-png.loading  { opacity: 0.6; cursor: wait; }
+
 </style>
 </head>
 <body>
@@ -1207,6 +1331,7 @@ function renderHeatmap() {
           <span id="conf-${feed.symbol}">conf: —</span>
         </div>
         <div class="conf-bar"><div class="conf-fill" id="cf-${feed.symbol}" style="width:0%"></div></div>
+        <button class="hm-share-btn" onclick="event.stopPropagation();openShareCard('asset','${feed.symbol}')">SHARE</button>
       `;
       grid.appendChild(card);
     }
@@ -1474,9 +1599,244 @@ function fallbackToPulseREST() {
   setInterval(fetchPyth, 5000);
 }
 
+// ── Social Card ──────────────────────────────────────────────────────
+let scActiveTab = 'market';
+let scAssetSymbol = null;
+
+function openShareCard(tab, symbol) {
+  scActiveTab = tab || 'market';
+  scAssetSymbol = symbol || selectedSymbol || 'DOGE';
+  populateSocialCard();
+  document.getElementById('sc-overlay').classList.add('open');
+  // Activate correct tab
+  document.querySelectorAll('.sc-tab').forEach((t, i) => {
+    const tabs = ['market','asset','signal'];
+    t.classList.toggle('active', tabs[i] === scActiveTab);
+  });
+  showSCCard(scActiveTab);
+}
+
+function closeShareCard() {
+  document.getElementById('sc-overlay').classList.remove('open');
+}
+
+function switchSCTab(tab, btn) {
+  scActiveTab = tab;
+  document.querySelectorAll('.sc-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  showSCCard(tab);
+  populateSocialCard();
+}
+
+function showSCCard(tab) {
+  document.getElementById('sc-market-card').style.display = tab === 'market' ? '' : 'none';
+  document.getElementById('sc-asset-card').style.display  = tab === 'asset'  ? '' : 'none';
+  document.getElementById('sc-signal-card').style.display = tab === 'signal' ? '' : 'none';
+}
+
+function populateSocialCard() {
+  const now = new Date().toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}) + ' UTC';
+
+  // ── Market Snapshot tab ──
+  document.getElementById('sc-ts').textContent  = now;
+  document.getElementById('sc-ts2').textContent = now;
+  document.getElementById('sc-ts3').textContent = now;
+
+  const hotEl   = document.getElementById('hottest-pair');
+  const hotVolEl = document.getElementById('hottest-vol');
+  document.getElementById('sc-hot-pair').innerHTML = hotEl ? hotEl.innerHTML : '—';
+  document.getElementById('sc-hot-vol').textContent = hotVolEl ? hotVolEl.textContent : '—';
+  document.getElementById('sc-anom').textContent =
+    document.getElementById('anomaly-count').textContent || '0';
+
+  // Fill top 3 pairs by volatility into market card
+  const sorted = [...FEEDS].sort((a,b) => (state[b.symbol]||{volatility:0}).volatility - (state[a.symbol]||{volatility:0}).volatility);
+  ['sc-m1','sc-m2','sc-m3'].forEach((id, i) => {
+    const f = sorted[i];
+    if (!f) return;
+    const s = state[f.symbol];
+    const [tierClass, tierLabel] = volTier(s.volatility);
+    const tierColors = {'vol-high':'#ff3c5a','vol-med':'#ff8c00','vol-low':'#00c8ff','vol-calm':'#00ff88'};
+    document.getElementById(id).innerHTML = `
+      <div class="sc-stat-label">${coinLogo(f.symbol,11)}${f.symbol}</div>
+      <div class="sc-stat-val" style="color:${tierColors[tierClass]||'#fff'}">${tierLabel}</div>
+      <div style="font-size:9px;color:var(--dim);margin-top:3px">${(s.volatility*100).toFixed(3)}% σ</div>`;
+  });
+
+  // ── Asset Detail tab ──
+  const sym = scAssetSymbol || 'DOGE';
+  const s   = state[sym] || {};
+  const [tierClass, tierLabel] = volTier(s.volatility || 0);
+  const tierColors = {'vol-high':'#ff3c5a','vol-med':'#ff8c00','vol-low':'#00c8ff','vol-calm':'#00ff88'};
+  const chg = s.prevPrice ? ((s.price - s.prevPrice) / s.prevPrice * 100) : 0;
+  const isUp = chg >= 0;
+
+  document.getElementById('sc-asset-name').innerHTML  = coinLogo(sym, 22) + sym + '/USD';
+  document.getElementById('sc-asset-price').textContent = s.price ? '$' + fmt(s.price, sym) : '—';
+  document.getElementById('sc-asset-change').innerHTML  = s.prevPrice
+    ? `<span style="color:${isUp?'#00ff88':'#ff3c5a'}">${isUp?'▲':'▼'} ${isUp?'+':''}${chg.toFixed(4)}%</span>`
+    : '<span style="color:var(--dim)">Loading...</span>';
+  document.getElementById('sc-asset-vol').textContent  = (s.volatility*100).toFixed(3) + '%';
+  document.getElementById('sc-asset-conf').textContent = s.confidence ? '±' + fmt(s.confidence, sym) : '—';
+  document.getElementById('sc-asset-tier').innerHTML   = `<span style="color:${tierColors[tierClass]}">${tierLabel}</span>`;
+
+  // ── SignalForge tab ──
+  const sig  = document.getElementById('forge-signal');
+  const wr   = document.getElementById('forge-wr');
+  const bank = document.getElementById('forge-bank');
+  const edge = document.getElementById('forge-edge');
+  const strk = document.getElementById('forge-streak');
+  const sigVal = sig ? sig.textContent : '—';
+  document.getElementById('sc-sig-badge').textContent  = sigVal;
+  document.getElementById('sc-sig-badge').style.color  = sigVal === 'YES ↑' ? '#00ff88' : sigVal === 'NO ↓' ? '#ff3c5a' : '#e8f400';
+  document.getElementById('sc-sig-streak').textContent = 'Streak: ' + (strk ? strk.textContent : '—');
+  document.getElementById('sc-sig-wr').textContent     = wr   ? wr.textContent   : '—';
+  document.getElementById('sc-sig-bank').textContent   = bank ? bank.textContent : '—';
+  document.getElementById('sc-sig-edge').textContent   = edge ? edge.textContent : '—';
+}
+
+function shareToTwitter() {
+  let text = '';
+  const now = new Date().toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
+
+  if (scActiveTab === 'market') {
+    const hot  = document.getElementById('sc-hot-pair').textContent.trim();
+    const anom = document.getElementById('sc-anom').textContent;
+    text = `📡 Pyth Pulse Market Snapshot (${now} UTC)
+
+🔥 Hottest: ${hot}
+⚡ Anomalies: ${anom} detected
+
+8 crypto pairs live on Pyth Network oracle data
+
+#Pyth #DeFi #CryptoTrading`;
+  } else if (scActiveTab === 'asset') {
+    const sym   = scAssetSymbol || 'DOGE';
+    const price = document.getElementById('sc-asset-price').textContent;
+    const vol   = document.getElementById('sc-asset-vol').textContent;
+    const tier  = document.getElementById('sc-asset-tier').textContent;
+    text = `📊 ${sym}/USD on Pyth Pulse (${now} UTC)
+
+Price: ${price}
+Volatility: ${vol} [${tier}]
+
+Live via @PythNetwork oracle · SignalForge
+
+#${sym} #Pyth #DeFi`;
+  } else {
+    const sig  = document.getElementById('sc-sig-badge').textContent;
+    const wr   = document.getElementById('sc-sig-wr').textContent;
+    const bank = document.getElementById('sc-sig-bank').textContent;
+    text = `⚡ SignalForge DOGE/USD signal (${now} UTC)
+
+Signal: ${sig}
+Win Rate: ${wr}
+Bankroll: ${bank}
+
+Powered by @PythNetwork oracle data · Limitless Markets
+
+#DOGE #Pyth #PredictionMarkets`;
+  }
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+}
+
+function downloadAsPNG() {
+  const btn = document.getElementById('sc-png-btn');
+  btn.textContent = '⏳ Rendering...';
+  btn.classList.add('loading');
+
+  // Find the visible card
+  const cardIds = {'market':'sc-market-card','asset':'sc-asset-card','signal':'sc-signal-card'};
+  const cardEl  = document.getElementById(cardIds[scActiveTab]);
+  if (!cardEl) { btn.textContent = '↓ Download PNG'; btn.classList.remove('loading'); return; }
+
+  html2canvas(cardEl, {
+    backgroundColor: '#03050a',
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    logging: false,
+  }).then(canvas => {
+    const link = document.createElement('a');
+    const tabLabels = {market:'market-snapshot',asset:(scAssetSymbol||'asset')+'-detail',signal:'signalforge-signal'};
+    const ts = new Date().toISOString().slice(0,16).replace('T','-').replace(':','');
+    link.download = `pyth-pulse-${tabLabels[scActiveTab]}-${ts}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    btn.textContent = '✓ Downloaded!';
+    btn.classList.remove('loading');
+    setTimeout(() => { btn.textContent = '↓ Download PNG'; }, 2000);
+  }).catch(() => {
+    btn.textContent = '↓ Download PNG';
+    btn.classList.remove('loading');
+  });
+}
+
+function copyCardText() {
+  let text = '';
+  const now = new Date().toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
+
+  if (scActiveTab === 'market') {
+    const hot  = document.getElementById('sc-hot-pair').textContent.trim();
+    const anom = document.getElementById('sc-anom').textContent;
+    const pairs = ['sc-m1','sc-m2','sc-m3'].map(id => {
+      const el = document.getElementById(id);
+      return el ? el.innerText.split('\n').join(' · ') : '';
+    }).filter(Boolean).join('\n');
+    text = `PYTH PULSE · ${now} UTC
+
+Hottest: ${hot}
+Anomalies: ${anom}
+
+Top Volatility:
+${pairs}
+
+pyth-pulse.signalforge.app`;
+  } else if (scActiveTab === 'asset') {
+    const sym   = scAssetSymbol || 'DOGE';
+    const price = document.getElementById('sc-asset-price').textContent;
+    const chg   = document.getElementById('sc-asset-change').textContent;
+    const vol   = document.getElementById('sc-asset-vol').textContent;
+    const conf  = document.getElementById('sc-asset-conf').textContent;
+    const tier  = document.getElementById('sc-asset-tier').textContent;
+    text = `${sym}/USD · Pyth Pulse
+
+Price:      ${price}
+Change:     ${chg}
+Volatility: ${vol} [${tier}]
+Pyth Conf:  ${conf}
+
+${now} UTC · pyth-pulse.signalforge.app`;
+  } else {
+    const sig  = document.getElementById('sc-sig-badge').textContent;
+    const strk = document.getElementById('sc-sig-streak').textContent;
+    const wr   = document.getElementById('sc-sig-wr').textContent;
+    const bank = document.getElementById('sc-sig-bank').textContent;
+    const edge = document.getElementById('sc-sig-edge').textContent;
+    text = `SIGNALFORGE · DOGE/USD · ${now} UTC
+
+Signal:   ${sig}
+${strk}
+Win Rate: ${wr}
+Bankroll: ${bank}
+Edge:     ${edge}
+
+signalforge.app · Pyth Community Hackathon 2026`;
+  }
+
+  navigator.clipboard.writeText(text).then(() => {
+    // copy feedback handled elsewhere
+  });
+}
+
 // ── Keyboard navigation ─────────────────────────────────────────────
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
+    // Close share card first if open
+    const overlay = document.getElementById('sc-overlay');
+    if (overlay && overlay.classList.contains('open')) {
+      closeShareCard(); return;
+    }
     const panel = document.getElementById('detail-panel');
     if (panel && panel.style.display !== 'none') {
       panel.style.display = 'none';
@@ -1529,9 +1889,159 @@ FEEDS.forEach(feed => {
       <span id="conf-${feed.symbol}">conf: —</span>
     </div>
     <div class="conf-bar"><div class="conf-fill" id="cf-${feed.symbol}" style="width:0%"></div></div>
+    <button class="hm-share-btn" onclick="event.stopPropagation();openShareCard('asset','${feed.symbol}')">SHARE</button>
   `;
   grid.appendChild(card);
 });
 </script>
+
+<!-- Share FAB -->
+<button class="share-fab" onclick="openShareCard('market')" title="Share market snapshot">⬡</button>
+
+<!-- Social Card Modal -->
+<div class="sc-overlay" id="sc-overlay" onclick="if(event.target===this)closeShareCard()">
+  <div class="sc-modal">
+
+    <!-- Tabs -->
+    <div class="sc-tabs">
+      <button class="sc-tab active" onclick="switchSCTab('market',this)">MARKET SNAPSHOT</button>
+      <button class="sc-tab" onclick="switchSCTab('asset',this)">ASSET DETAIL</button>
+      <button class="sc-tab" onclick="switchSCTab('signal',this)">SIGNALFORGE</button>
+    </div>
+
+    <!-- Preview -->
+    <div class="sc-preview" id="sc-preview">
+
+      <!-- MARKET SNAPSHOT card -->
+      <div class="sc-card" id="sc-market-card">
+        <div class="sc-card-header">
+          <div class="sc-card-brand">
+            <div class="sc-card-hex">P</div>
+            <div>
+              <div class="sc-card-title">PYTH PULSE</div>
+              <div class="sc-card-sub">Multi-Asset Intelligence</div>
+            </div>
+          </div>
+          <div class="sc-card-ts" id="sc-ts">—</div>
+        </div>
+        <div class="sc-card-body">
+          <div class="sc-stats-row" style="grid-template-columns:repeat(2,1fr);margin-bottom:12px">
+            <div class="sc-stat-box">
+              <div class="sc-stat-label">🔥 Hottest Pair</div>
+              <div class="sc-stat-val" id="sc-hot-pair">—</div>
+              <div style="font-size:9px;color:var(--dim);margin-top:3px" id="sc-hot-vol">—</div>
+            </div>
+            <div class="sc-stat-box">
+              <div class="sc-stat-label">⚡ Anomalies</div>
+              <div class="sc-stat-val" style="color:var(--orange)" id="sc-anom">—</div>
+              <div style="font-size:9px;color:var(--dim);margin-top:3px">2σ+ moves (1h)</div>
+            </div>
+          </div>
+          <div class="sc-stats-row">
+            <div class="sc-stat-box" id="sc-m1"></div>
+            <div class="sc-stat-box" id="sc-m2"></div>
+            <div class="sc-stat-box" id="sc-m3"></div>
+          </div>
+        </div>
+        <div class="sc-card-footer">
+          <div class="sc-card-url">pyth-pulse.signalforge.app</div>
+          <div class="sc-pyth-badge">⚡ POWERED BY PYTH NETWORK</div>
+        </div>
+      </div>
+
+      <!-- ASSET DETAIL card -->
+      <div class="sc-card" id="sc-asset-card" style="display:none">
+        <div class="sc-card-header">
+          <div class="sc-card-brand">
+            <div class="sc-card-hex">P</div>
+            <div>
+              <div class="sc-card-title">PYTH PULSE</div>
+              <div class="sc-card-sub">Asset Intelligence</div>
+            </div>
+          </div>
+          <div class="sc-card-ts" id="sc-ts2">—</div>
+        </div>
+        <div class="sc-card-body asset">
+          <div class="sc-pair-name" id="sc-asset-name">—</div>
+          <div class="sc-pair-price" id="sc-asset-price">—</div>
+          <div class="sc-pair-change" id="sc-asset-change">—</div>
+          <div class="sc-stats-row">
+            <div class="sc-stat-box">
+              <div class="sc-stat-label">Volatility</div>
+              <div class="sc-stat-val" id="sc-asset-vol">—</div>
+            </div>
+            <div class="sc-stat-box">
+              <div class="sc-stat-label">Pyth Conf ±</div>
+              <div class="sc-stat-val" style="color:var(--blue)" id="sc-asset-conf">—</div>
+            </div>
+            <div class="sc-stat-box">
+              <div class="sc-stat-label">Tier</div>
+              <div class="sc-stat-val" id="sc-asset-tier">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="sc-card-footer">
+          <div class="sc-card-url">pyth-pulse.signalforge.app</div>
+          <div class="sc-pyth-badge">⚡ POWERED BY PYTH NETWORK</div>
+        </div>
+      </div>
+
+      <!-- SIGNALFORGE card -->
+      <div class="sc-card" id="sc-signal-card" style="display:none">
+        <div class="sc-card-header">
+          <div class="sc-card-brand">
+            <div class="sc-card-hex" style="background:var(--green)">⚡</div>
+            <div>
+              <div class="sc-card-title">SIGNALFORGE</div>
+              <div class="sc-card-sub">DOGE/USD · Limitless Markets</div>
+            </div>
+          </div>
+          <div class="sc-card-ts" id="sc-ts3">—</div>
+        </div>
+        <div class="sc-card-body">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+            <div id="sc-sig-badge" style="font-size:28px;font-weight:700;color:var(--accent);letter-spacing:2px">—</div>
+            <div>
+              <div style="font-size:9px;color:var(--dim);letter-spacing:1.5px">ACTIVE SIGNAL</div>
+              <div style="font-size:11px;color:var(--text);margin-top:3px" id="sc-sig-streak">Streak: —</div>
+            </div>
+          </div>
+          <div class="sc-stats-row" style="grid-template-columns:repeat(4,1fr)">
+            <div class="sc-stat-box">
+              <div class="sc-stat-label">Win Rate</div>
+              <div class="sc-stat-val" style="color:var(--green)" id="sc-sig-wr">—</div>
+            </div>
+            <div class="sc-stat-box">
+              <div class="sc-stat-label">Bankroll</div>
+              <div class="sc-stat-val" style="color:var(--green)" id="sc-sig-bank">—</div>
+            </div>
+            <div class="sc-stat-box">
+              <div class="sc-stat-label">Edge</div>
+              <div class="sc-stat-val" id="sc-sig-edge">—</div>
+            </div>
+            <div class="sc-stat-box">
+              <div class="sc-stat-label">Oracle</div>
+              <div class="sc-stat-val" style="color:var(--accent);font-size:11px">Pyth</div>
+            </div>
+          </div>
+        </div>
+        <div class="sc-card-footer">
+          <div class="sc-card-url">signalforge.app · Pyth Community Hackathon</div>
+          <div class="sc-pyth-badge">⚡ PYTH NETWORK</div>
+        </div>
+      </div>
+
+    </div><!-- /sc-preview -->
+
+    <!-- Actions -->
+    <div class="sc-actions">
+      <button class="sc-btn sc-btn-tweet" onclick="shareToTwitter()">𝕏 Tweet This</button>
+      <button class="sc-btn sc-btn-png" id="sc-png-btn" onclick="downloadAsPNG()">↓ Download PNG</button>
+      <button class="sc-btn sc-btn-close" onclick="closeShareCard()">✕</button>
+    </div>
+
+  </div>
+</div>
+
 </body>
 </html>
