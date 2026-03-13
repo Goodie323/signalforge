@@ -6,6 +6,7 @@
 <title>SignalForge — DOGE/USD Intelligence</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 // ── Session guard — redirect to login if not authenticated ──
 (async () => {
@@ -586,6 +587,181 @@
     .countdown-digits{ font-size:20px; }
     .header-right    { gap:6px; }
   }
+/* ── SignalForge Share Card ────────────────────────────────────────── */
+.sf-share-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 16px; background: rgba(232,244,0,0.06);
+  border: 1px solid rgba(232,244,0,0.2); color: var(--accent);
+  font-size: 9px; letter-spacing: 2px; cursor: pointer;
+  font-family: 'Space Mono', monospace; transition: all 0.2s;
+  border-radius: 4px; margin-left: auto;
+}
+.sf-share-btn:hover { background: rgba(232,244,0,0.12); border-color: rgba(232,244,0,0.5); }
+
+.sf-overlay {
+  display: none; position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.8); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center;
+}
+.sf-overlay.open { display: flex; }
+
+.sf-modal {
+  width: 480px; max-width: 95vw;
+  background: #080b0f; border: 1px solid #1a2d42;
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.8);
+}
+
+.sf-modal-header {
+  padding: 14px 20px; border-bottom: 1px solid #111e2e;
+  display: flex; align-items: center; justify-content: space-between;
+  background: #03050a;
+}
+.sf-modal-title { font-size: 9px; letter-spacing: 3px; color: var(--dim); }
+.sf-modal-close { background: none; border: none; color: var(--dim); cursor: pointer; font-size: 14px; padding: 0 4px; }
+.sf-modal-close:hover { color: var(--text); }
+
+/* The card itself */
+.sf-card {
+  margin: 16px; border-radius: 10px; overflow: hidden;
+  border: 1px solid #1a2d42;
+  background: linear-gradient(145deg, #080d14 0%, #0b1525 100%);
+  font-family: 'Space Mono', monospace;
+}
+.sf-card-top {
+  padding: 16px 18px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid #111e2e;
+}
+.sf-card-brand { display: flex; align-items: center; gap: 10px; }
+.sf-card-hex {
+  width: 30px; height: 30px;
+  background: var(--accent2, #00bfff);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.sf-card-name  { font-size: 13px; color: #e8f0f8; letter-spacing: 2px; }
+.sf-card-sub   { font-size: 9px; color: #445566; margin-top: 2px; letter-spacing: 1px; }
+.sf-card-ts    { font-size: 9px; color: #445566; }
+
+.sf-card-signal-row {
+  padding: 16px 18px 12px;
+  display: flex; align-items: center; gap: 16px;
+  border-bottom: 1px solid #111e2e;
+}
+.sf-card-sig-val {
+  font-size: 36px; font-weight: 700; letter-spacing: 2px; line-height: 1;
+}
+.sf-card-sig-label { font-size: 8px; color: #445566; letter-spacing: 2px; margin-bottom: 4px; }
+.sf-card-sig-sub   { font-size: 11px; color: #b8ccd8; margin-top: 3px; }
+
+.sf-card-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 1px; background: #111e2e;
+}
+.sf-card-stat {
+  background: #080d14; padding: 12px 14px;
+}
+.sf-card-stat-label { font-size: 8px; color: #445566; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 5px; }
+.sf-card-stat-val   { font-size: 14px; color: #e8f0f8; }
+
+.sf-card-footer {
+  padding: 9px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: #03050a; border-top: 1px solid #111e2e;
+}
+.sf-card-url   { font-size: 8px; color: #445566; letter-spacing: 1px; }
+.sf-card-pyth  { font-size: 8px; color: var(--accent2, #00bfff); letter-spacing: 1.5px; }
+
+.sf-actions {
+  padding: 14px 16px; display: flex; gap: 10px;
+  border-top: 1px solid #111e2e; background: #080b0f;
+}
+.sf-btn {
+  flex: 1; padding: 10px; border-radius: 6px; cursor: pointer;
+  font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 1.5px;
+  border: 1px solid #1a2d42; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.sf-btn-tweet { background: #1da1f2; color: #fff; border-color: #1da1f2; }
+.sf-btn-tweet:hover { background: #1a91da; }
+.sf-btn-png   { background: #080b0f; color: var(--accent2,#00bfff); border-color: var(--accent2,#00bfff); }
+.sf-btn-png:hover   { background: rgba(0,191,255,0.06); }
+.sf-btn-x     { background: #080b0f; color: #445566; flex: 0; padding: 10px 14px; }
+.sf-btn-x:hover     { color: #b8ccd8; }
+
+
+/* ── SignalForge Social Card ───────────────────────────────────────── */
+.sf-overlay {
+  display:none; position:fixed; inset:0; z-index:300;
+  background:rgba(0,0,0,0.8); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center;
+}
+.sf-overlay.open { display:flex; }
+.sf-modal {
+  width:480px; max-width:95vw;
+  background:var(--surface); border:1px solid var(--border2);
+  border-radius:12px; overflow:hidden;
+  box-shadow:0 24px 80px rgba(0,0,0,0.7);
+}
+.sf-card {
+  background:linear-gradient(160deg,#050e08 0%,#030c10 50%,#050a0e 100%);
+  font-family:'Space Mono',monospace;
+}
+.sf-card-header {
+  padding:18px 20px 14px;
+  border-bottom:1px solid rgba(0,255,136,0.1);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.sf-card-brand { display:flex; align-items:center; gap:10px; }
+.sf-card-bolt {
+  width:30px; height:30px; background:var(--accent);
+  display:flex; align-items:center; justify-content:center;
+  font-size:15px; color:var(--bg); font-weight:700; border-radius:4px;
+}
+.sf-card-name  { font-size:14px; color:#e8f0f8; letter-spacing:2px; }
+.sf-card-sub   { font-size:9px; color:var(--dim); margin-top:2px; letter-spacing:1px; }
+.sf-card-body  { padding:18px 20px 14px; }
+.sf-sig-row    { display:flex; align-items:center; gap:16px; margin-bottom:16px; }
+.sf-sig-dir    { font-size:36px; font-weight:700; letter-spacing:1px; line-height:1; }
+.sf-sig-meta   { display:flex; flex-direction:column; gap:4px; }
+.sf-sig-label  { font-size:8px; color:var(--dim); letter-spacing:2px; text-transform:uppercase; }
+.sf-sig-streak { font-size:11px; color:var(--text); }
+.sf-sig-edge   { font-size:10px; color:var(--dim); }
+.sf-stats-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+}
+.sf-stat {
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
+  border-radius:6px; padding:10px 12px;
+}
+.sf-stat-label { font-size:8px; color:var(--dim); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:5px; }
+.sf-stat-val   { font-size:16px; color:#e8f0f8; font-weight:500; }
+.sf-stat-sub   { font-size:9px; color:var(--dim); margin-top:3px; }
+.sf-card-footer {
+  padding:10px 20px;
+  border-top:1px solid rgba(0,255,136,0.08);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.sf-footer-url   { font-size:9px; color:var(--dim); letter-spacing:1px; }
+.sf-footer-badge { font-size:9px; color:var(--accent); letter-spacing:1.5px; }
+.sf-actions {
+  padding:14px 18px; display:flex; gap:8px;
+  border-top:1px solid var(--border);
+}
+.sf-btn {
+  flex:1; padding:10px; border-radius:6px; cursor:pointer;
+  font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px;
+  border:1px solid; transition:all 0.2s;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.sf-btn-tweet { background:#1da1f2; color:#fff; border-color:#1da1f2; }
+.sf-btn-tweet:hover { background:#1a91da; }
+.sf-btn-png   { background:var(--bg); color:var(--accent); border-color:var(--accent); }
+.sf-btn-png:hover { background:rgba(0,255,136,0.06); }
+.sf-btn-close { background:var(--bg); color:var(--dim); border-color:var(--border); flex:0; padding:10px 14px; }
+.sf-btn-close:hover { color:var(--text); }
 </style>
 </head>
 <body>
@@ -887,11 +1063,17 @@
   </div>
 
   <!-- Log -->
-  <div class="section-title">Signal Log</div>
+  <div class="section-title" style="display:flex;align-items:center;justify-content:space-between">
+    <span>Signal Log</span>
+    <button class="sf-share-btn" onclick="openSFShareCard()">⬡ SHARE SIGNAL</button>
+  </div>
   <div class="log-block">
     <div class="log-header">
       <div class="log-title">Recent Signals</div>
-      <div class="log-count" id="log-count">—</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="log-count" id="log-count">—</div>
+        <button onclick="openSFCard()" style="padding:4px 10px;background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.2);color:var(--accent);font-size:9px;letter-spacing:1.5px;font-family:'Space Mono',monospace;cursor:pointer;border-radius:3px;transition:all 0.15s" onmouseover="this.style.background='rgba(0,255,136,0.12)'" onmouseout="this.style.background='rgba(0,255,136,0.06)'">⬡ SHARE</button>
+      </div>
     </div>
     <!-- Column headers -->
     <div class="log-col-headers" style="display:grid;grid-template-columns:55px 55px 90px 90px 1fr 60px;gap:0;padding:8px 20px;border-bottom:1px solid var(--border)">
@@ -1219,6 +1401,7 @@ async function fetchBotStats() {
     const res   = await fetch(`${BOT_STATS_URL}/stats`, { cache: 'no-store' });
     const stats = await res.json();
     lastStats   = stats;
+    window._lastBotStats = stats;
     botConnected = true;
 
     showBotConnected(stats.updated);
@@ -1473,5 +1656,352 @@ window.addEventListener('load', () => {
   }
 });
 </script>
+
+<!-- SignalForge Share Card Modal -->
+<div class="sf-overlay" id="sf-overlay" onclick="if(event.target===this)closeSFCard()">
+  <div class="sf-modal">
+    <div class="sf-modal-header">
+      <span class="sf-modal-title">SIGNALFORGE · SHARE CARD</span>
+      <button class="sf-modal-close" onclick="closeSFCard()">✕</button>
+    </div>
+
+    <!-- Card preview -->
+    <div id="sf-card-wrap">
+      <div class="sf-card" id="sf-card">
+        <div class="sf-card-top">
+          <div class="sf-card-brand">
+            <div class="sf-card-hex">⚡</div>
+            <div>
+              <div class="sf-card-name">SIGNALFORGE</div>
+              <div class="sf-card-sub">DOGE/USD · Limitless Prediction Market</div>
+            </div>
+          </div>
+          <div class="sf-card-ts" id="sfc-ts">—</div>
+        </div>
+
+        <!-- Signal hero -->
+        <div class="sf-card-signal-row">
+          <div>
+            <div class="sf-card-sig-label">ACTIVE SIGNAL</div>
+            <div class="sf-card-sig-val" id="sfc-signal">—</div>
+          </div>
+          <div style="flex:1">
+            <div class="sf-card-sig-sub" id="sfc-streak">Streak: —</div>
+            <div class="sf-card-sig-sub" style="margin-top:4px" id="sfc-edge">Edge: —</div>
+            <div class="sf-card-sig-sub" style="margin-top:4px;font-size:10px;color:#445566" id="sfc-win">Win rate: —</div>
+          </div>
+        </div>
+
+        <!-- Stats grid: threshold / latest entry / bet size -->
+        <div class="sf-card-grid">
+          <div class="sf-card-stat">
+            <div class="sf-card-stat-label">Threshold (Open)</div>
+            <div class="sf-card-stat-val" style="color:#00bfff" id="sfc-threshold">—</div>
+            <div style="font-size:9px;color:#445566;margin-top:3px">Market open price</div>
+          </div>
+          <div class="sf-card-stat">
+            <div class="sf-card-stat-label">Last Entry Price</div>
+            <div class="sf-card-stat-val" id="sfc-entry">—</div>
+            <div style="font-size:9px;margin-top:3px" id="sfc-close-row">—</div>
+          </div>
+          <div class="sf-card-stat">
+            <div class="sf-card-stat-label">Bet Size</div>
+            <div class="sf-card-stat-val" style="color:#00ff88" id="sfc-bet">—</div>
+            <div style="font-size:9px;color:#445566;margin-top:3px" id="sfc-kelly">Kelly sized</div>
+          </div>
+        </div>
+
+        <div class="sf-card-footer">
+          <div class="sf-card-url">signalforge.app · Pyth Community Hackathon 2026</div>
+          <div class="sf-card-pyth">⚡ PYTH ORACLE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="sf-actions">
+      <button class="sf-btn sf-btn-tweet" onclick="sfTweet(this)">𝕏 Tweet This</button>
+      <button class="sf-btn sf-btn-png"   id="sf-png-btn" onclick="sfDownloadPNG()">↓ Download PNG</button>
+      <button class="sf-btn sf-btn-x"     onclick="closeSFCard()">✕</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SignalForge Share Card ────────────────────────────────────────────
+let _sfStats = {};
+
+function openSFShareCard() {
+  // Pull latest stats from DOM
+  const sig      = document.getElementById('signal-value');
+  const streak   = document.getElementById('streak-val');
+  const edge     = document.getElementById('edge-val');
+  const wr       = document.getElementById('wr-val') || document.getElementById('wl-display');
+  const thresh   = document.getElementById('threshold-val');
+  const bankEl   = document.getElementById('bankroll');
+
+  // Get last signal_log entry
+  const logRows  = document.querySelectorAll('.log-row');
+  let entryPrice = '—', closingPrice = '—', betSize = '—';
+  if (logRows.length > 0) {
+    const cells = logRows[0].querySelectorAll('div');
+    if (cells[2]) entryPrice  = cells[2].textContent.trim();
+    if (cells[4]) betSize     = cells[4].textContent.trim();
+  }
+
+  // Try getting from lastBotStats global if available
+  if (window._lastBotStats) {
+    const s = window._lastBotStats;
+    if (s.signal_log && s.signal_log.length > 0) {
+      const last = s.signal_log[s.signal_log.length - 1];
+      entryPrice   = last.price   ? '$' + last.price   : entryPrice;
+      betSize      = last.bet     ? '$' + last.bet.toFixed(2) : betSize;
+      closingPrice = last.close_price ? '$' + last.close_price : null;
+    }
+  }
+
+  const now = new Date().toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}) + ' UTC';
+
+  // Populate card
+  document.getElementById('sfc-ts').textContent       = now;
+  document.getElementById('sfc-signal').textContent   = sig     ? sig.textContent.trim()    : '—';
+  document.getElementById('sfc-signal').style.color   = sig && sig.textContent.includes('YES') ? '#00ff88' : sig && sig.textContent.includes('NO') ? '#ff3c5a' : '#e8f400';
+  document.getElementById('sfc-streak').textContent   = 'Streak: ' + (streak ? streak.textContent : '—');
+  document.getElementById('sfc-edge').textContent     = 'Edge: '   + (edge   ? edge.textContent   : '—');
+  document.getElementById('sfc-win').textContent      = 'Win rate: '+ (wr    ? wr.textContent     : '—');
+  document.getElementById('sfc-threshold').textContent= thresh  ? thresh.textContent : '—';
+  document.getElementById('sfc-entry').textContent    = entryPrice;
+  document.getElementById('sfc-bet').textContent      = betSize;
+
+  if (closingPrice) {
+    document.getElementById('sfc-close-row').innerHTML = 'Close: <span style="color:#00ff88">' + closingPrice + '</span>';
+  } else {
+    document.getElementById('sfc-close-row').style.color = '#445566';
+    document.getElementById('sfc-close-row').textContent = 'Market open';
+  }
+
+  _sfStats = {
+    signal:    sig     ? sig.textContent.trim()    : '—',
+    streak:    streak  ? streak.textContent        : '—',
+    edge:      edge    ? edge.textContent          : '—',
+    wr:        wr      ? wr.textContent            : '—',
+    threshold: thresh  ? thresh.textContent        : '—',
+    entry:     entryPrice,
+    bet:       betSize,
+  };
+
+  document.getElementById('sf-overlay').classList.add('open');
+}
+
+function closeSFCard() {
+  document.getElementById('sf-overlay').classList.remove('open');
+}
+
+function sfTweet(btn) {
+  const now = new Date().toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
+  const text = `⚡ SignalForge DOGE/USD Signal (${now} UTC)
+
+Signal:    ${_sfStats.signal}
+Streak:    ${_sfStats.streak}
+Edge:      ${_sfStats.edge}
+Threshold: ${_sfStats.threshold}
+Entry:     ${_sfStats.entry}
+Bet Size:  ${_sfStats.bet}
+
+Powered by @PythNetwork oracle · Limitless Markets
+
+#DOGE #Pyth #PredictionMarkets #SignalForge
+
+[attach screenshot 👆]`;
+
+  const cardEl = document.getElementById('sf-card');
+  btn.textContent = '⏳ Preparing...';
+  html2canvas(cardEl, {backgroundColor:'#03050a', scale:2, useCORS:true, allowTaint:true, logging:false})
+    .then(canvas => {
+      const link = document.createElement('a');
+      link.download = 'signalforge-signal-' + Date.now() + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      setTimeout(() => {
+        window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+        btn.textContent = '𝕏 Tweet This';
+      }, 500);
+    })
+    .catch(() => {
+      window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+      btn.textContent = '𝕏 Tweet This';
+    });
+}
+
+function sfDownloadPNG() {
+  const btn = document.getElementById('sf-png-btn');
+  btn.textContent = '⏳ Rendering...';
+  html2canvas(document.getElementById('sf-card'), {
+    backgroundColor: '#03050a', scale: 2, useCORS: true, allowTaint: true, logging: false,
+  }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = 'signalforge-signal-' + Date.now() + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    btn.textContent = '✓ Downloaded!';
+    setTimeout(() => { btn.textContent = '↓ Download PNG'; }, 2000);
+  }).catch(() => { btn.textContent = '↓ Download PNG'; });
+}
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('sf-overlay').classList.contains('open')) closeSFCard();
+  }
+});
+
+// Expose bot stats to share card
+const _origFetchBotStats = fetchBotStats;
+
+// ── SignalForge Social Card ───────────────────────────────────────────
+function openSFCard() {
+  const now = new Date().toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}) + ' UTC';
+  document.getElementById('sf-ts').textContent = now;
+
+  // Signal direction
+  const sigEl  = document.getElementById('t-sig');
+  const sigVal = sigEl ? sigEl.textContent.trim() : '—';
+  const dir    = document.getElementById('sf-sig-dir');
+  dir.textContent  = sigVal;
+  dir.style.color  = sigVal === 'YES' ? '#00ff88' : sigVal === 'NO' ? '#ff3c5a' : '#e8f400';
+
+  // Streak
+  const streakEl = document.getElementById('t-streak');
+  document.getElementById('sf-sig-streak').textContent = 'Streak: ' + (streakEl ? streakEl.textContent : '—');
+
+  // Edge
+  const edgeEl = document.getElementById('t-edge');
+  document.getElementById('sf-sig-edge').textContent = 'Edge: ' + (edgeEl ? edgeEl.textContent : '—');
+
+  // Threshold (opening price)
+  const thrEl = document.getElementById('threshold-val');
+  const thrVal = thrEl ? thrEl.textContent.trim() : '—';
+  document.getElementById('sf-threshold').textContent = thrVal;
+
+  // Current price
+  const priceEl = document.getElementById('live-price');
+  const decEl   = document.getElementById('price-dec');
+  const priceVal = priceEl && decEl ? '0.' + decEl.textContent : '—';
+  document.getElementById('sf-price').textContent = priceVal !== '0.—' ? priceVal : '—';
+
+  // Above/below threshold
+  const aboveEl = document.getElementById('threshold-block-sub');
+  document.getElementById('sf-vs').textContent = aboveEl ? aboveEl.textContent : 'vs threshold';
+
+  // Bet from last signal log entry
+  const rows = document.querySelectorAll('.log-row');
+  let betVal = '—';
+  if (rows.length > 0) {
+    const betCell = rows[0].querySelector('.log-bet');
+    if (betCell) betVal = betCell.textContent.trim() || '—';
+  }
+  document.getElementById('sf-bet').textContent = betVal;
+
+  document.getElementById('sf-overlay').classList.add('open');
+}
+
+function closeSFCard() {
+  document.getElementById('sf-overlay').classList.remove('open');
+}
+
+function sfTweet() {
+  const sig   = document.getElementById('sf-sig-dir').textContent.trim();
+  const strk  = document.getElementById('sf-sig-streak').textContent;
+  const edge  = document.getElementById('sf-sig-edge').textContent;
+  const thr   = document.getElementById('sf-threshold').textContent;
+  const cur   = document.getElementById('sf-price').textContent;
+  const bet   = document.getElementById('sf-bet').textContent;
+  const now   = new Date().toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
+  const text  = `⚡ SignalForge DOGE/USD signal (${now} UTC)
+
+Signal: ${sig}
+${strk}
+${edge}
+Opening: ${thr}
+Current: ${cur}
+Bet: ${bet}
+
+Powered by @PythNetwork oracle · Limitless Markets
+
+#DOGE #Pyth #PredictionMarkets`;
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+}
+
+function sfDownloadPNG() {
+  const btn = document.getElementById('sf-png-btn');
+  btn.textContent = '⏳ Rendering...';
+  const ts = new Date().toISOString().slice(0,16).replace('T','-').replace(':','');
+  html2canvas(document.getElementById('sf-card'), {
+    backgroundColor:'#030c10', scale:2, useCORS:true, allowTaint:true, logging:false
+  }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = `signalforge-signal-${ts}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    btn.textContent = '✓ Downloaded!';
+    setTimeout(() => { btn.textContent = '↓ Download PNG'; }, 2000);
+  }).catch(() => { btn.textContent = '↓ Download PNG'; });
+}
+
+</script>
+<!-- SignalForge Social Card Modal -->
+<div class="sf-overlay" id="sf-overlay" onclick="if(event.target===this)closeSFCard()">
+  <div class="sf-modal">
+    <div class="sf-card" id="sf-card">
+      <div class="sf-card-header">
+        <div class="sf-card-brand">
+          <div class="sf-card-bolt">⚡</div>
+          <div>
+            <div class="sf-card-name">SIGNALFORGE</div>
+            <div class="sf-card-sub">DOGE/USD · Limitless Markets · Pyth Oracle</div>
+          </div>
+        </div>
+        <div style="font-size:9px;color:var(--dim);letter-spacing:1px" id="sf-ts">—</div>
+      </div>
+      <div class="sf-card-body">
+        <div class="sf-sig-row">
+          <div class="sf-sig-dir" id="sf-sig-dir">—</div>
+          <div class="sf-sig-meta">
+            <div class="sf-sig-label">Active Signal</div>
+            <div class="sf-sig-streak" id="sf-sig-streak">Streak: —</div>
+            <div class="sf-sig-edge" id="sf-sig-edge">Edge: —</div>
+          </div>
+        </div>
+        <div class="sf-stats-grid">
+          <div class="sf-stat">
+            <div class="sf-stat-label">Opening Price</div>
+            <div class="sf-stat-val" style="color:#00c8ff" id="sf-threshold">—</div>
+            <div class="sf-stat-sub">Market threshold</div>
+          </div>
+          <div class="sf-stat">
+            <div class="sf-stat-label">Current Price</div>
+            <div class="sf-stat-val" style="color:#00ff88" id="sf-price">—</div>
+            <div class="sf-stat-sub" id="sf-vs">vs threshold</div>
+          </div>
+          <div class="sf-stat">
+            <div class="sf-stat-label">Bet Size</div>
+            <div class="sf-stat-val" style="color:#00ff88" id="sf-bet">—</div>
+            <div class="sf-stat-sub">Kelly sized</div>
+          </div>
+        </div>
+      </div>
+      <div class="sf-card-footer">
+        <div class="sf-footer-url">signalforge.app · Pyth Hackathon 2026</div>
+        <div class="sf-footer-badge">⚡ PYTH NETWORK</div>
+      </div>
+    </div>
+    <div class="sf-actions">
+      <button class="sf-btn sf-btn-tweet" onclick="sfTweet()">𝕏 Tweet Stats</button>
+      <button class="sf-btn sf-btn-png" id="sf-png-btn" onclick="sfDownloadPNG()">↓ Download PNG</button>
+      <button class="sf-btn sf-btn-close" onclick="closeSFCard()">✕</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

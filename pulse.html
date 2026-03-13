@@ -227,7 +227,7 @@ body::before {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 18px;
+  padding: 18px 18px 38px;
   position: relative;
   cursor: pointer;
   transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
@@ -1635,7 +1635,7 @@ function switchSCTab(tab, btn) {
 function showSCCard(tab) {
   document.getElementById('sc-market-card').style.display = tab === 'market' ? '' : 'none';
   document.getElementById('sc-asset-card').style.display  = tab === 'asset'  ? '' : 'none';
-  document.getElementById('sc-signal-card').style.display = tab === 'signal' ? '' : 'none';
+
 }
 
 function populateSocialCard() {
@@ -1684,38 +1684,7 @@ function populateSocialCard() {
   document.getElementById('sc-asset-conf').textContent = s.confidence ? '±' + fmt(s.confidence, sym) : '—';
   document.getElementById('sc-asset-tier').innerHTML   = `<span style="color:${tierColors[tierClass]}">${tierLabel}</span>`;
 
-  // ── SignalForge tab ──
-  const sig       = document.getElementById('forge-signal');
-  const edge      = document.getElementById('forge-edge');
-  const strk      = document.getElementById('forge-streak');
-  const threshold = document.getElementById('forge-threshold');
-  const sigVal    = sig ? sig.textContent.trim() : '—';
-
-  // Get current DOGE price from state
-  const dogePrice = state['DOGE'] && state['DOGE'].price ? '$' + fmt(state['DOGE'].price, 'DOGE') : '—';
-  const threshVal = threshold ? threshold.textContent.trim() : '—';
-
-  // Compute vs threshold label
-  let vsLabel = 'vs threshold';
-  if (state['DOGE'] && state['DOGE'].price && threshold && threshold.textContent !== '—') {
-    const cur = state['DOGE'].price;
-    const thr = parseFloat(threshold.textContent.replace('$',''));
-    if (!isNaN(thr)) vsLabel = cur > thr ? '▲ Above threshold' : '▼ Below threshold';
-  }
-
-  // Get bet size from last log entry or forge stats
-  const lastBet = (window._lastBotStats && window._lastBotStats.signal_log && window._lastBotStats.signal_log.length > 0)
-    ? '$' + (window._lastBotStats.signal_log[window._lastBotStats.signal_log.length-1].bet || 0).toFixed(2)
-    : '—';
-
-  document.getElementById('sc-sig-badge').textContent    = sigVal;
-  document.getElementById('sc-sig-badge').style.color    = sigVal.includes('YES') ? '#00ff88' : sigVal.includes('NO') ? '#ff3c5a' : '#e8f400';
-  document.getElementById('sc-sig-streak').textContent   = 'Streak: ' + (strk ? strk.textContent : '—');
-  document.getElementById('sc-sig-edge-line').textContent = 'Edge: ' + (edge ? edge.textContent : '—');
-  document.getElementById('sc-sig-threshold').textContent = threshVal;
-  document.getElementById('sc-sig-price').textContent    = dogePrice;
-  document.getElementById('sc-sig-vs').textContent       = vsLabel;
-  document.getElementById('sc-sig-bet').textContent      = lastBet;
+  // SignalForge share card lives on index.html
 }
 
 function shareToTwitter() {
@@ -1769,7 +1738,7 @@ function downloadAsPNG() {
   btn.classList.add('loading');
 
   // Find the visible card
-  const cardIds = {'market':'sc-market-card','asset':'sc-asset-card','signal':'sc-signal-card'};
+  const cardIds = {'market':'sc-market-card','asset':'sc-asset-card'};
   const cardEl  = document.getElementById(cardIds[scActiveTab]);
   if (!cardEl) { btn.textContent = '↓ Download PNG'; btn.classList.remove('loading'); return; }
 
