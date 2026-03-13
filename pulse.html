@@ -664,14 +664,15 @@ td.corr-self {
 .share-fab:hover { transform: scale(1.1); box-shadow: 0 6px 32px rgba(232,244,0,0.55); }
 
 .hm-share-btn {
-  position: absolute; top: 10px; right: 10px;
+  position: absolute; bottom: 10px; right: 10px;
   background: rgba(232,244,0,0.08); border: 1px solid rgba(232,244,0,0.2);
-  color: var(--accent); font-size: 10px; letter-spacing: 1px;
-  padding: 3px 7px; cursor: pointer; border-radius: 3px;
+  color: var(--accent); font-size: 9px; letter-spacing: 1.5px;
+  padding: 3px 8px; cursor: pointer; border-radius: 3px;
   opacity: 0; transition: opacity 0.15s;
-  font-family: 'DM Mono', monospace;
+  font-family: 'DM Mono', monospace; z-index: 2;
 }
 .heatmap-card:hover .hm-share-btn { opacity: 1; }
+.hm-share-btn:hover { background: rgba(232,244,0,0.14); }
 
 /* Modal overlay */
 .sc-overlay {
@@ -1032,6 +1033,9 @@ let totalAnomalies = 0;
 
 // ── Fetch all feeds from Pyth ────────────────────────────────────────
 // ── Fetch live bot stats for bridge panel ────────────────────────────
+// Store last bot stats globally for social card
+window._lastBotStats = null;
+
 async function fetchBotStats() {
   try {
     const res   = await fetch(`${BOT_STATS_URL}/stats`, { cache: 'no-store' });
@@ -1681,18 +1685,37 @@ function populateSocialCard() {
   document.getElementById('sc-asset-tier').innerHTML   = `<span style="color:${tierColors[tierClass]}">${tierLabel}</span>`;
 
   // ── SignalForge tab ──
-  const sig  = document.getElementById('forge-signal');
-  const wr   = document.getElementById('forge-wr');
-  const bank = document.getElementById('forge-bank');
-  const edge = document.getElementById('forge-edge');
-  const strk = document.getElementById('forge-streak');
-  const sigVal = sig ? sig.textContent : '—';
-  document.getElementById('sc-sig-badge').textContent  = sigVal;
-  document.getElementById('sc-sig-badge').style.color  = sigVal === 'YES ↑' ? '#00ff88' : sigVal === 'NO ↓' ? '#ff3c5a' : '#e8f400';
-  document.getElementById('sc-sig-streak').textContent = 'Streak: ' + (strk ? strk.textContent : '—');
-  document.getElementById('sc-sig-wr').textContent     = wr   ? wr.textContent   : '—';
-  document.getElementById('sc-sig-bank').textContent   = bank ? bank.textContent : '—';
-  document.getElementById('sc-sig-edge').textContent   = edge ? edge.textContent : '—';
+  const sig       = document.getElementById('forge-signal');
+  const edge      = document.getElementById('forge-edge');
+  const strk      = document.getElementById('forge-streak');
+  const threshold = document.getElementById('forge-threshold');
+  const sigVal    = sig ? sig.textContent.trim() : '—';
+
+  // Get current DOGE price from state
+  const dogePrice = state['DOGE'] && state['DOGE'].price ? '$' + fmt(state['DOGE'].price, 'DOGE') : '—';
+  const threshVal = threshold ? threshold.textContent.trim() : '—';
+
+  // Compute vs threshold label
+  let vsLabel = 'vs threshold';
+  if (state['DOGE'] && state['DOGE'].price && threshold && threshold.textContent !== '—') {
+    const cur = state['DOGE'].price;
+    const thr = parseFloat(threshold.textContent.replace('$',''));
+    if (!isNaN(thr)) vsLabel = cur > thr ? '▲ Above threshold' : '▼ Below threshold';
+  }
+
+  // Get bet size from last log entry or forge stats
+  const lastBet = (window._lastBotStats && window._lastBotStats.signal_log && window._lastBotStats.signal_log.length > 0)
+    ? '$' + (window._lastBotStats.signal_log[window._lastBotStats.signal_log.length-1].bet || 0).toFixed(2)
+    : '—';
+
+  document.getElementById('sc-sig-badge').textContent    = sigVal;
+  document.getElementById('sc-sig-badge').style.color    = sigVal.includes('YES') ? '#00ff88' : sigVal.includes('NO') ? '#ff3c5a' : '#e8f400';
+  document.getElementById('sc-sig-streak').textContent   = 'Streak: ' + (strk ? strk.textContent : '—');
+  document.getElementById('sc-sig-edge-line').textContent = 'Edge: ' + (edge ? edge.textContent : '—');
+  document.getElementById('sc-sig-threshold').textContent = threshVal;
+  document.getElementById('sc-sig-price').textContent    = dogePrice;
+  document.getElementById('sc-sig-vs').textContent       = vsLabel;
+  document.getElementById('sc-sig-bet').textContent      = lastBet;
 }
 
 function shareToTwitter() {
@@ -1906,7 +1929,6 @@ FEEDS.forEach(feed => {
     <div class="sc-tabs">
       <button class="sc-tab active" onclick="switchSCTab('market',this)">MARKET SNAPSHOT</button>
       <button class="sc-tab" onclick="switchSCTab('asset',this)">ASSET DETAIL</button>
-      <button class="sc-tab" onclick="switchSCTab('signal',this)">SIGNALFORGE</button>
     </div>
 
     <!-- Preview -->
@@ -1986,56 +2008,12 @@ FEEDS.forEach(feed => {
         </div>
       </div>
 
-      <!-- SIGNALFORGE card -->
-      <div class="sc-card" id="sc-signal-card" style="display:none">
-        <div class="sc-card-header">
-          <div class="sc-card-brand">
-            <div class="sc-card-hex" style="background:var(--green)">⚡</div>
-            <div>
-              <div class="sc-card-title">SIGNALFORGE</div>
-              <div class="sc-card-sub">DOGE/USD · Limitless Markets</div>
-            </div>
-          </div>
-          <div class="sc-card-ts" id="sc-ts3">—</div>
-        </div>
-        <div class="sc-card-body">
-          <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
-            <div id="sc-sig-badge" style="font-size:28px;font-weight:700;color:var(--accent);letter-spacing:2px">—</div>
-            <div>
-              <div style="font-size:9px;color:var(--dim);letter-spacing:1.5px">ACTIVE SIGNAL</div>
-              <div style="font-size:11px;color:var(--text);margin-top:3px" id="sc-sig-streak">Streak: —</div>
-            </div>
-          </div>
-          <div class="sc-stats-row" style="grid-template-columns:repeat(4,1fr)">
-            <div class="sc-stat-box">
-              <div class="sc-stat-label">Win Rate</div>
-              <div class="sc-stat-val" style="color:var(--green)" id="sc-sig-wr">—</div>
-            </div>
-            <div class="sc-stat-box">
-              <div class="sc-stat-label">Bankroll</div>
-              <div class="sc-stat-val" style="color:var(--green)" id="sc-sig-bank">—</div>
-            </div>
-            <div class="sc-stat-box">
-              <div class="sc-stat-label">Edge</div>
-              <div class="sc-stat-val" id="sc-sig-edge">—</div>
-            </div>
-            <div class="sc-stat-box">
-              <div class="sc-stat-label">Oracle</div>
-              <div class="sc-stat-val" style="color:var(--accent);font-size:11px">Pyth</div>
-            </div>
-          </div>
-        </div>
-        <div class="sc-card-footer">
-          <div class="sc-card-url">signalforge.app · Pyth Community Hackathon</div>
-          <div class="sc-pyth-badge">⚡ PYTH NETWORK</div>
-        </div>
-      </div>
 
     </div><!-- /sc-preview -->
 
     <!-- Actions -->
     <div class="sc-actions">
-      <button class="sc-btn sc-btn-tweet" onclick="shareToTwitter()">𝕏 Tweet This</button>
+      <button class="sc-btn sc-btn-tweet" onclick="shareToTwitter()">𝕏 Tweet Stats</button>
       <button class="sc-btn sc-btn-png" id="sc-png-btn" onclick="downloadAsPNG()">↓ Download PNG</button>
       <button class="sc-btn sc-btn-close" onclick="closeShareCard()">✕</button>
     </div>
