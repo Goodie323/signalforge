@@ -216,107 +216,205 @@ body::before {
 .stat-value.hot  { color: var(--accent); }
 .stat-sub { font-size: 10px; color: var(--dim); margin-top: 6px; line-height: 1.4; }
 
-/* ── Heatmap grid ── */
+/* ══════════════════════════════════════════════════════════════════
+   OBSIDIAN GRID HEATMAP
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Google Fonts — Roboto Mono for tabular-nums fallback */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;600&display=swap');
+
+/* Grid container */
 .heatmap-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 1px;                          /* ultra-thin 1px dark seams */
   margin-bottom: 24px;
+  background: #1A1D23;               /* the 1px gaps ARE the borders */
+  border: 1px solid #1A1D23;
+  border-radius: 6px;
+  overflow: hidden;
 }
 
+/* ── Base tile ── */
 .heatmap-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 18px 18px 38px;
+  background: #05070A;
+  padding: 16px 14px 36px;
   position: relative;
   cursor: pointer;
-  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  /* Expand + glass on hover without layout shift */
+  transition:
+    background 0.22s ease,
+    box-shadow 0.22s ease,
+    transform   0.22s ease,
+    z-index     0s   0.22s;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  isolation: isolate;
 }
 
-.heatmap-card:hover {
-  transform: translateY(-1px);
-  border-color: var(--border2);
+/* ── Change-based tint (24h) — set via JS on .gain / .loss class ── */
+.heatmap-card.gain {
+  background: linear-gradient(160deg, #05070A 55%, rgba(0,255,140,0.045) 100%);
+}
+.heatmap-card.loss {
+  background: linear-gradient(160deg, #05070A 55%, rgba(255,75,95,0.055) 100%);
 }
 
+/* ── Volatility glow — brightness indicates vol level ── */
+.heatmap-card.vol-high {
+  box-shadow: inset 0 0 0 1px rgba(255,65,95,0.18),
+              0 0 22px -4px rgba(255,65,95,0.22);
+}
+.heatmap-card.vol-med {
+  box-shadow: inset 0 0 0 1px rgba(255,145,0,0.12),
+              0 0 16px -6px rgba(255,145,0,0.16);
+}
+.heatmap-card.vol-low {
+  box-shadow: inset 0 0 0 1px rgba(0,200,255,0.07),
+              0 0 10px -8px rgba(0,200,255,0.10);
+}
+.heatmap-card.vol-calm {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+}
+
+/* ── Selected tile ── */
 .heatmap-card.selected {
-  border-color: var(--accent) !important;
-  background: rgba(232,244,0,0.03);
+  background: linear-gradient(160deg, #07090e 0%, rgba(232,244,0,0.04) 100%) !important;
+  box-shadow: inset 0 0 0 1px rgba(232,244,0,0.22),
+              0 0 18px -4px rgba(232,244,0,0.15) !important;
 }
 
-/* Volatility color fill */
-.heatmap-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.5s;
-  pointer-events: none;
+/* ── Glassmorphic hover — tile expands, sparkline revealed ── */
+.heatmap-card:hover {
+  transform: scale(1.035) translateZ(0);
+  z-index: 10;
+  transition:
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    transform   0.18s ease,
+    z-index     0s;
+  background: rgba(255,255,255,0.032) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.09),
+    0 8px 32px -4px rgba(0,0,0,0.7),
+    0 2px 8px -2px rgba(0,0,0,0.5) !important;
 }
 
-.heatmap-card.vol-high::before   { background: rgba(255,60,90,0.08);   opacity:1; }
-.heatmap-card.vol-med::before    { background: rgba(255,140,0,0.06);   opacity:1; }
-.heatmap-card.vol-low::before    { background: rgba(0,200,255,0.04);   opacity:1; }
-.heatmap-card.vol-calm::before   { background: rgba(0,255,136,0.03);   opacity:1; }
+/* Hover sparkline reveal */
+.heatmap-card .hm-spark {
+  opacity: 0.22;
+  transition: opacity 0.22s ease;
+}
+.heatmap-card:hover .hm-spark {
+  opacity: 1;
+}
 
+/* ── Top row ── */
 .hm-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 10px;
+  margin-bottom: 9px;
 }
 
+/* Symbol — coin logo + name */
 .hm-symbol {
-  font-size: 16px; font-weight: 500;
-  color: var(--white); letter-spacing: 1px;
+  display: flex; align-items: center; gap: 7px;
+  font-size: 13px; font-weight: 600;
+  color: rgba(240,244,255,0.92);
+  letter-spacing: 0.8px;
+  font-family: 'Roboto Mono', 'DM Mono', monospace;
 }
 
+/* Vol badge — tight pill */
 .hm-badge {
-  font-size: 9px; padding: 2px 7px;
-  letter-spacing: 1px; text-transform: uppercase;
+  font-size: 8px; padding: 2px 6px; border-radius: 2px;
+  letter-spacing: 1.2px; text-transform: uppercase;
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 500;
 }
-.vol-high .hm-badge  { background:rgba(255,60,90,0.15);  color:var(--red);    border:1px solid rgba(255,60,90,0.3); }
-.vol-med .hm-badge   { background:rgba(255,140,0,0.15);  color:var(--orange); border:1px solid rgba(255,140,0,0.3); }
-.vol-low .hm-badge   { background:rgba(0,200,255,0.1);   color:var(--blue);   border:1px solid rgba(0,200,255,0.2); }
-.vol-calm .hm-badge  { background:rgba(0,255,136,0.08);  color:var(--green);  border:1px solid rgba(0,255,136,0.2); }
+.vol-high .hm-badge { background: rgba(255,65,95,0.12);  color: #ff6480; border: 1px solid rgba(255,65,95,0.25); }
+.vol-med  .hm-badge { background: rgba(255,145,0,0.10);  color: #ffaa44; border: 1px solid rgba(255,145,0,0.22); }
+.vol-low  .hm-badge { background: rgba(0,200,255,0.07);  color: #5ecfea; border: 1px solid rgba(0,200,255,0.18); }
+.vol-calm .hm-badge { background: rgba(0,255,140,0.06);  color: #44d990; border: 1px solid rgba(0,255,140,0.15); }
 
+/* Price — tabular mono for perfect column alignment */
 .hm-price {
-  font-size: 20px; font-weight: 500;
-  color: var(--white); line-height: 1;
-  margin-bottom: 4px;
+  font-size: 19px;
+  font-weight: 500;
+  color: rgba(240,244,255,0.95);
+  line-height: 1;
+  margin-bottom: 5px;
+  font-family: 'Roboto Mono', 'DM Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.3px;
+}
+
+/* Change % — Neon Mint gains, Coral losses */
+.hm-change {
+  font-size: 12px;
+  font-family: 'Roboto Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  margin-bottom: 8px;
+}
+.hm-change.up   { color: #00FF8C; }   /* Neon Mint  */
+.hm-change.down { color: #FF4B5F; }   /* Coral      */
+
+/* ── Sparkline — 1px thin line, hidden until hover ── */
+.hm-spark {
+  width: 100%;
+  height: 28px;
+  display: block;
+}
+/* Force 1px stroke on the line path via CSS */
+.hm-spark path[id^="sl-"] {
+  stroke-width: 1px !important;
+}
+
+/* ── Meta row ── */
+.hm-meta {
+  display: flex; justify-content: space-between;
+  margin-top: 6px;
+  font-size: 8.5px;
+  color: rgba(255,255,255,0.22);
+  letter-spacing: 0.8px;
+  font-family: 'Roboto Mono', monospace;
   font-variant-numeric: tabular-nums;
 }
 
-.hm-change {
-  font-size: 11px; margin-bottom: 10px;
-}
-.hm-change.up   { color: var(--green); }
-.hm-change.down { color: var(--red); }
-
-/* Mini sparkline in card */
-.hm-spark { width: 100%; height: 32px; }
-
-.hm-meta {
-  display: flex; justify-content: space-between;
-  margin-top: 8px; font-size: 9px; color: var(--dim);
-  letter-spacing: 1px;
-}
-
-/* Confidence bar */
+/* ── Confidence bar — ultra-thin 1px ── */
 .conf-bar {
-  height: 2px; background: var(--border);
-  margin-top: 8px; overflow: hidden;
+  height: 1px;
+  background: rgba(255,255,255,0.05);
+  margin-top: 7px;
+  overflow: hidden;
 }
 .conf-fill {
   height: 100%;
-  transition: width 1s;
+  transition: width 1.2s ease;
 }
-.vol-high .conf-fill  { background: var(--red); }
-.vol-med  .conf-fill  { background: var(--orange); }
-.vol-low  .conf-fill  { background: var(--blue); }
-.vol-calm .conf-fill  { background: var(--green); }
+.vol-high .conf-fill { background: linear-gradient(90deg, #ff4b5f, #ff8c00); }
+.vol-med  .conf-fill { background: linear-gradient(90deg, #ff8c00, #ffcc44); }
+.vol-low  .conf-fill { background: linear-gradient(90deg, #00c8ff, #5ecfea); }
+.vol-calm .conf-fill { background: linear-gradient(90deg, #00ff8c, #44d990); }
+
+/* Scan-line texture on each tile for terminal feel */
+.heatmap-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,0,0,0.06) 3px,
+    rgba(0,0,0,0.06) 4px
+  );
+  pointer-events: none;
+  opacity: 0.5;
+}
 
 /* ── Skeleton shimmer ── */
 @keyframes shimmer {
@@ -665,15 +763,19 @@ td.corr-self {
 .share-fab:hover { transform: scale(1.1); box-shadow: 0 6px 32px rgba(232,244,0,0.55); }
 
 .hm-share-btn {
-  position: absolute; bottom: 10px; right: 10px;
-  background: rgba(232,244,0,0.08); border: 1px solid rgba(232,244,0,0.2);
-  color: var(--accent); font-size: 9px; letter-spacing: 1.5px;
-  padding: 3px 8px; cursor: pointer; border-radius: 3px;
-  opacity: 0; transition: opacity 0.15s;
-  font-family: 'DM Mono', monospace; z-index: 2;
+  position: absolute; bottom: 8px; right: 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.5);
+  font-size: 11px;
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border-radius: 3px;
+  opacity: 0; transition: opacity 0.15s, background 0.15s;
+  font-family: 'DM Mono', monospace; z-index: 3;
 }
 .heatmap-card:hover .hm-share-btn { opacity: 1; }
-.hm-share-btn:hover { background: rgba(232,244,0,0.14); }
+.hm-share-btn:hover { background: rgba(232,244,0,0.12); color: var(--accent); border-color: rgba(232,244,0,0.3); }
 
 /* Modal overlay */
 .sc-overlay {
@@ -1474,8 +1576,9 @@ function renderHeatmap() {
       grid.appendChild(card);
     }
 
-    // Update values
-    card.className = `heatmap-card ${tierClass} ${feed.symbol === 'DOGE' ? 'selected' : ''}`;
+    // Update values — add gain/loss class for 24h tint
+    const gainLoss = s.prevPrice ? (isUp ? 'gain' : 'loss') : '';
+    card.className = `heatmap-card ${tierClass} ${gainLoss} ${feed.symbol === selectedSymbol ? 'selected' : ''}`;
 
     document.getElementById(`badge-${feed.symbol}`).textContent = tierLabel;
     document.getElementById(`price-${feed.symbol}`).textContent = s.price ? `$${fmt(s.price, feed.symbol)}` : '—';
@@ -1491,8 +1594,8 @@ function renderHeatmap() {
     const confPct = s.price ? Math.min(100, (s.confidence / s.price) * 100000) : 0;
     document.getElementById(`cf-${feed.symbol}`).style.width = confPct + '%';
 
-    // Sparkline
-    renderMiniSpark(feed.symbol, s.history, tierClass);
+    // Sparkline — use prices[] (60 ticks) for denser data than history[]
+    renderMiniSpark(feed.symbol, s.prices.length >= 2 ? s.prices : s.history, tierClass, isUp);
   });
 
   // Update stats bar
@@ -1523,13 +1626,13 @@ function renderHeatmap() {
   }
 }
 
-// ── Render mini sparkline ────────────────────────────────────────────
-function renderMiniSpark(symbol, prices, tierClass) {
-  if (prices.length < 2) return;
+// ── Render mini sparkline (60-tick thin line) ───────────────────────
+function renderMiniSpark(symbol, prices, tierClass, isUp) {
+  if (!prices || prices.length < 2) return;
   const min = Math.min(...prices);
   const max = Math.max(...prices);
   const rng = max - min || 0.0001;
-  const W = 200, H = 32, pad = 2;
+  const W = 200, H = 28, pad = 2;
 
   const pts = prices.map((p, i) => {
     const x = (i / (prices.length - 1)) * W;
@@ -1537,8 +1640,13 @@ function renderMiniSpark(symbol, prices, tierClass) {
     return `${x},${y}`;
   });
 
-  const colors = { 'vol-high': '#ff3c5a', 'vol-med': '#ff8c00', 'vol-low': '#00c8ff', 'vol-calm': '#00ff88' };
-  const color  = colors[tierClass] || '#888';
+  // Neon Mint for gains, Coral for losses; vol tier for neutral
+  const gainColor  = '#00FF8C';
+  const lossColor  = '#FF4B5F';
+  const tierColors = { 'vol-high': '#ff6480', 'vol-med': '#ffaa44', 'vol-low': '#5ecfea', 'vol-calm': '#44d990' };
+  const color = typeof isUp !== 'undefined'
+    ? (isUp ? gainColor : lossColor)
+    : (tierColors[tierClass] || '#555');
 
   const lineD = `M ${pts.join(' L ')}`;
   const areaD = `M 0,${H} L ${pts.join(' L ')} L ${W},${H} Z`;
@@ -1547,9 +1655,18 @@ function renderMiniSpark(symbol, prices, tierClass) {
   const areaEl = document.getElementById(`sa-${symbol}`);
   const svgEl  = document.getElementById(`spark-${symbol}`);
 
-  if (lineEl) { lineEl.setAttribute('d', lineD); lineEl.style.color = color; }
-  if (areaEl) { areaEl.setAttribute('d', areaD); areaEl.style.color = color; }
-  if (svgEl)  { svgEl.style.color = color; }
+  if (lineEl) {
+    lineEl.setAttribute('d', lineD);
+    lineEl.setAttribute('stroke', color);
+    lineEl.setAttribute('stroke-width', '1');   // enforce 1px thin line
+    lineEl.style.stroke = color;
+  }
+  if (areaEl) {
+    areaEl.setAttribute('d', areaD);
+    // Very faint fill matching gain/loss
+    areaEl.setAttribute('fill', (typeof isUp !== 'undefined' ? (isUp ? 'rgba(0,255,140,0.06)' : 'rgba(255,75,95,0.06)') : 'rgba(255,255,255,0.03)'));
+  }
+  if (svgEl) svgEl.style.color = color;
 }
 
 // ── Correlation matrix ───────────────────────────────────────────────
@@ -2166,31 +2283,25 @@ FEEDS.forEach(feed => {
   const grid = document.getElementById('heatmap-grid');
   const card = document.createElement('div');
   card.id        = `card-${feed.symbol}`;
-  card.className = `heatmap-card vol-calm ${feed.symbol === 'DOGE' ? 'selected' : ''}`;
+  card.className = `heatmap-card vol-calm`;
   card.onclick   = () => openDetail(feed.symbol);
   card.innerHTML = `
     <div class="hm-top">
-      <div class="hm-symbol">${coinLogo(feed.symbol, 20)}${feed.symbol}</div>
-      <div class="hm-badge" id="badge-${feed.symbol}">LOADING</div>
+      <div class="hm-symbol">${coinLogo(feed.symbol, 16)}${feed.symbol}</div>
+      <div class="hm-badge" id="badge-${feed.symbol}">—</div>
     </div>
-    <div class="hm-price" id="price-${feed.symbol}">fetching...</div>
-    <div class="hm-change" id="change-${feed.symbol}" class="hm-change">—</div>
-    <svg class="hm-spark" id="spark-${feed.symbol}" viewBox="0 0 200 32" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="sg-${feed.symbol}" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="currentColor" stop-opacity="0.3"/>
-          <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <path id="sa-${feed.symbol}" fill="url(#sg-${feed.symbol})"/>
-      <path id="sl-${feed.symbol}" fill="none" stroke="currentColor" stroke-width="1.2"/>
+    <div class="hm-price" id="price-${feed.symbol}">—</div>
+    <div class="hm-change" id="change-${feed.symbol}">—</div>
+    <svg class="hm-spark" id="spark-${feed.symbol}" viewBox="0 0 200 28" preserveAspectRatio="none">
+      <path id="sa-${feed.symbol}" fill="rgba(255,255,255,0.03)"/>
+      <path id="sl-${feed.symbol}" fill="none" stroke="#333" stroke-width="1"/>
     </svg>
     <div class="hm-meta">
-      <span id="vol-${feed.symbol}">vol: —</span>
-      <span id="conf-${feed.symbol}">conf: —</span>
+      <span id="vol-${feed.symbol}">vol —</span>
+      <span id="conf-${feed.symbol}">±—</span>
     </div>
     <div class="conf-bar"><div class="conf-fill" id="cf-${feed.symbol}" style="width:0%"></div></div>
-    <button class="hm-share-btn" onclick="event.stopPropagation();openShareCard('asset','${feed.symbol}')">SHARE</button>
+    <button class="hm-share-btn" onclick="event.stopPropagation();openShareCard('asset','${feed.symbol}')">⬡</button>
   `;
   grid.appendChild(card);
 });
