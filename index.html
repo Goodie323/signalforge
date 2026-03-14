@@ -435,18 +435,7 @@
   }
 
   @keyframes row-in { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
-  /* Log row hover — blur + share icon */
-  .log-row { position:relative; cursor:pointer; }
   .log-row:hover { background:rgba(255,255,255,0.02); }
-  .log-row:hover .log-cell { opacity:0.15; filter:blur(1.5px); transition:opacity 0.18s, filter 0.18s; }
-  .log-cell { transition:opacity 0.18s, filter 0.18s; }
-  .log-share-icon {
-    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-    opacity:0; transition:opacity 0.18s; pointer-events:none;
-    font-size:18px; color:var(--accent); letter-spacing:2px;
-    background:rgba(0,255,136,0.04);
-  }
-  .log-row:hover .log-share-icon { opacity:1; pointer-events:all; }
   .log-time   { color:var(--dim); font-size:11px; }
   .log-signal { font-weight:700; font-size:12px; }
   .log-signal.yes { color:var(--accent); }
@@ -458,118 +447,6 @@
   .log-result.win  { color:var(--accent); }
   .log-result.loss { color:var(--warn); }
   .log-result.open { color:var(--dim); }
-
-  /* Live signal share button — only shows when signal is fired */
-  .live-signal-share {
-    display:none; margin-top:12px; width:100%;
-    padding:8px; background:rgba(0,255,136,0.06);
-    border:1px solid rgba(0,255,136,0.2); border-radius:4px;
-    color:var(--accent); font-size:9px; letter-spacing:2px;
-    font-family:'Space Mono',monospace; cursor:pointer;
-    transition:all 0.2s;
-  }
-  .live-signal-share:hover { background:rgba(0,255,136,0.12); }
-  .live-signal-share.visible { display:block; }
-
-  /* Shared modal base */
-  .share-modal-overlay {
-    display:none; position:fixed; inset:0; z-index:400;
-    background:rgba(0,0,0,0.85); backdrop-filter:blur(6px);
-    align-items:center; justify-content:center;
-  }
-  .share-modal-overlay.open { display:flex; }
-  .share-modal-box {
-    width:460px; max-width:95vw;
-    background:var(--surface); border:1px solid var(--border2);
-    border-radius:12px; overflow:hidden;
-    box-shadow:0 24px 80px rgba(0,0,0,0.8);
-    animation: modalIn 0.2s ease;
-  }
-  @keyframes modalIn {
-    from { opacity:0; transform:scale(0.96) translateY(8px); }
-    to   { opacity:1; transform:scale(1) translateY(0); }
-  }
-
-  /* History share card */
-  .hsc-card {
-    background:linear-gradient(160deg,#060d08 0%,#040a10 100%);
-    font-family:'Space Mono',monospace; padding:20px;
-  }
-  .hsc-header {
-    display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:16px; padding-bottom:12px;
-    border-bottom:1px solid rgba(255,255,255,0.06);
-  }
-  .hsc-brand { display:flex; align-items:center; gap:9px; }
-  .hsc-bolt  {
-    width:26px; height:26px; background:var(--accent);
-    display:flex; align-items:center; justify-content:center;
-    font-size:13px; color:var(--bg); border-radius:3px;
-  }
-  .hsc-title { font-size:12px; color:#e8f0f8; letter-spacing:2px; }
-  .hsc-sub   { font-size:8px; color:var(--dim); letter-spacing:1px; margin-top:1px; }
-  .hsc-ts    { font-size:9px; color:var(--dim); letter-spacing:1px; }
-  .hsc-dir-row { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
-  .hsc-dir   { font-size:38px; font-weight:700; line-height:1; letter-spacing:1px; }
-  .hsc-dir.win  { color:var(--accent); }
-  .hsc-dir.loss { color:var(--warn); }
-  .hsc-dir-meta { display:flex; flex-direction:column; gap:3px; }
-  .hsc-outcome  { font-size:11px; letter-spacing:1px; }
-  .hsc-outcome.win  { color:var(--accent); }
-  .hsc-outcome.loss { color:var(--warn); }
-  .hsc-pair  { font-size:9px; color:var(--dim); letter-spacing:1.5px; text-transform:uppercase; }
-  .hsc-grid  { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
-  .hsc-stat  { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:5px; padding:9px 11px; }
-  .hsc-stat-label { font-size:8px; color:var(--dim); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px; }
-  .hsc-stat-val   { font-size:15px; color:#e8f0f8; }
-  .hsc-footer {
-    display:flex; align-items:center; justify-content:space-between;
-    padding-top:12px; border-top:1px solid rgba(255,255,255,0.05);
-  }
-  .hsc-footer-url   { font-size:8px; color:var(--dim); letter-spacing:1px; }
-  .hsc-footer-badge { font-size:8px; color:var(--accent); letter-spacing:1.5px; }
-
-  /* Live signal share card */
-  .lsc-card {
-    background:linear-gradient(160deg,#020d06 0%,#03080f 100%);
-    font-family:'Space Mono',monospace; padding:20px;
-  }
-  .lsc-live-badge {
-    display:inline-flex; align-items:center; gap:6px;
-    background:rgba(0,255,136,0.08); border:1px solid rgba(0,255,136,0.2);
-    padding:3px 10px; border-radius:20px; margin-bottom:14px;
-    font-size:9px; color:var(--accent); letter-spacing:2px;
-  }
-  .lsc-live-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); animation:blink 1s infinite; }
-  .lsc-sig-big  { font-size:48px; font-weight:700; letter-spacing:2px; line-height:1; margin-bottom:4px; }
-  .lsc-sig-pair { font-size:10px; color:var(--dim); letter-spacing:2px; margin-bottom:16px; }
-  .lsc-grid  { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:14px; }
-  .lsc-stat  { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:5px; padding:10px 12px; }
-  .lsc-stat-label { font-size:8px; color:var(--dim); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px; }
-  .lsc-stat-val   { font-size:16px; color:#e8f0f8; }
-  .lsc-stat-sub   { font-size:9px; color:var(--dim); margin-top:2px; }
-  .lsc-footer {
-    display:flex; align-items:center; justify-content:space-between;
-    padding-top:12px; border-top:1px solid rgba(0,255,136,0.08);
-  }
-
-  /* Shared actions row */
-  .sc-action-row {
-    padding:13px 18px; display:flex; gap:8px;
-    border-top:1px solid var(--border); background:var(--surface);
-  }
-  .sc-action-btn {
-    flex:1; padding:10px; border-radius:5px; cursor:pointer;
-    font-family:'Space Mono',monospace; font-size:10px; letter-spacing:1.5px;
-    border:1px solid; transition:all 0.15s;
-    display:flex; align-items:center; justify-content:center; gap:6px;
-  }
-  .sc-action-btn.tweet { background:#1da1f2; color:#fff; border-color:#1da1f2; }
-  .sc-action-btn.tweet:hover { background:#1a91da; }
-  .sc-action-btn.png   { background:var(--bg); color:var(--accent); border-color:rgba(0,255,136,0.4); }
-  .sc-action-btn.png:hover   { background:rgba(0,255,136,0.06); }
-  .sc-action-btn.close { background:var(--bg); color:var(--dim); border-color:var(--border); flex:0; padding:10px 14px; }
-  .sc-action-btn.close:hover { color:var(--text); }
 
   /* ── Pair selector dropdown ── */
   .pair-selector {
@@ -1097,7 +974,6 @@
       <div class="metric-label">Current Signal</div>
       <div class="metric-value" id="signal-val"><span class="skeleton" style="width:50px;height:22px"> </span></div>
       <div class="metric-sub"  id="signal-sub">Monitoring live</div>
-      <button class="live-signal-share" id="live-signal-share-btn" onclick="openLiveSignalShare()">⬡ SHARE LIVE SIGNAL</button>
     </div>
     <div class="metric-block">
       <div class="metric-label">Model Probability</div>
@@ -1493,22 +1369,13 @@ function renderSignalLog(logs, wins, losses) {
     const sigClass    = entry.signal === 'YES' ? 'yes' : 'no';
     const betText     = entry.bet > 0 ? `$${entry.bet.toFixed(2)}` : '—';
 
-    // Store entry data on row for share card
-    row.dataset.time    = entry.time;
-    row.dataset.signal  = entry.signal;
-    row.dataset.price   = entry.price;
-    row.dataset.elapsed = entry.elapsed;
-    row.dataset.bet     = entry.bet || 0;
-    row.dataset.result  = entry.result || 'open';
-
     row.innerHTML = `
-      <div class="log-cell log-time">${entry.time}</div>
-      <div class="log-cell log-signal ${sigClass}">${entry.signal}</div>
-      <div class="log-cell log-price">$${entry.price}</div>
-      <div class="log-cell log-elapsed">${entry.elapsed}m</div>
-      <div class="log-cell log-bet">${betText}</div>
-      <div class="log-cell log-result ${resultClass}">${resultText}</div>
-      <div class="log-share-icon" onclick="openHistoryShare(this.parentElement)">⬡ SHARE</div>
+      <div class="log-time">${entry.time}</div>
+      <div class="log-signal ${sigClass}">${entry.signal}</div>
+      <div class="log-price">$${entry.price}</div>
+      <div class="log-elapsed">${entry.elapsed}m</div>
+      <div class="log-bet">${betText}</div>
+      <div class="log-result ${resultClass}">${resultText}</div>
     `;
     body.appendChild(row);
   });
@@ -1658,9 +1525,6 @@ function updateSignal(stats) {
   document.getElementById('signal-val').textContent   = sig || '—';
   document.getElementById('signal-val').className     = `metric-value ${sig==='YES'?'green':sig==='NO'?'red':''}`;
   document.getElementById('signal-sub').textContent   = `${stats.votes.yes}/${stats.votes.yes+stats.votes.no+stats.votes.skip} voters agree`;
-  // Show live share btn only when a real signal (YES/NO) has fired
-  const lsBtn = document.getElementById('live-signal-share-btn');
-  if (lsBtn) lsBtn.classList.toggle('visible', sig === 'YES' || sig === 'NO');
   document.getElementById('prob-val').textContent     = prob ? (prob*100).toFixed(1)+'%' : '—';
   document.getElementById('edge-val').textContent     = edge ? `${edge > 0 ? '+' : ''}${edge.toFixed(1)}%` : '—';
   document.getElementById('edge-val').className       = `metric-value ${edge > 0 ? 'green' : edge < 0 ? 'red' : ''}`;
@@ -2084,229 +1948,7 @@ function sfDownloadPNG() {
   }).catch(() => { btn.textContent = '↓ Download PNG'; });
 }
 
-// ── History row share card ────────────────────────────────────────────────
-function openHistoryShare(row) {
-  const sig     = row.dataset.signal  || '—';
-  const price   = row.dataset.price   || '—';
-  const elapsed = row.dataset.elapsed || '—';
-  const bet     = parseFloat(row.dataset.bet) || 0;
-  const result  = row.dataset.result  || 'open';
-  const time    = row.dataset.time    || '—';
-
-  // Direction + outcome styling
-  const dir = document.getElementById('hsc-dir');
-  dir.textContent = sig;
-  dir.className   = 'hsc-dir ' + (result === 'win' ? 'win' : result === 'loss' ? 'loss' : '');
-
-  const outcome = document.getElementById('hsc-outcome');
-  outcome.textContent = result === 'win' ? '✓ MARKET WON' : result === 'loss' ? '✗ MARKET LOST' : '● OPEN';
-  outcome.className   = 'hsc-outcome ' + (result === 'win' ? 'win' : result === 'loss' ? 'loss' : '');
-
-  document.getElementById('hsc-ts').textContent           = time;
-  document.getElementById('hsc-price').textContent        = '$' + price;
-  document.getElementById('hsc-bet').textContent          = bet > 0 ? '$' + bet.toFixed(2) : '—';
-  document.getElementById('hsc-duration').textContent     = elapsed ? elapsed + 'm' : '—';
-  document.getElementById('hsc-elapsed-label').textContent = elapsed ? `Market ran ${elapsed} minutes` : '';
-
-  document.getElementById('history-share-overlay').classList.add('open');
-}
-
-function closeHistoryShare() {
-  document.getElementById('history-share-overlay').classList.remove('open');
-}
-
-function hscTweet() {
-  const sig     = document.getElementById('hsc-dir').textContent;
-  const outcome = document.getElementById('hsc-outcome').textContent;
-  const price   = document.getElementById('hsc-price').textContent;
-  const bet     = document.getElementById('hsc-bet').textContent;
-  const dur     = document.getElementById('hsc-duration').textContent;
-  const text = `⚡ SignalForge DOGE/USD concluded market\n\nSignal: ${sig} → ${outcome}\nEntry: ${price}\nBet: ${bet} · Duration: ${dur}\n\nPowered by @PythNetwork oracle · Limitless Markets\n\n#DOGE #Pyth #PredictionMarkets`;
-  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
-}
-
-function hscDownloadPNG() {
-  const btn = document.getElementById('hsc-png-btn');
-  btn.textContent = '⏳ Rendering...';
-  html2canvas(document.getElementById('hsc-card'), {
-    backgroundColor:'#060d08', scale:2, useCORS:true, allowTaint:true, logging:false
-  }).then(canvas => {
-    const link = document.createElement('a');
-    link.download = `signalforge-result-${Date.now()}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-    btn.textContent = '✓ Downloaded!';
-    setTimeout(() => { btn.textContent = '↓ Download PNG'; }, 2000);
-  }).catch(() => { btn.textContent = '↓ Download PNG'; });
-}
-
-// ── Live signal share card ────────────────────────────────────────────────
-function openLiveSignalShare() {
-  const sig = document.getElementById('signal-val').textContent.trim();
-
-  const sigEl = document.getElementById('lsc-sig-big');
-  sigEl.textContent = sig;
-  sigEl.style.color = sig === 'YES' ? '#00ff88' : sig === 'NO' ? '#ff3c5a' : '#e8f400';
-
-  // Threshold
-  const thrEl = document.getElementById('threshold-val');
-  document.getElementById('lsc-threshold').textContent = thrEl ? thrEl.textContent : '—';
-
-  // Current price
-  const priceEl = document.getElementById('live-price');
-  const rawPrice = priceEl ? priceEl.textContent.replace(/\s/g,'') : '—';
-  document.getElementById('lsc-price').textContent = rawPrice.startsWith('0.') ? rawPrice : '—';
-
-  // Above/below label
-  const above = thrEl && priceEl && parseFloat(priceEl.textContent) > parseFloat((thrEl.textContent||'').replace('$',''));
-  document.getElementById('lsc-vs').textContent = thrEl && thrEl.textContent !== 'Fetching...' ? (above ? '▲ Above threshold' : '▼ Below threshold') : 'vs threshold';
-
-  // Streak
-  const streakEl = document.getElementById('t-streak');
-  document.getElementById('lsc-streak').textContent = streakEl ? streakEl.textContent : '—';
-
-  // Bet — from most recent log row
-  const rows = document.querySelectorAll('.log-row');
-  let betVal = '—';
-  if (rows.length > 0 && rows[0].dataset.bet) {
-    const b = parseFloat(rows[0].dataset.bet);
-    if (b > 0) betVal = '$' + b.toFixed(2);
-  }
-  document.getElementById('lsc-bet').textContent = betVal;
-
-  document.getElementById('live-share-overlay').classList.add('open');
-}
-
-function closeLiveShare() {
-  document.getElementById('live-share-overlay').classList.remove('open');
-}
-
-function lscTweet() {
-  const sig   = document.getElementById('lsc-sig-big').textContent;
-  const thr   = document.getElementById('lsc-threshold').textContent;
-  const price = document.getElementById('lsc-price').textContent;
-  const strk  = document.getElementById('lsc-streak').textContent;
-  const bet   = document.getElementById('lsc-bet').textContent;
-  const now   = new Date().toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
-  const text  = `⚡ SignalForge LIVE signal fired — DOGE/USD (${now} UTC)\n\nSignal: ${sig}\nStreak: ${strk}\nOpening price: ${thr}\nCurrent price: ${price}\nBet: ${bet}\n\nPowered by @PythNetwork oracle · Limitless Markets\n\n#DOGE #Pyth #PredictionMarkets`;
-  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
-}
-
-function lscDownloadPNG() {
-  const btn = document.getElementById('lsc-png-btn');
-  btn.textContent = '⏳ Rendering...';
-  html2canvas(document.getElementById('lsc-card'), {
-    backgroundColor:'#020d06', scale:2, useCORS:true, allowTaint:true, logging:false
-  }).then(canvas => {
-    const link = document.createElement('a');
-    link.download = `signalforge-live-signal-${Date.now()}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-    btn.textContent = '✓ Downloaded!';
-    setTimeout(() => { btn.textContent = '↓ Download PNG'; }, 2000);
-  }).catch(() => { btn.textContent = '↓ Download PNG'; });
-}
-
-// Close both modals on Escape
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeHistoryShare(); closeLiveShare(); closeSFCard(); }
-});
-
 </script>
-<!-- ── History Share Card Modal ───────────────────── -->
-<div class="share-modal-overlay" id="history-share-overlay" onclick="if(event.target===this)closeHistoryShare()">
-  <div class="share-modal-box">
-    <div class="hsc-card" id="hsc-card">
-      <div class="hsc-header">
-        <div class="hsc-brand">
-          <div class="hsc-bolt">⚡</div>
-          <div>
-            <div class="hsc-title">SIGNALFORGE</div>
-            <div class="hsc-sub">Concluded Market · DOGE/USD</div>
-          </div>
-        </div>
-        <div class="hsc-ts" id="hsc-ts">—</div>
-      </div>
-      <div class="hsc-dir-row">
-        <div class="hsc-dir" id="hsc-dir">—</div>
-        <div class="hsc-dir-meta">
-          <div class="hsc-outcome" id="hsc-outcome">—</div>
-          <div class="hsc-pair">DOGE / USD · Limitless Markets</div>
-          <div style="font-size:9px;color:var(--dim);margin-top:2px" id="hsc-elapsed-label">—</div>
-        </div>
-      </div>
-      <div class="hsc-grid">
-        <div class="hsc-stat">
-          <div class="hsc-stat-label">Entry Price</div>
-          <div class="hsc-stat-val" id="hsc-price">—</div>
-        </div>
-        <div class="hsc-stat">
-          <div class="hsc-stat-label">Bet Size</div>
-          <div class="hsc-stat-val" style="color:var(--accent)" id="hsc-bet">—</div>
-        </div>
-        <div class="hsc-stat">
-          <div class="hsc-stat-label">Duration</div>
-          <div class="hsc-stat-val" id="hsc-duration">—</div>
-        </div>
-      </div>
-      <div class="hsc-footer">
-        <div class="hsc-footer-url">signalforge.app · Pyth Hackathon 2026</div>
-        <div class="hsc-footer-badge">⚡ PYTH NETWORK</div>
-      </div>
-    </div>
-    <div class="sc-action-row">
-      <button class="sc-action-btn tweet" onclick="hscTweet()">𝕏 Tweet Result</button>
-      <button class="sc-action-btn png" id="hsc-png-btn" onclick="hscDownloadPNG()">↓ Download PNG</button>
-      <button class="sc-action-btn close" onclick="closeHistoryShare()">✕</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── Live Signal Share Card Modal ───────────────── -->
-<div class="share-modal-overlay" id="live-share-overlay" onclick="if(event.target===this)closeLiveShare()">
-  <div class="share-modal-box">
-    <div class="lsc-card" id="lsc-card">
-      <div class="lsc-live-badge">
-        <div class="lsc-live-dot"></div>
-        LIVE SIGNAL FIRED
-      </div>
-      <div class="lsc-sig-big" id="lsc-sig-big">—</div>
-      <div class="lsc-sig-pair">DOGE / USD · Limitless Markets · Pyth Oracle</div>
-      <div class="lsc-grid">
-        <div class="lsc-stat">
-          <div class="lsc-stat-label">Opening Price</div>
-          <div class="lsc-stat-val" style="color:#00c8ff" id="lsc-threshold">—</div>
-          <div class="lsc-stat-sub">Limitless threshold</div>
-        </div>
-        <div class="lsc-stat">
-          <div class="lsc-stat-label">Current Price</div>
-          <div class="lsc-stat-val" style="color:#00ff88" id="lsc-price">—</div>
-          <div class="lsc-stat-sub" id="lsc-vs">vs threshold</div>
-        </div>
-        <div class="lsc-stat">
-          <div class="lsc-stat-label">Streak</div>
-          <div class="lsc-stat-val" id="lsc-streak">—</div>
-          <div class="lsc-stat-sub">15min convergence</div>
-        </div>
-        <div class="lsc-stat">
-          <div class="lsc-stat-label">Bet Size</div>
-          <div class="lsc-stat-val" style="color:#00ff88" id="lsc-bet">—</div>
-          <div class="lsc-stat-sub">Kelly sized</div>
-        </div>
-      </div>
-      <div class="lsc-footer">
-        <div style="font-size:8px;color:var(--dim);letter-spacing:1px">signalforge.app · Pyth Hackathon 2026</div>
-        <div style="font-size:8px;color:var(--accent);letter-spacing:1.5px">⚡ PYTH NETWORK</div>
-      </div>
-    </div>
-    <div class="sc-action-row">
-      <button class="sc-action-btn tweet" onclick="lscTweet()">𝕏 Tweet Signal</button>
-      <button class="sc-action-btn png" id="lsc-png-btn" onclick="lscDownloadPNG()">↓ Download PNG</button>
-      <button class="sc-action-btn close" onclick="closeLiveShare()">✕</button>
-    </div>
-  </div>
-</div>
-
 <!-- SignalForge Social Card Modal -->
 <div class="sf-overlay" id="sf-overlay" onclick="if(event.target===this)closeSFCard()">
   <div class="sf-modal">

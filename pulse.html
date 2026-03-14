@@ -303,75 +303,131 @@ body::before {
 /* ── Detail panel (expandable) ──────────────────────────────────── */
 .detail-panel {
   display: none;
-  background: var(--card);
-  border: 1px solid var(--border2);
+  position: relative;
+  background: #05070A;
+  border: 1px solid #1A1D23;
   border-radius: var(--r-lg);
   margin-bottom: 20px;
   overflow: hidden;
   animation: panel-open 0.22s ease forwards;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.03);
+  isolation: isolate;
 }
 .detail-panel.open { display: block; }
 
+/* Vol-class glow — same as cards */
+.detail-panel.vol-high { box-shadow: inset 0 0 0 1px rgba(255,65,95,0.22), 0 0 40px -8px rgba(255,65,95,0.20); }
+.detail-panel.vol-med  { box-shadow: inset 0 0 0 1px rgba(255,145,0,0.16), 0 0 32px -10px rgba(255,145,0,0.16); }
+.detail-panel.vol-low  { box-shadow: inset 0 0 0 1px rgba(0,200,255,0.10), 0 0 24px -12px rgba(0,200,255,0.12); }
+.detail-panel.vol-calm { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 8px 40px rgba(0,0,0,0.5); }
+
+/* Gain/loss tint — same wash as cards */
+.detail-panel.gain { background: linear-gradient(160deg, #05070A 40%, rgba(0,255,140,0.038) 100%); }
+.detail-panel.loss { background: linear-gradient(160deg, #05070A 40%, rgba(255,75,95,0.048) 100%); }
+
+/* Scanline texture */
+.detail-panel::after {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,0,0,0.055) 3px, rgba(0,0,0,0.055) 4px
+  );
+  pointer-events: none; opacity: 0.45; z-index: 0;
+}
+
 @keyframes panel-open {
-  from { opacity:0; transform:translateY(-6px); }
+  from { opacity:0; transform:translateY(-8px); }
   to   { opacity:1; transform:translateY(0); }
 }
 
+/* Accent top bar — colour matches vol tier, set via JS */
+.detail-panel::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  z-index: 2; pointer-events: none;
+  background: linear-gradient(90deg, var(--dp-accent, #1A1D23) 0%, transparent 70%);
+}
+
+/* All inner content sits above scanline */
+.detail-header,
+.detail-chart,
+.detail-body,
+.detail-history { position: relative; z-index: 1; }
+
 .detail-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 24px;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(90deg, rgba(255,255,255,0.02) 0%, transparent 100%);
+  padding: 18px 22px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
-.detail-title { display:flex; align-items:center; gap:14px; }
+.detail-title { display: flex; align-items: center; gap: 14px; }
 .detail-symbol {
-  font-size:20px; font-weight:500; color:var(--white); letter-spacing:2px;
-  font-family:var(--mono);
+  font-size: 18px; font-weight: 600; color: rgba(240,244,255,0.95);
+  letter-spacing: 1.5px; font-family: var(--mono);
 }
 .detail-price {
-  font-size:26px; font-weight:500; color:var(--white);
-  font-family:var(--mono); font-variant-numeric:tabular-nums;
+  font-size: 28px; font-weight: 500; color: rgba(240,244,255,0.95);
+  font-family: var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -0.5px;
 }
 .detail-close {
-  width:28px; height:28px; border:1px solid var(--border2);
-  background:none; color:var(--dim); font-size:14px; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  border-radius:var(--r-xs); transition:all 0.15s;
+  width: 28px; height: 28px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.3); font-size: 13px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-xs); transition: all 0.15s;
 }
-.detail-close:hover { border-color:var(--red); color:var(--red); background:rgba(255,75,95,0.06); }
-
-.detail-body { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0; }
-
-.detail-stat {
-  padding:16px 22px;
-  border-right:1px solid var(--border);
-  border-bottom:1px solid var(--border);
+.detail-close:hover {
+  border-color: rgba(255,75,95,0.5); color: #FF4B5F;
+  background: rgba(255,75,95,0.07);
 }
-.detail-stat:last-of-type { border-right:none; }
-.detail-stat-label { font-size:8px; letter-spacing:2px; text-transform:uppercase; color:var(--dim); margin-bottom:7px; }
-.detail-stat-value {
-  font-size:19px; font-weight:500; color:var(--white); line-height:1;
-  font-family:var(--mono); font-variant-numeric:tabular-nums;
-}
-.detail-stat-value.up   { color:var(--green); }
-.detail-stat-value.down { color:var(--red); }
-.detail-stat-value.blue { color:var(--blue); }
-.detail-stat-sub { font-size:9px; color:var(--dim); margin-top:4px; }
 
+/* Chart area — full-width, taller, dark well */
 .detail-chart {
-  padding:18px 24px; border-bottom:1px solid var(--border); grid-column:span 4;
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  background: rgba(0,0,0,0.25);
 }
-.detail-chart-label { font-size:8px; letter-spacing:2px; text-transform:uppercase; color:var(--dim); margin-bottom:12px; }
-.detail-sparkline { width:100%; height:80px; }
+.detail-chart-label {
+  font-size: 8px; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,0.2); margin-bottom: 10px;
+  font-family: var(--mono);
+}
+.detail-sparkline { width: 100%; height: 110px; display: block; }
 
+/* Stats grid — 4 equal glassmorphic cells */
+.detail-body {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 1px; background: rgba(255,255,255,0.04);
+}
+.detail-stat {
+  padding: 16px 20px;
+  background: #05070A;
+  position: relative; overflow: hidden;
+}
+/* Hover lift on each stat cell */
+.detail-stat:hover { background: rgba(255,255,255,0.025); }
+.detail-stat-label {
+  font-size: 8px; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,0.22); margin-bottom: 8px;
+  font-family: var(--mono);
+}
+.detail-stat-value {
+  font-size: 20px; font-weight: 500; color: rgba(240,244,255,0.92); line-height: 1;
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+}
+.detail-stat-value.up   { color: #00FF8C; }
+.detail-stat-value.down { color: #FF4B5F; }
+.detail-stat-value.blue { color: #00c8ff; }
+.detail-stat-sub { font-size: 9px; color: rgba(255,255,255,0.2); margin-top: 5px; font-family: var(--mono); }
+
+/* Tick history row */
 .detail-history {
-  grid-column:span 4; padding:14px 22px;
-  display:flex; gap:3px; flex-wrap:wrap;
+  grid-column: span 4; padding: 13px 20px;
+  display: flex; gap: 3px; flex-wrap: wrap;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  background: rgba(0,0,0,0.15);
 }
 .history-tick {
-  width:7px; height:7px; border-radius:1px;
-  transition:all 0.3s; cursor:default; position:relative;
+  width: 7px; height: 14px; border-radius: 1px;
+  transition: all 0.3s; cursor: default;
 }
 
 /* ── Intro banner ───────────────────────────────────────────────── */
@@ -1121,21 +1177,37 @@ function updateDetailPanel(symbol) {
   const chg  = s.prevPrice ? (s.price - s.prevPrice) / s.prevPrice * 100 : 0;
   const isUp = chg >= 0;
 
+  // Apply same visual language as the heatmap cards
+  const panel = document.getElementById('detail-panel');
+  const gainLoss = s.prevPrice ? (isUp ? 'gain' : 'loss') : '';
+  panel.className = `detail-panel open ${tierClass} ${gainLoss}`;
+
+  // Accent top-bar colour matches vol tier
+  const accentColors = {
+    'vol-high': '#FF4B5F', 'vol-med': '#ff8c00',
+    'vol-low':  '#00c8ff', 'vol-calm': '#00FF8C'
+  };
+  panel.style.setProperty('--dp-accent', accentColors[tierClass] || '#1A1D23');
+
+  // Price colour matches direction
+  const priceEl = document.getElementById('dp-price');
+  priceEl.style.color = s.prevPrice ? (isUp ? '#00FF8C' : '#FF4B5F') : 'rgba(240,244,255,0.95)';
+
   // Header
   document.getElementById('dp-symbol').innerHTML = coinLogo(symbol, 26) + symbol + '/USD';
   document.getElementById('dp-price').textContent  = `$${fmt(s.price, symbol)}`;
 
   const badge = document.getElementById('dp-badge');
   badge.textContent = tierLabel;
-  badge.className   = `hm-badge`;
-  badge.style.background = tierClass === 'vol-high'  ? 'rgba(255,60,90,0.15)'   :
-                           tierClass === 'vol-med'   ? 'rgba(255,140,0,0.15)'   :
-                           tierClass === 'vol-low'   ? 'rgba(0,200,255,0.1)'    :
-                                                       'rgba(0,255,136,0.08)';
-  badge.style.color = tierClass === 'vol-high'  ? 'var(--red)'    :
-                      tierClass === 'vol-med'   ? 'var(--orange)' :
-                      tierClass === 'vol-low'   ? 'var(--blue)'   : 'var(--green)';
-  badge.style.border = `1px solid ${badge.style.color.replace('var(', 'rgba(').replace('--red)', '255,60,90,0.3)').replace('--orange)', '255,140,0,0.3)').replace('--blue)', '0,200,255,0.2)').replace('--green)', '0,255,136,0.2)')}`;
+  const badgeStyles = {
+    'vol-high': { bg:'rgba(255,65,95,0.12)',  color:'#ff6480', border:'rgba(255,65,95,0.25)' },
+    'vol-med':  { bg:'rgba(255,145,0,0.10)',  color:'#ffaa44', border:'rgba(255,145,0,0.22)' },
+    'vol-low':  { bg:'rgba(0,200,255,0.07)',  color:'#5ecfea', border:'rgba(0,200,255,0.18)' },
+    'vol-calm': { bg:'rgba(0,255,140,0.06)',  color:'#44d990', border:'rgba(0,255,140,0.15)' },
+  };
+  const bs = badgeStyles[tierClass] || badgeStyles['vol-calm'];
+  badge.className = 'hm-badge';
+  badge.style.cssText = `background:${bs.bg};color:${bs.color};border:1px solid ${bs.border};`;
 
   // Stats
   document.getElementById('dp-cur').textContent       = `$${fmt(s.price, symbol)}`;
@@ -1195,13 +1267,21 @@ function renderDetailSpark(symbol, prices, tierClass, isUp) {
 function renderTickDots(symbol, prices) {
   const container = document.getElementById('dp-ticks');
   container.innerHTML = '';
+  // Max move for intensity scaling
+  const moves = prices.slice(1).map((p,i) => Math.abs(p - prices[i]) / prices[i]);
+  const maxMove = Math.max(...moves, 0.0001);
   for (let i = 1; i < prices.length; i++) {
-    const up  = prices[i] >= prices[i-1];
+    const up       = prices[i] >= prices[i-1];
+    const intensity = Math.min(1, moves[i-1] / maxMove);
     const dot = document.createElement('div');
     dot.className = 'history-tick';
     dot.title     = `$${fmt(prices[i], symbol)}`;
-    dot.style.background = up ? 'rgba(0,255,140,0.45)' : 'rgba(255,75,95,0.45)';
-    dot.style.boxShadow  = up ? '0 0 3px rgba(0,255,140,0.3)' : '0 0 3px rgba(255,75,95,0.3)';
+    // Taller bar + opacity scales with move intensity
+    dot.style.height     = Math.round(6 + intensity * 12) + 'px';
+    dot.style.background = up ? `rgba(0,255,140,${0.25 + intensity * 0.6})` : `rgba(255,75,95,${0.25 + intensity * 0.6})`;
+    dot.style.boxShadow  = intensity > 0.5
+      ? (up ? `0 0 4px rgba(0,255,140,0.4)` : `0 0 4px rgba(255,75,95,0.4)`)
+      : 'none';
     container.appendChild(dot);
   }
 }
