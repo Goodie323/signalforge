@@ -7,6 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
 <script>
 (async () => {
   const sb = supabase.createClient(
@@ -752,6 +753,139 @@ td.corr-self {
 .sc-card-url   { font-size: 9px; color: var(--dim); letter-spacing: 1px; }
 .sc-pyth-badge { font-size: 9px; color: var(--accent); letter-spacing: 1.5px; }
 
+/* ── Premium 1200×630 hidden share card ─────────────────────────── */
+#bnb-og-card {
+  position: fixed;
+  left: -9999px; top: -9999px;
+  width: 1200px; height: 630px;
+  overflow: hidden;
+  font-family: 'DM Mono', monospace;
+  background: #03050a;
+  pointer-events: none;
+  z-index: -1;
+}
+.og-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 50%, rgba(243,186,47,0.10) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 80% at 85% 20%, rgba(0,200,255,0.07) 0%, transparent 60%),
+    linear-gradient(160deg, #0a0c0f 0%, #03050a 40%, #060810 70%, #03050a 100%);
+}
+/* Glassmorphism panel */
+.og-glass {
+  position: absolute;
+  background: rgba(255,255,255,0.035);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px;
+}
+.og-glass-main {
+  left: 60px; top: 60px;
+  width: 680px; height: 510px;
+}
+.og-glass-side {
+  right: 60px; top: 60px;
+  width: 340px; height: 240px;
+}
+.og-glass-side2 {
+  right: 60px; bottom: 60px;
+  width: 340px; height: 240px;
+}
+/* Grid lines */
+.og-grid {
+  position: absolute; inset: 0; overflow: hidden; opacity: 0.04;
+}
+.og-grid::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.5) 0px, rgba(255,255,255,0.5) 1px, transparent 1px, transparent 60px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.5) 0px, rgba(255,255,255,0.5) 1px, transparent 1px, transparent 60px);
+}
+/* Content layers */
+.og-content { position: absolute; inset: 0; padding: 70px; }
+/* Brand row */
+.og-brand {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 36px;
+}
+.og-hex {
+  width: 44px; height: 44px;
+  background: #f3ba2f;
+  clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: #03050a; font-weight: 900;
+}
+.og-brand-name  { font-size: 20px; color: #f0f4ff; letter-spacing: 4px; }
+.og-brand-sub   { font-size: 11px; color: rgba(255,255,255,0.35); letter-spacing: 2px; margin-top: 3px; }
+/* Pair hero */
+.og-pair-row    { display: flex; align-items: center; gap: 20px; margin-bottom: 10px; }
+.og-coin-logo   { width: 56px; height: 56px; border-radius: 50%; border: 2px solid rgba(243,186,47,0.3); }
+.og-pair-name   { font-size: 28px; color: rgba(255,255,255,0.9); letter-spacing: 2px; }
+.og-price       { font-size: 72px; font-weight: 700; letter-spacing: -2px; line-height: 1; margin-bottom: 8px; color: #f3ba2f; }
+.og-change      { font-size: 18px; margin-bottom: 32px; letter-spacing: 1px; }
+/* Stat grid inside glass main */
+.og-stat-row    { display: flex; gap: 16px; }
+.og-stat        {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px; padding: 16px 20px;
+}
+.og-stat-label  { font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.og-stat-val    { font-size: 22px; color: #f0f4ff; font-weight: 500; }
+.og-stat-sub    { font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 5px; }
+/* Right panels */
+.og-panel-inner { padding: 28px; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; }
+.og-panel-label { font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+.og-panel-val   { font-size: 32px; color: #f0f4ff; font-weight: 500; letter-spacing: -1px; }
+.og-panel-sub   { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 6px; }
+/* Sparkline placeholder */
+.og-spark-area  { height: 60px; position: relative; overflow: hidden; margin-top: 10px; }
+/* Pyth badge top-right */
+.og-pyth-badge  {
+  position: absolute; top: 70px; right: 70px;
+  background: rgba(243,186,47,0.08);
+  border: 1px solid rgba(243,186,47,0.2);
+  padding: 6px 14px; border-radius: 20px;
+  font-size: 10px; color: #f3ba2f; letter-spacing: 2px;
+}
+/* Footer watermark */
+.og-footer {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 56px;
+  background: rgba(0,0,0,0.4);
+  border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 70px;
+}
+.og-footer-left  { font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 2px; }
+.og-footer-right { font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 2px; }
+.og-watermark {
+  display: flex; align-items: center; gap: 8px;
+}
+.og-wm-hex {
+  width: 20px; height: 20px; background: rgba(0,255,136,0.5);
+  clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: #03050a; font-weight: 900;
+}
+.og-ts { font-size: 10px; color: rgba(255,255,255,0.15); letter-spacing: 1px; }
+/* Scan line animation — stripped for static render */
+.og-scan {
+  position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px
+  );
+}
+/* Live dot */
+.og-live-dot {
+  display: inline-block; width: 8px; height: 8px;
+  border-radius: 50%; background: #00ff88;
+  margin-right: 6px;
+}
 /* Action row */
 .sc-actions {
   padding: 16px 20px; display: flex; gap: 10px;
@@ -1718,36 +1852,240 @@ Live via @PythNetwork oracle · SignalForge
   window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
 }
 
-function downloadAsPNG() {
+// ── Populate hidden 1200×630 BNB premium card with live state ────────────
+// Per-asset accent colours for the premium card
+const ASSET_ACCENTS = {
+  BTC:  '#f7931a',
+  ETH:  '#627eea',
+  SOL:  '#9945ff',
+  DOGE: '#c3a634',
+  BNB:  '#f3ba2f',
+  XRP:  '#00aae4',
+  AVAX: '#e84142',
+  SUI:  '#6fbcf0',
+};
+
+function populatePremiumCard() {
+  const sym    = scAssetSymbol || 'BNB';
+  const s      = state[sym] || {};
+  const accent = ASSET_ACCENTS[sym] || '#e8f400';
+  const now    = new Date();
+  const ts     = now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}) + ' UTC · ' +
+                 now.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
+
+  // ── Swap accent colour everywhere on the card ──
+  const card = document.getElementById('bnb-og-card');
+  card.style.setProperty('--og-accent', accent);
+
+  // Update background glow to match asset colour
+  card.querySelector('.og-bg').style.background = `
+    radial-gradient(ellipse 80% 60% at 15% 50%, ${accent}18 0%, transparent 65%),
+    radial-gradient(ellipse 60% 80% at 85% 20%, rgba(0,200,255,0.07) 0%, transparent 60%),
+    linear-gradient(160deg, #0a0c0f 0%, #03050a 40%, #060810 70%, #03050a 100%)`;
+
+  // Pair name + logo
+  card.querySelector('.og-pair-name').textContent = sym + ' / USD';
+  const logoImg = document.getElementById('og-bnb-logo');
+  const feed    = FEEDS.find(f => f.symbol === sym);
+  logoImg.src = `https://assets.coingecko.com/coins/images/${
+    {BTC:'1',ETH:'279',SOL:'4128',DOGE:'5',BNB:'825',XRP:'44',AVAX:'12559',SUI:'26375'}[sym] || '825'
+  }/small/${
+    {BTC:'bitcoin',ETH:'ethereum',SOL:'solana',DOGE:'dogecoin',BNB:'bnb-icon2_2x',XRP:'44-2',AVAX:'avalanche-avax-logo',SUI:'sui-sui-logo'}[sym] || 'bnb-icon2_2x'
+  }.png`;
+  logoImg.style.borderColor = accent + '55';
+
+  // Pyth badge colour
+  card.querySelector('.og-pyth-badge').style.color       = accent;
+  card.querySelector('.og-pyth-badge').style.borderColor = accent + '44';
+  card.querySelector('.og-pyth-badge').style.background  = accent + '14';
+
+  // Sparkline colour
+  document.getElementById('og-spark-line').style.stroke = accent;
+  document.getElementById('og-spark-area').style.fill   = accent + '20';
+
+  // Panel 1 border + text
+  const panel1 = card.querySelectorAll('.og-glass')[3];
+  if (panel1) { panel1.style.borderColor = accent + '22'; panel1.style.background = accent + '06'; }
+  document.getElementById('og-pubtime').style.color = accent;
+
+  // Watermark hex
+  card.querySelector('.og-wm-hex').style.background = accent + '88';
+
+  // ── Data ──
+  const price = s.price ? '$' + fmt(s.price, sym) : '—';
+  document.getElementById('og-price').textContent = price;
+  document.getElementById('og-price').style.color = accent;
+
+  const chg   = s.prevPrice && s.price ? ((s.price - s.prevPrice) / s.prevPrice * 100) : null;
+  const chgEl = document.getElementById('og-change');
+  if (chg !== null) {
+    const isUp = chg >= 0;
+    chgEl.textContent = (isUp ? '▲ +' : '▼ ') + chg.toFixed(4) + '%';
+    chgEl.style.color = isUp ? '#00ff88' : '#ff3c5a';
+  } else {
+    chgEl.textContent = 'Awaiting tick data';
+    chgEl.style.color = 'rgba(255,255,255,0.3)';
+  }
+
+  const [tierClass, tierLabel] = volTier(s.volatility || 0);
+  const tierColors = {'vol-high':'#ff3c5a','vol-med':'#ff8c00','vol-low':'#00c8ff','vol-calm':'#00ff88'};
+  document.getElementById('og-vol').textContent  = (s.volatility * 100).toFixed(3) + '%';
+  document.getElementById('og-vol').style.color  = tierColors[tierClass] || '#f0f4ff';
+  document.getElementById('og-tier').textContent = tierLabel + ' volatility';
+  document.getElementById('og-tier').style.color = tierColors[tierClass] || 'rgba(255,255,255,0.3)';
+
+  document.getElementById('og-conf').textContent = s.confidence ? '±$' + fmt(s.confidence, sym) : '—';
+  document.getElementById('og-anom').textContent = s.anomalyCount || '0';
+
+  const pub = s.publishTime
+    ? new Date(s.publishTime * 1000).toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit',second:'2-digit'})
+    : '—';
+  document.getElementById('og-pubtime').textContent = pub;
+
+  const actionEl    = document.getElementById('og-action');
+  const actionSubEl = document.getElementById('og-action-sub');
+  if (chg !== null) {
+    const mag = Math.abs(chg);
+    if (mag > 0.5)      { actionEl.textContent = chg > 0 ? 'STRONG RALLY' : 'SHARP DROP';     actionEl.style.color = chg > 0 ? '#00ff88' : '#ff3c5a'; }
+    else if (mag > 0.1) { actionEl.textContent = chg > 0 ? 'TRENDING UP'  : 'TRENDING DOWN';  actionEl.style.color = chg > 0 ? '#00c8ff' : '#ff8c00'; }
+    else                { actionEl.textContent = 'RANGE BOUND';                                 actionEl.style.color = 'rgba(255,255,255,0.5)'; }
+    actionSubEl.textContent = `${mag.toFixed(4)}% move · ${s.returns?.length || 0} ticks sampled`;
+  } else {
+    actionEl.textContent    = 'LOADING';
+    actionEl.style.color    = 'rgba(255,255,255,0.3)';
+    actionSubEl.textContent = 'Awaiting Pyth feed data';
+  }
+
+  const prices = s.prices || [];
+  if (prices.length >= 2) {
+    const W = 300, H = 60, pad = 4;
+    const mn = Math.min(...prices), mx = Math.max(...prices), rng = mx - mn || 1;
+    const pts = prices.map((p, i) => {
+      const x = (i / (prices.length - 1)) * W;
+      const y = pad + (1 - (p - mn) / rng) * (H - pad * 2);
+      return `${x},${y}`;
+    });
+    document.getElementById('og-spark-line').setAttribute('d', `M ${pts.join(' L ')}`);
+    document.getElementById('og-spark-area').setAttribute('d', `M 0,${H} L ${pts.join(' L ')} L ${W},${H} Z`);
+  }
+
+  document.getElementById('og-ts').textContent = ts;
+}
+
+// ── Capture premium card → PNG, with Web Share API fallback on mobile ─────
+async function downloadAsPNG() {
   const btn = document.getElementById('sc-png-btn');
   btn.textContent = '⏳ Rendering...';
   btn.classList.add('loading');
 
-  // Find the visible card
-  const cardIds = {'market':'sc-market-card','asset':'sc-asset-card'};
-  const cardEl  = document.getElementById(cardIds[scActiveTab]);
-  if (!cardEl) { btn.textContent = '↓ Download PNG'; btn.classList.remove('loading'); return; }
+  // Asset tab always uses premium 1200×630 card
+  // Market snapshot captures the modal preview card directly
+  const isPremium = scActiveTab === 'asset';
 
-  html2canvas(cardEl, {
-    backgroundColor: '#03050a',
-    scale: 2,
-    useCORS: true,
-    allowTaint: true,
-    logging: false,
-  }).then(canvas => {
-    const link = document.createElement('a');
-    const tabLabels = {market:'market-snapshot',asset:(scAssetSymbol||'asset')+'-detail',signal:'signalforge-signal'};
+  try {
+    let dataUrl;
+    const sym = scAssetSymbol || 'BNB';
     const ts = new Date().toISOString().slice(0,16).replace('T','-').replace(':','');
-    link.download = `pyth-pulse-${tabLabels[scActiveTab]}-${ts}.png`;
-    link.href = canvas.toDataURL('image/png');
+
+    if (isPremium) {
+      populatePremiumCard();
+
+      const card = document.getElementById('bnb-og-card');
+      // Temporarily move into viewport for capture
+      card.style.left     = '-9999px';
+      card.style.top      = '0px';
+      card.style.position = 'absolute';
+
+      // html-to-image preferred (better font + CSS rendering)
+      if (typeof htmlToImage !== 'undefined') {
+        dataUrl = await htmlToImage.toPng(card, {
+          width:        1200,
+          height:       630,
+          pixelRatio:   2,
+          backgroundColor: '#03050a',
+          skipAutoScale:   false,
+          cacheBust:       true,
+          style: { left: '0', top: '0', position: 'relative' },
+        });
+      } else {
+        // html2canvas fallback
+        const canvas = await html2canvas(card, {
+          width: 1200, height: 630,
+          scale: 2,
+          backgroundColor: '#03050a',
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          x: 0, y: 0,
+          scrollX: 0, scrollY: 0,
+        });
+        dataUrl = canvas.toDataURL('image/png');
+      }
+
+      // Restore hidden position
+      card.style.left     = '-9999px';
+      card.style.top      = '-9999px';
+      card.style.position = 'fixed';
+
+    } else {
+      // Standard modal card capture
+      const cardIds = {market:'sc-market-card', asset:'sc-asset-card'};
+      const cardEl  = document.getElementById(cardIds[scActiveTab]);
+      if (!cardEl) throw new Error('card not found');
+
+      const canvas = await html2canvas(cardEl, {
+        backgroundColor: '#03050a', scale: 2,
+        useCORS: true, allowTaint: true, logging: false,
+      });
+      dataUrl = canvas.toDataURL('image/png');
+    }
+
+    const filename = isPremium
+      ? `pyth-pulse-${sym}-premium-${ts}.png`
+      : `pyth-pulse-market-snapshot-${ts}.png`;
+
+    // ── Mobile: Web Share API → share directly to X / Messages / etc ──
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    if (isMobile && navigator.share && navigator.canShare) {
+      try {
+        const blob = await (await fetch(dataUrl)).blob();
+        const file = new File([blob], filename, { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title:  `${sym}/USD · Pyth Pulse`,
+            text:   `${sym}/USD live oracle data · ${new Date().toLocaleTimeString()} · Powered by @PythNetwork`,
+            files:  [file],
+          });
+          btn.textContent = '✓ Shared!';
+          btn.classList.remove('loading');
+          setTimeout(() => { btn.textContent = '↓ Download PNG'; }, 2000);
+          return;
+        }
+      } catch (shareErr) {
+        // User cancelled or share failed — fall through to download
+        if (shareErr.name === 'AbortError') {
+          btn.textContent = '↓ Download PNG';
+          btn.classList.remove('loading');
+          return;
+        }
+      }
+    }
+
+    // ── Desktop: standard anchor download ──
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = dataUrl;
     link.click();
+
     btn.textContent = '✓ Downloaded!';
     btn.classList.remove('loading');
     setTimeout(() => { btn.textContent = '↓ Download PNG'; }, 2000);
-  }).catch(() => {
+
+  } catch (err) {
+    console.error('PNG capture failed:', err);
     btn.textContent = '↓ Download PNG';
     btn.classList.remove('loading');
-  });
+  }
 }
 
 function copyCardText() {
@@ -1958,6 +2296,102 @@ FEEDS.forEach(feed => {
       <button class="sc-btn sc-btn-close" onclick="closeShareCard()">✕</button>
     </div>
 
+  </div>
+</div>
+
+<!-- ── Hidden 1200×630 Premium BNB Share Card ─────────────────────── -->
+<div id="bnb-og-card" aria-hidden="true">
+  <!-- Layers -->
+  <div class="og-bg"></div>
+  <div class="og-grid"></div>
+  <div class="og-scan"></div>
+
+  <!-- Glass panels -->
+  <div class="og-glass og-glass-main"></div>
+  <div class="og-glass og-glass-side"></div>
+  <div class="og-glass og-glass-side2"></div>
+
+  <!-- Pyth badge -->
+  <div class="og-pyth-badge">⚡ PYTH NETWORK</div>
+
+  <!-- Main content -->
+  <div class="og-content">
+    <div class="og-brand">
+      <div class="og-hex">⚡</div>
+      <div>
+        <div class="og-brand-name">PYTH PULSE</div>
+        <div class="og-brand-sub">MULTI-ASSET INTELLIGENCE · SIGNALFORGE</div>
+      </div>
+    </div>
+
+    <div class="og-pair-row">
+      <img class="og-coin-logo" id="og-bnb-logo"
+           src="https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png"
+           onerror="this.style.display='none'" alt="BNB" crossorigin="anonymous">
+      <div class="og-pair-name">BNB / USD</div>
+    </div>
+
+    <div class="og-price" id="og-price">—</div>
+    <div class="og-change" id="og-change">—</div>
+
+    <div class="og-stat-row">
+      <div class="og-stat">
+        <div class="og-stat-label">Volatility</div>
+        <div class="og-stat-val" id="og-vol">—</div>
+        <div class="og-stat-sub" id="og-tier">—</div>
+      </div>
+      <div class="og-stat">
+        <div class="og-stat-label">Pyth Confidence ±</div>
+        <div class="og-stat-val" id="og-conf">—</div>
+        <div class="og-stat-sub">Oracle precision</div>
+      </div>
+      <div class="og-stat">
+        <div class="og-stat-label">24h Anomalies</div>
+        <div class="og-stat-val" id="og-anom">—</div>
+        <div class="og-stat-sub">2σ+ deviations</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel 1 — publish time -->
+  <div class="og-glass og-glass-side" style="background:rgba(243,186,47,0.03);border-color:rgba(243,186,47,0.12)">
+    <div class="og-panel-inner">
+      <div>
+        <div class="og-panel-label">Last Oracle Update</div>
+        <div class="og-panel-val" id="og-pubtime" style="font-size:20px;color:#f3ba2f">—</div>
+        <div class="og-panel-sub">Pyth Hermes feed</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div class="og-live-dot"></div>
+        <span style="font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:1.5px">LIVE DATA</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel 2 — price action -->
+  <div class="og-glass og-glass-side2" style="background:rgba(0,200,255,0.02);border-color:rgba(0,200,255,0.08)">
+    <div class="og-panel-inner">
+      <div>
+        <div class="og-panel-label">Price Action</div>
+        <div class="og-panel-val" id="og-action" style="font-size:18px;color:#e8f0f8">—</div>
+        <div class="og-panel-sub" id="og-action-sub">—</div>
+      </div>
+      <svg id="og-spark" viewBox="0 0 300 60" preserveAspectRatio="none"
+           style="width:100%;height:60px;margin-top:8px">
+        <path id="og-spark-area" fill="rgba(243,186,47,0.12)"/>
+        <path id="og-spark-line" fill="none" stroke="#f3ba2f" stroke-width="2"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Footer watermark -->
+  <div class="og-footer">
+    <div class="og-watermark">
+      <div class="og-wm-hex">⚡</div>
+      <span style="font-size:11px;color:rgba(0,255,136,0.5);letter-spacing:2px">SIGNALFORGE</span>
+      <span style="font-size:11px;color:rgba(255,255,255,0.15);letter-spacing:1px;margin-left:8px">·  PYTH COMMUNITY HACKATHON 2026</span>
+    </div>
+    <div class="og-ts" id="og-ts">—</div>
   </div>
 </div>
 
