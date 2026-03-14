@@ -1614,7 +1614,7 @@ function openShareCard(tab, symbol) {
   document.getElementById('sc-overlay').classList.add('open');
   // Activate correct tab
   document.querySelectorAll('.sc-tab').forEach((t, i) => {
-    const tabs = ['market','asset','signal'];
+    const tabs = ['market','asset'];
     t.classList.toggle('active', tabs[i] === scActiveTab);
   });
   showSCCard(scActiveTab);
@@ -1644,7 +1644,6 @@ function populateSocialCard() {
   // ── Market Snapshot tab ──
   document.getElementById('sc-ts').textContent  = now;
   document.getElementById('sc-ts2').textContent = now;
-  document.getElementById('sc-ts3').textContent = now;
 
   const hotEl   = document.getElementById('hottest-pair');
   const hotVolEl = document.getElementById('hottest-vol');
@@ -1702,7 +1701,7 @@ function shareToTwitter() {
 8 crypto pairs live on Pyth Network oracle data
 
 #Pyth #DeFi #CryptoTrading`;
-  } else if (scActiveTab === 'asset') {
+  } else {
     const sym   = scAssetSymbol || 'DOGE';
     const price = document.getElementById('sc-asset-price').textContent;
     const vol   = document.getElementById('sc-asset-vol').textContent;
@@ -1715,19 +1714,6 @@ Volatility: ${vol} [${tier}]
 Live via @PythNetwork oracle · SignalForge
 
 #${sym} #Pyth #DeFi`;
-  } else {
-    const sig  = document.getElementById('sc-sig-badge').textContent;
-    const wr   = document.getElementById('sc-sig-wr').textContent;
-    const bank = document.getElementById('sc-sig-bank').textContent;
-    text = `⚡ SignalForge DOGE/USD signal (${now} UTC)
-
-Signal: ${sig}
-Win Rate: ${wr}
-Bankroll: ${bank}
-
-Powered by @PythNetwork oracle data · Limitless Markets
-
-#DOGE #Pyth #PredictionMarkets`;
   }
   window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
 }
@@ -1799,21 +1785,6 @@ Volatility: ${vol} [${tier}]
 Pyth Conf:  ${conf}
 
 ${now} UTC · pyth-pulse.signalforge.app`;
-  } else {
-    const sig  = document.getElementById('sc-sig-badge').textContent;
-    const strk = document.getElementById('sc-sig-streak').textContent;
-    const wr   = document.getElementById('sc-sig-wr').textContent;
-    const bank = document.getElementById('sc-sig-bank').textContent;
-    const edge = document.getElementById('sc-sig-edge').textContent;
-    text = `SIGNALFORGE · DOGE/USD · ${now} UTC
-
-Signal:   ${sig}
-${strk}
-Win Rate: ${wr}
-Bankroll: ${bank}
-Edge:     ${edge}
-
-signalforge.app · Pyth Community Hackathon 2026`;
   }
 
   navigator.clipboard.writeText(text).then(() => {
