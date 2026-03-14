@@ -505,18 +505,35 @@ body::before {
 .panel-title { font-size:8px; letter-spacing:2.5px; text-transform:uppercase; color:var(--dim); }
 .panel-sub   { font-size:9px; color:var(--dim); letter-spacing:1px; }
 
-.corr-table  { padding:14px; overflow-x:auto; }
-table { border-collapse:collapse; width:100%; }
+.corr-table  { padding:12px 14px; overflow-x:auto; }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;   /* equal columns, fills the box */
+}
 th {
-  font-size:8px; color:var(--dim); letter-spacing:1px;
-  text-align:center; padding:4px 6px; font-weight:400;
+  font-size: 8px; color: var(--dim); letter-spacing: 0.8px;
+  text-align: center; padding: 5px 4px; font-weight: 400;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-family: var(--mono);
+}
+th:first-child {
+  text-align: right;
+  width: 18%;      /* row-header column slightly wider */
+  padding-right: 10px;
+  color: var(--text);
 }
 td {
-  width:40px; height:34px; text-align:center; font-size:9px;
-  font-weight:500; position:relative; transition:all 0.5s;
-  font-family:var(--mono); font-variant-numeric:tabular-nums;
+  height: 32px; text-align: center;
+  font-size: 9px; font-weight: 500;
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+  position: relative; transition: background 0.4s, color 0.4s;
+  white-space: nowrap;
 }
-td.corr-self { background:rgba(232,244,0,0.08); color:var(--accent); }
+td.corr-self {
+  background: rgba(232,244,0,0.08); color: var(--accent);
+  font-weight: 600;
+}
 
 /* ── Anomaly feed ───────────────────────────────────────────────── */
 .anomaly-list  { padding:0; }
@@ -1456,10 +1473,10 @@ function renderCorrelation() {
     return (da && db) ? num / (da * db) : null;
   }
 
-  let html = '<tr><th></th>' + symbols.map(s => '<th>' + coinLogo(s, 13) + s + '</th>').join('') + '</tr>';
+  let html = '<tr><th></th>' + symbols.map(s => `<th>${coinLogo(s,11)}${s}</th>`).join('') + '</tr>';
 
   symbols.forEach(sa => {
-    html += '<tr><th style="text-align:right;padding-right:8px;color:var(--text)">' + coinLogo(sa, 13) + sa + '</th>';
+    html += `<tr><th>${coinLogo(sa,11)}${sa}</th>`;
     symbols.forEach(sb => {
       if (sa === sb) {
         html += `<td class="corr-self">1.00</td>`;
@@ -1469,10 +1486,10 @@ function renderCorrelation() {
           html += `<td style="color:var(--dim)">—</td>`;
         } else {
           const abs  = Math.abs(r);
-          const col  = r > 0 
-            ? `rgba(0,255,136,${0.1 + abs*0.7})`
-            : `rgba(255,60,90,${0.1 + abs*0.7})`;
-          const text = r > 0.5 ? 'var(--green)' : r < -0.3 ? 'var(--red)' : 'var(--text)';
+          const col  = r > 0
+            ? `rgba(0,255,140,${0.08 + Math.abs(r)*0.55})`
+            : `rgba(255,75,95,${0.08 + Math.abs(r)*0.55})`;
+          const text = r > 0.5 ? '#00FF8C' : r < -0.3 ? '#FF4B5F' : 'rgba(255,255,255,0.6)';
           html += `<td style="background:${col};color:${text}">${r.toFixed(2)}</td>`;
         }
       }
