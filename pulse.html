@@ -353,9 +353,31 @@ body::before {
 .detail-history { position: relative; z-index: 1; }
 
 .detail-header {
-  display: flex; align-items: center; justify-content: space-between;
   padding: 18px 22px 16px;
   border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Desktop: single row — symbol+badge left, price+close right */
+.detail-header-top {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.detail-header-bottom {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+/* On desktop collapse to one row */
+@media (min-width: 601px) {
+  .detail-header {
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 16px;
+    padding: 18px 22px 16px;
+  }
+  .detail-header-top  { flex: 1; justify-content: flex-start; gap: 12px; margin-top: 0; }
+  .detail-header-bottom { margin-top: 0; gap: 16px; }
 }
 .detail-title { display: flex; align-items: center; gap: 14px; }
 .detail-symbol {
@@ -824,58 +846,102 @@ body::before {
   .forge-stats  { display:grid; grid-template-columns:repeat(3,1fr); }
   .forge-left   { width:100%; }
 
-  /* ── Detail panel mobile ── */
-
-  /* Header: stack into two rows */
+  /* ── Detail panel — mobile vertical layout ── */
   .detail-header {
-    flex-wrap: wrap;
-    padding: 12px 14px 10px;
+    display: block;
+    padding: 14px 16px 12px;
+  }
+  /* Row 1: pair name LEFT, badge RIGHT */
+  .detail-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: 8px;
+    margin-bottom: 10px;
   }
-  /* Row 1: logo + symbol + badge — takes full width */
-  .detail-title {
-    flex: 1 1 100%;
-    gap: 8px;
+  .detail-symbol {
+    font-size: 15px;
+    letter-spacing: 1px;
   }
-  .detail-symbol { font-size: 14px; letter-spacing: 1px; }
-  .hm-badge      { font-size: 7px; padding: 2px 5px; }
-
-  /* Row 2: price left, close right */
-  .detail-header > div:last-child {
-    flex: 1 1 100%;
-    display: flex; align-items: center; justify-content: space-between;
+  /* Row 2: price full-width, close button floated right */
+  .detail-header-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 0;
   }
-  .detail-price  { font-size: 22px; }
-  .detail-close  { width: 26px; height: 26px; font-size: 12px; }
+  .detail-price  { font-size: 28px; letter-spacing: -0.5px; }
+  .detail-close  { width: 26px; height: 26px; font-size: 12px; flex-shrink: 0; }
 
-  /* Chart — reduce height on small screens */
-  .detail-chart      { padding: 12px 14px 10px; }
-  .detail-sparkline  { height: 80px; }
-  .detail-chart-label { font-size: 7px; letter-spacing: 1.5px; margin-bottom: 8px; }
+  /* Chart */
+  .detail-chart      { padding: 12px 16px 10px; }
+  .detail-sparkline  { height: 75px; }
+  .detail-chart-label {
+    font-size: 7px; letter-spacing: 1.2px; margin-bottom: 7px;
+  }
 
-  /* Stats grid — 2 columns, tighter cells */
-  .detail-body       { grid-template-columns: repeat(2,1fr); }
-  .detail-stat       { padding: 11px 13px; }
-  .detail-stat-label { font-size: 7px; letter-spacing: 1.2px; margin-bottom: 5px; }
-  .detail-stat-value { font-size: 15px; }
-  .detail-stat-sub   { font-size: 8px; margin-top: 3px; }
+  /* Stats — vertical stack, one module per full row */
+  .detail-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: transparent;
+  }
+  .detail-stat {
+    padding: 12px 16px;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    background: #05070A;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .detail-stat:last-of-type { border-bottom: none; }
 
-  /* Tick bars — smaller on mobile */
-  .detail-history { padding: 9px 14px; gap: 2px; }
-  .history-tick   { width: 5px; }
+  /* Label on left, value+sub stacked on right */
+  .detail-stat-label {
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 0;
+    flex: 1;
+    min-width: 0;
+  }
+  .detail-stat-right {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .detail-stat-value {
+    font-size: 16px;
+    text-align: right;
+  }
+  .detail-stat-sub {
+    font-size: 8px;
+    margin-top: 2px;
+    text-align: right;
+  }
+
+  /* Tick bars */
+  .detail-history {
+    padding: 10px 16px;
+    gap: 2px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+  .history-tick { width: 5px; }
 }
 @media (max-width:400px) {
   .stats-bar    { grid-template-columns:1fr 1fr; }
   .heatmap-grid { grid-template-columns:1fr 1fr; }
   .forge-stats  { grid-template-columns:repeat(2,1fr); }
   .stat-value   { font-size:17px; }
-
-  /* Stats grid — single column on very small screens */
-  .detail-body       { grid-template-columns: 1fr 1fr; }
-  .detail-stat       { padding: 9px 11px; }
-  .detail-stat-value { font-size: 14px; }
-  .detail-price      { font-size: 19px; }
+  /* Detail panel already vertical at 600px — just tighten fonts further */
   .detail-symbol     { font-size: 13px; }
+  .detail-price      { font-size: 24px; }
+  .detail-stat-label { font-size: 7px; }
+  .detail-stat-value { font-size: 14px; }
+  .detail-stat-sub   { font-size: 7px; }
 }
 </style>
 </head>
@@ -955,18 +1021,22 @@ body::before {
 
   <!-- Detail panel — shown on card click -->
   <div class="detail-panel" id="detail-panel">
+
+    <!-- Header row 1: symbol left, badge right -->
     <div class="detail-header">
-      <div class="detail-title">
+      <div class="detail-header-top">
         <div class="detail-symbol" id="dp-symbol">—</div>
         <div id="dp-badge" class="hm-badge">—</div>
       </div>
-      <div style="display:flex;align-items:center;gap:16px;">
+      <!-- Header row 2: price left, close right -->
+      <div class="detail-header-bottom">
         <div class="detail-price" id="dp-price">—</div>
         <button class="detail-close" onclick="closeDetail()">✕</button>
       </div>
     </div>
+
     <!-- Full sparkline -->
-    <div class="detail-chart" style="grid-column:span 4">
+    <div class="detail-chart">
       <div class="detail-chart-label">Price History · Last 60 ticks · Live via Pyth</div>
       <svg class="detail-sparkline" id="dp-spark" viewBox="0 0 800 80" preserveAspectRatio="none">
         <defs>
@@ -977,36 +1047,45 @@ body::before {
         </defs>
         <path id="dp-area" fill="url(#dp-grad)"/>
         <path id="dp-line" fill="none" stroke="#00FF8C" stroke-width="1"/>
-        <!-- Price range labels -->
-        <text id="dp-max" x="4" y="12" fill="#445566" font-size="9" font-family="DM Mono,monospace"/>
-        <text id="dp-min" x="4" y="76" fill="#445566" font-size="9" font-family="DM Mono,monospace"/>
+        <text id="dp-max" x="4" y="12" fill="#3d4a58" font-size="9" font-family="Roboto Mono,monospace"/>
+        <text id="dp-min" x="4" y="76" fill="#3d4a58" font-size="9" font-family="Roboto Mono,monospace"/>
       </svg>
     </div>
-    <!-- Stats row -->
+
+    <!-- Stats -->
     <div class="detail-body">
       <div class="detail-stat">
         <div class="detail-stat-label">Current Price</div>
-        <div class="detail-stat-value" id="dp-cur">—</div>
-        <div class="detail-stat-sub" id="dp-change">—</div>
+        <div class="detail-stat-right">
+          <div class="detail-stat-value" id="dp-cur">—</div>
+          <div class="detail-stat-sub" id="dp-change">—</div>
+        </div>
       </div>
       <div class="detail-stat">
-        <div class="detail-stat-label">Volatility (5-min)</div>
-        <div class="detail-stat-value" id="dp-vol">—</div>
-        <div class="detail-stat-sub" id="dp-vol-tier">—</div>
+        <div class="detail-stat-label">Vol (5-min)</div>
+        <div class="detail-stat-right">
+          <div class="detail-stat-value" id="dp-vol">—</div>
+          <div class="detail-stat-sub" id="dp-vol-tier">—</div>
+        </div>
       </div>
       <div class="detail-stat">
         <div class="detail-stat-label">Pyth Confidence ±</div>
-        <div class="detail-stat-value blue" id="dp-conf">—</div>
-        <div class="detail-stat-sub">Publisher spread</div>
+        <div class="detail-stat-right">
+          <div class="detail-stat-value blue" id="dp-conf">—</div>
+          <div class="detail-stat-sub">Publisher spread</div>
+        </div>
       </div>
       <div class="detail-stat">
         <div class="detail-stat-label">60-tick Range</div>
-        <div class="detail-stat-value" id="dp-range">—</div>
-        <div class="detail-stat-sub" id="dp-range-pct">—</div>
+        <div class="detail-stat-right">
+          <div class="detail-stat-value" id="dp-range">—</div>
+          <div class="detail-stat-sub" id="dp-range-pct">—</div>
+        </div>
       </div>
-      <!-- Tick heatmap row -->
+      <!-- Tick history -->
       <div class="detail-history" id="dp-ticks"></div>
     </div>
+
   </div>
   <div class="forge-panel">
     <div class="forge-left">
