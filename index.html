@@ -184,38 +184,118 @@ body::after {
 
 /* ── Pair selector ── */
 .pair-selector { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+
 .pair-btn {
-  display:flex; align-items:center; gap:8px;
-  background:var(--surface2); border:1px solid var(--border2);
-  border-radius:var(--r-sm); color:var(--text);
-  font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:0.5px;
-  padding:6px 12px; cursor:pointer; transition:all 0.18s;
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(11,14,17,0.85);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-sm);
+  color: var(--text); font-family: var(--mono);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+  padding: 7px 13px; cursor: pointer; transition: all 0.18s;
+  white-space: nowrap;
 }
-.pair-btn:hover { border-color:var(--accent); color:var(--accent); }
-.pair-btn .arrow { font-size:9px; color:var(--dim); transition:transform 0.2s; }
-.pair-btn.open .arrow { transform:rotate(180deg); }
-.pair-dropdown-wrap { position:relative; }
+.pair-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,255,204,0.04); }
+.pair-btn .arrow { font-size: 8px; color: var(--dim); transition: transform 0.22s ease; margin-left: 2px; }
+.pair-btn.open .arrow { transform: rotate(180deg); }
+
+.pair-dropdown-wrap { position: relative; }
+
 .pair-menu {
-  position:absolute; top:calc(100% + 6px); right:0;
-  background:var(--surface2); border:1px solid var(--border2);
-  border-radius:var(--r-md); min-width:200px; z-index:100;
-  display:none; flex-direction:column;
-  box-shadow:0 16px 48px rgba(0,0,0,0.6);
-  overflow:hidden;
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 0;
+  min-width: 230px;          /* wider — prevents text crowding */
+  z-index: 9999;             /* float above all dashboard modules */
+
+  /* Glassmorphic obsidian surface */
+  background: rgba(11,14,17,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  border: 1px solid var(--border2);
+  border-radius: var(--r-md);
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.7),
+    0 2px 8px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+
+  /* Scrollability */
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  display: none;
+  flex-direction: column;
+
+  animation: menu-in 0.16s ease;
 }
-.pair-menu.open { display:flex; }
+
+@keyframes menu-in {
+  from { opacity:0; transform:translateY(-6px) scale(0.98); }
+  to   { opacity:1; transform:translateY(0)    scale(1); }
+}
+
+.pair-menu.open { display: flex; }
+
+/* Custom obsidian scrollbar */
+.pair-menu::-webkit-scrollbar       { width: 3px; }
+.pair-menu::-webkit-scrollbar-track { background: transparent; }
+.pair-menu::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+.pair-menu::-webkit-scrollbar-thumb:hover { background: var(--dim); }
+/* Firefox */
+.pair-menu { scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
+
 .pair-option {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:10px 14px; font-size:11px; font-family:var(--mono); letter-spacing:0.5px;
-  cursor:pointer; transition:background 0.15s;
-  border-bottom:1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 16px;        /* generous horizontal padding */
+  font-size: 11px; font-family: var(--mono); letter-spacing: 0.5px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(26,29,35,0.7);
+  /* Smooth hover transition */
+  transition: background 0.14s ease, color 0.14s ease;
+  white-space: nowrap;
 }
-.pair-option:last-child { border-bottom:none; }
-.pair-option:hover:not(.disabled) { background:rgba(0,255,204,0.04); color:var(--accent); }
-.pair-option.active { color:var(--accent); }
-.pair-option.disabled { opacity:0.35; cursor:not-allowed; }
-.pair-live { font-size:8px; letter-spacing:2px; padding:2px 6px; border-radius:2px; background:rgba(0,255,204,0.08); color:var(--accent); border:1px solid rgba(0,255,204,0.2); }
-.pair-soon { font-size:8px; letter-spacing:2px; padding:2px 6px; border-radius:2px; background:rgba(90,112,128,0.1); color:var(--dim); border:1px solid var(--border); }
+.pair-option:last-child { border-bottom: none; }
+
+/* Subtle #1A1D23 highlight on hover */
+.pair-option:hover:not(.disabled) {
+  background: #1A1D23;
+  color: var(--white);
+}
+.pair-option.active {
+  color: var(--accent);
+  background: rgba(0,255,204,0.04);
+}
+.pair-option.disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  color: var(--dim);
+}
+.pair-option.disabled:hover { background: transparent; color: var(--dim); }
+
+/* LIVE badge */
+.pair-live {
+  font-size: 7px; font-family: var(--mono);
+  letter-spacing: 1.5px; padding: 2px 6px;
+  border-radius: 2px;
+  background: rgba(0,255,204,0.07);
+  color: var(--accent);
+  border: 1px solid rgba(0,255,204,0.18);
+  flex-shrink: 0;
+}
+
+/* SOON badge — smaller, muted, clearly secondary */
+.pair-soon {
+  font-size: 7px; font-family: var(--mono);
+  letter-spacing: 1px; padding: 2px 5px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.04);
+  color: rgba(68,85,102,0.8);   /* muted grey opacity */
+  border: 1px solid rgba(26,29,35,0.9);
+  flex-shrink: 0;
+}
 
 /* ── Price hero ── */
 .price-hero { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
@@ -611,7 +691,7 @@ body::after {
 @media (max-width:900px) {
   .container   { padding:22px 16px; }
   .signal-row  { grid-template-columns:1fr 1fr; }
-  .pnl-grid    { grid-template-columns:1fr 1fr; }
+  .pnl-grid    { grid-template-columns:repeat(3,1fr) !important; }
 }
 @media (max-width:700px) {
   .container   { padding:14px 12px; }
@@ -651,6 +731,196 @@ body::after {
   .price-value     { font-size:22px; }
   .countdown-digits{ font-size:18px; }
   .header-right    { gap:5px; }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ENTRY SIGNAL BANNER
+   ══════════════════════════════════════════════════════════════════ */
+
+.entry-banner {
+  position: relative; overflow: hidden;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+  padding: 20px 24px;
+  background: rgba(8,11,16,0.85);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 4px 24px rgba(0,0,0,0.4);
+  transition: border-color 0.4s, box-shadow 0.4s;
+  display: none;  /* hidden until conditions met */
+}
+.entry-banner.visible { display: block; }
+
+/* ── ENTER state — all conditions true ── */
+.entry-banner.enter {
+  border-color: rgba(0,255,204,0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(0,255,204,0.08),
+    0 0 40px -8px rgba(0,255,204,0.22),
+    0 4px 24px rgba(0,0,0,0.5);
+}
+
+/* ── STANDBY state — waiting ── */
+.entry-banner.standby {
+  border-color: rgba(68,85,102,0.4);
+}
+
+/* ── EXPIRED state — window closed ── */
+.entry-banner.expired {
+  border-color: rgba(255,95,95,0.3);
+  box-shadow: inset 0 1px 0 rgba(255,95,95,0.05), 0 4px 24px rgba(0,0,0,0.4);
+}
+
+/* Animated data-stream top bar — only on ENTER */
+.entry-banner::before {
+  content: '';
+  position: absolute; top: 0; left: -100%; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, #00FFCC, transparent);
+  transition: opacity 0.4s;
+  opacity: 0;
+}
+.entry-banner.enter::before {
+  opacity: 1;
+  animation: entry-stream 2s ease-in-out infinite;
+}
+@keyframes entry-stream {
+  0%   { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Scanline */
+.entry-banner::after {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px
+  );
+  pointer-events: none; opacity: 0.4;
+}
+
+/* Inner content above scanline */
+.entry-inner { position: relative; z-index: 1; }
+
+/* Top row: status pill + tag */
+.entry-top {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.entry-status-pill {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 12px; border-radius: 20px;
+  font-size: 9px; font-family: var(--mono);
+  letter-spacing: 2px; text-transform: uppercase; font-weight: 600;
+}
+.entry-banner.enter   .entry-status-pill { background: rgba(0,255,204,0.10); border: 1px solid rgba(0,255,204,0.28); color: #00FFCC; }
+.entry-banner.standby .entry-status-pill { background: rgba(68,85,102,0.15); border: 1px solid rgba(68,85,102,0.35); color: var(--dim); }
+.entry-banner.expired .entry-status-pill { background: rgba(255,95,95,0.08);  border: 1px solid rgba(255,95,95,0.25);  color: #FF5F5F; }
+
+.entry-pill-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+}
+.entry-banner.enter   .entry-pill-dot { background: #00FFCC; animation: blink 1.2s infinite; }
+.entry-banner.standby .entry-pill-dot { background: var(--dim); }
+.entry-banner.expired .entry-pill-dot { background: #FF5F5F; }
+
+.entry-tag {
+  font-size: 8px; font-family: var(--mono);
+  color: var(--dim); letter-spacing: 1.5px; text-transform: uppercase;
+}
+
+/* Main content row */
+.entry-main {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 20px;
+}
+
+/* LEFT: direction + label */
+.entry-left { display: flex; align-items: center; gap: 16px; }
+.entry-direction {
+  font-family: var(--mono); font-size: 48px; font-weight: 700;
+  line-height: 1; letter-spacing: 1px;
+  font-variant-numeric: tabular-nums;
+}
+.entry-banner.enter.yes-signal .entry-direction { color: #00FFCC; }
+.entry-banner.enter.no-signal  .entry-direction { color: #FF5F5F; }
+.entry-banner.standby .entry-direction { color: var(--dim); font-size: 28px; }
+.entry-banner.expired .entry-direction { color: var(--dim); font-size: 28px; }
+
+.entry-details { display: flex; flex-direction: column; gap: 5px; }
+.entry-pair {
+  font-size: 11px; font-family: var(--mono); font-weight: 600;
+  color: var(--white); letter-spacing: 1px;
+}
+.entry-meta { font-size: 10px; font-family: var(--mono); color: var(--dim); letter-spacing: 0.5px; }
+.entry-meta span { color: var(--text); }
+.entry-meta.above { color: var(--accent); }
+.entry-meta.below { color: var(--warn); }
+
+/* RIGHT: stats grid + share button */
+.entry-right { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+
+.entry-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.entry-stat {
+  text-align: center; padding: 8px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: var(--r-sm);
+  min-width: 80px;
+}
+.entry-stat-label {
+  font-size: 7px; font-family: var(--mono);
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--dim); margin-bottom: 5px;
+}
+.entry-stat-val {
+  font-size: 14px; font-family: var(--mono);
+  font-weight: 600; color: var(--white);
+  font-variant-numeric: tabular-nums;
+}
+.entry-stat-val.green { color: #00FFCC; }
+.entry-stat-val.blue  { color: var(--accent2); }
+.entry-stat-val.warn  { color: #FF5F5F; }
+
+/* Share button — lives here, not in signal block */
+.entry-share-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 18px; border-radius: var(--r-sm);
+  background: rgba(0,255,204,0.07);
+  border: 1px solid rgba(0,255,204,0.22);
+  color: #00FFCC;
+  font-size: 9px; font-family: var(--mono);
+  letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.18s;
+  white-space: nowrap;
+}
+.entry-share-btn:hover {
+  background: rgba(0,255,204,0.13);
+  border-color: rgba(0,255,204,0.4);
+  box-shadow: 0 0 16px rgba(0,255,204,0.15);
+}
+.entry-share-btn.hidden { display: none; }
+
+/* Standby / expired message */
+.entry-standby-msg {
+  font-size: 13px; font-family: var(--mono);
+  color: var(--dim); letter-spacing: 1px;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  .entry-banner { padding: 16px; }
+  .entry-main   { flex-direction: column; gap: 14px; }
+  .entry-right  { align-items: flex-start; width: 100%; }
+  .entry-stats  { width: 100%; }
+  .entry-direction { font-size: 36px; }
+  .entry-share-btn { width: 100%; justify-content: center; }
+}
+@media (max-width: 480px) {
+  .entry-stats  { grid-template-columns: repeat(3,1fr); }
+  .entry-stat   { padding: 7px 8px; min-width: unset; }
+  .entry-stat-val { font-size: 12px; }
 }
 </style>
 </head>
@@ -857,6 +1127,62 @@ body::after {
   </div>
 
 
+  <!-- ⚡ ENTRY SIGNAL BANNER ── shown only when all conditions align -->
+  <div class="entry-banner" id="entry-banner">
+    <div class="entry-inner">
+
+      <!-- Status row -->
+      <div class="entry-top">
+        <div class="entry-status-pill">
+          <div class="entry-pill-dot"></div>
+          <span id="entry-status-text">STANDBY</span>
+        </div>
+        <div class="entry-tag" id="entry-tag">Waiting for convergence</div>
+      </div>
+
+      <!-- Main row -->
+      <div class="entry-main">
+
+        <!-- Direction + details -->
+        <div class="entry-left">
+          <div class="entry-direction" id="entry-direction">—</div>
+          <div class="entry-details">
+            <div class="entry-pair">DOGE / USD · Limitless</div>
+            <div class="entry-meta" id="entry-threshold-line">Threshold: —</div>
+            <div class="entry-meta" id="entry-window-line">Window: —</div>
+            <div class="entry-meta" id="entry-voters-line">Voters: —</div>
+          </div>
+        </div>
+
+        <!-- Stats + share -->
+        <div class="entry-right">
+          <div class="entry-stats" style="grid-template-columns:repeat(4,1fr)">
+            <div class="entry-stat">
+              <div class="entry-stat-label">Probability</div>
+              <div class="entry-stat-val blue" id="entry-prob">—</div>
+            </div>
+            <div class="entry-stat">
+              <div class="entry-stat-label">Edge</div>
+              <div class="entry-stat-val green" id="entry-edge">—</div>
+            </div>
+            <div class="entry-stat">
+              <div class="entry-stat-label">Bet Size</div>
+              <div class="entry-stat-val green" id="entry-bet">—</div>
+            </div>
+            <div class="entry-stat">
+              <div class="entry-stat-label">Time Left</div>
+              <div class="entry-stat-val" id="entry-timeleft">—</div>
+            </div>
+          </div>
+          <button class="entry-share-btn hidden" id="entry-share-btn" onclick="openLiveSignalShare()">
+            ⬡ SHARE ENTRY SIGNAL
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- Signal Intelligence -->
   <div class="section-title">Signal Intelligence · Live</div>
   <div class="signal-row">
@@ -864,7 +1190,6 @@ body::after {
       <div class="metric-label">Current Signal</div>
       <div class="metric-value" id="signal-val"><span class="skeleton" style="width:50px;height:22px"> </span></div>
       <div class="metric-sub"  id="signal-sub">Monitoring live</div>
-      <button class="live-signal-share" id="live-signal-share-btn" onclick="openLiveSignalShare()">⬡ SHARE LIVE SIGNAL</button>
     </div>
     <div class="metric-block">
       <div class="metric-label">Model Probability</div>
@@ -930,7 +1255,7 @@ body::after {
 
   <!-- PnL -->
   <div class="section-title">Paper Trading · Kelly Bankroll · Live</div>
-  <div class="pnl-grid">
+  <div class="pnl-grid" style="grid-template-columns:repeat(5,1fr)">
     <div class="pnl-block">
       <div class="pnl-label">Bankroll</div>
       <div class="pnl-value pos" id="bankroll">—</div>
@@ -950,6 +1275,12 @@ body::after {
       <div class="pnl-label">Today's PnL</div>
       <div class="pnl-value" id="daily-pnl">—</div>
       <div class="pnl-sub" id="daily-sub">—</div>
+    </div>
+    <div class="pnl-block" style="border-color:rgba(0,255,204,0.18);position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--accent),transparent 60%)"></div>
+      <div class="pnl-label" style="color:var(--accent)">Next Bet Size</div>
+      <div class="pnl-value pos" id="next-bet">—</div>
+      <div class="pnl-sub" id="next-bet-sub">Kelly sized</div>
     </div>
   </div>
 
@@ -1309,6 +1640,7 @@ async function fetchBotStats() {
     updateSignal(stats);
     updateConvergence(stats);
     updatePnL(stats);
+    updateEntryBanner(stats);
     if (stats.expiry)     startCountdown(stats.expiry);
     if (stats.confidence) updateConfidence(stats.confidence, stats.price);
     if (stats.signal_log) renderSignalLog(stats.signal_log, stats.wins, stats.losses);
@@ -1479,6 +1811,115 @@ function updateConvergence(stats) {
   document.getElementById('progress-fill').style.width = pct + '%';
 }
 
+// ── ENTRY SIGNAL BANNER ──────────────────────────────────────────────
+function updateEntryBanner(stats) {
+  const banner   = document.getElementById('entry-banner');
+  if (!banner) return;
+
+  const sig       = stats.signal;
+  const streak    = stats.streak || 0;
+  const prob      = stats.prob;
+  const edge      = stats.edge;
+  const threshold = stats.threshold;
+
+  // Read alert window from DOM (set by countdown ticker)
+  const awEl      = document.getElementById('alert-window');
+  const alertOpen = awEl ? awEl.textContent.trim() === 'Open' : false;
+
+  // Countdown display for time-left stat
+  const cdEl     = document.getElementById('countdown-digits');
+  const timeLeft = cdEl ? cdEl.textContent : '—';
+
+  // Live price for threshold comparison
+  const price  = priceHistory[priceHistory.length - 1] || 0;
+  const above  = threshold ? price >= threshold : null;
+
+  // ── State logic ──
+  const converged = streak >= 3;
+  const hasSignal = sig === 'YES' || sig === 'NO';
+  const isEnter   = hasSignal && converged && alertOpen;
+  const isExpired = hasSignal && converged && !alertOpen;
+
+  banner.classList.add('visible');
+  banner.classList.remove('enter','standby','expired','yes-signal','no-signal');
+
+  const setEl = (id, text, color) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (text !== undefined) el.textContent = text;
+    if (color) el.style.color = color;
+  };
+
+  if (isEnter) {
+    banner.classList.add('enter', sig === 'YES' ? 'yes-signal' : 'no-signal');
+    setEl('entry-status-text', 'ENTER NOW');
+    setEl('entry-tag',         'Pyth oracle confirmed · ' + new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) + ' UTC');
+    setEl('entry-direction',   sig,  sig === 'YES' ? '#00FFCC' : '#FF5F5F');
+
+    const thrLine = document.getElementById('entry-threshold-line');
+    if (thrLine && threshold) {
+      thrLine.textContent = 'Threshold $' + threshold.toFixed(6) + ' · DOGE ' + (above ? '▲ above' : '▼ below');
+      thrLine.className   = 'entry-meta ' + (above ? 'above' : 'below');
+    }
+    setEl('entry-window-line', 'Alert window OPEN · ' + timeLeft + ' remaining', 'var(--accent)');
+    setEl('entry-voters-line', (stats.votes && stats.votes.yes ? stats.votes.yes : 3) + '/3 voters agree');
+    setEl('entry-prob',        prob ? (prob*100).toFixed(1)+'%' : '—');
+
+    const edgeEl = document.getElementById('entry-edge');
+    if (edgeEl) {
+      edgeEl.textContent  = edge ? (edge>0?'+':'') + edge.toFixed(1)+'%' : '—';
+      edgeEl.className    = 'entry-stat-val ' + (edge >= 0 ? 'green' : 'warn');
+    }
+    const betAmt = stats.next_bet || stats.kelly_bet || stats.bet || null;
+    setEl('entry-bet',         betAmt ? '$' + betAmt.toFixed(2) : '—', betAmt ? '#00FFCC' : 'var(--dim)');
+    setEl('entry-timeleft',    timeLeft, 'var(--accent)');
+    const shareBtn = document.getElementById('entry-share-btn');
+    if (shareBtn) shareBtn.classList.remove('hidden');
+
+  } else if (isExpired) {
+    banner.classList.add('expired');
+    setEl('entry-status-text', 'WINDOW CLOSED');
+    setEl('entry-tag',         'Signal fired but alert window has passed · Wait for next market');
+    setEl('entry-direction',   '—',   'var(--dim)');
+    const thrLine = document.getElementById('entry-threshold-line');
+    if (thrLine) { thrLine.textContent = 'Market window expired'; thrLine.className = 'entry-meta'; }
+    setEl('entry-window-line', 'Alert window CLOSED', '#FF5F5F');
+    setEl('entry-voters-line', 'Signal was: ' + sig + ' · ' + streak + '/3 checks');
+    setEl('entry-prob',        '—');
+    setEl('entry-edge',        '—');
+    setEl('entry-bet',         '—', 'var(--dim)');
+    setEl('entry-timeleft',    timeLeft, '#FF5F5F');
+    const shareBtn = document.getElementById('entry-share-btn');
+    if (shareBtn) shareBtn.classList.add('hidden');
+
+  } else {
+    banner.classList.add('standby');
+    const reason = !hasSignal ? 'No signal yet'
+                 : !converged ? 'Converging · ' + streak + '/3 checks'
+                 : !alertOpen ? 'Alert window not yet open'
+                 : 'Monitoring';
+    setEl('entry-status-text', 'STANDBY');
+    setEl('entry-tag',         reason);
+    setEl('entry-direction',   '◈', 'var(--dim)');
+    const thrLine = document.getElementById('entry-threshold-line');
+    if (thrLine) { thrLine.textContent = threshold ? 'Watching $' + threshold.toFixed(6) : 'Awaiting threshold'; thrLine.className = 'entry-meta'; }
+    setEl('entry-window-line', alertOpen ? 'Alert window OPEN' : 'Alert window —', alertOpen ? 'var(--accent)' : 'var(--dim)');
+    setEl('entry-voters-line', 'Streak: ' + streak + '/3');
+    setEl('entry-prob',        prob ? (prob*100).toFixed(1)+'%' : '—');
+
+    const edgeEl = document.getElementById('entry-edge');
+    if (edgeEl) {
+      edgeEl.textContent = edge ? (edge>0?'+':'') + edge.toFixed(1)+'%' : '—';
+      edgeEl.className   = 'entry-stat-val';
+    }
+    const betAmtS = stats.next_bet || stats.kelly_bet || stats.bet || null;
+    setEl('entry-bet',         betAmtS ? '$' + betAmtS.toFixed(2) : '—', 'var(--dim)');
+    setEl('entry-timeleft',    timeLeft, 'var(--text)');
+    const shareBtn = document.getElementById('entry-share-btn');
+    if (shareBtn) shareBtn.classList.add('hidden');
+  }
+}
+
 // ── PnL PANEL ────────────────────────────────────────────────────────
 function updatePnL(stats) {
   const bankroll = stats.bankroll;
@@ -1507,8 +1948,22 @@ function updatePnL(stats) {
   dEl.textContent = `${daily >= 0 ? '+' : ''}$${daily.toFixed(2)}`;
   dEl.className   = `pnl-value ${daily >= 0 ? 'pos' : 'neg'}`;
 
+  // Next bet size — from Kelly calculation
+  const nextBet = stats.next_bet || stats.kelly_bet || stats.bet || null;
+  const nbEl    = document.getElementById('next-bet');
+  const nbSub   = document.getElementById('next-bet-sub');
+  if (nbEl) {
+    if (nextBet && nextBet > 0) {
+      nbEl.textContent = '$' + nextBet.toFixed(2);
+      nbEl.className   = 'pnl-value pos';
+      if (nbSub) nbSub.textContent = `${((nextBet / (stats.bankroll || 100)) * 100).toFixed(1)}% of bankroll`;
+    } else {
+      nbEl.textContent = '—';
+      if (nbSub) nbSub.textContent = 'Kelly sized';
+    }
+  }
   // Ticker
-  ['t-wr','t-wr2'].forEach(id   => document.getElementById(id).textContent = `${wr}%`);
+  ['t-wr','t-wr2'].forEach(id   => { const el = document.getElementById(id); if(el) el.textContent = `${wr}%`; });
   ['t-bank','t-bank2'].forEach(id => document.getElementById(id).textContent = `$${bankroll.toFixed(2)}`);
 
   document.getElementById('log-count').textContent = `${wins + losses} decided`;
