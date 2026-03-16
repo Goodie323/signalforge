@@ -507,16 +507,105 @@ body::before {
 }
 .forge-btn:hover { opacity:0.88; box-shadow:0 0 16px rgba(232,244,0,0.3); }
 
-/* ── Bottom panels ──────────────────────────────────────────────── */
+/* ── Bottom panels — Fixed-Viewport split ───────────────────────── */
 .bottom-grid {
-  display:grid; grid-template-columns: 3fr 2fr;
-  gap:14px; margin-bottom:24px;
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  margin-bottom: 24px;
+  /* Fixed height so neither panel can push the page */
+  height: 420px;
+  box-sizing: border-box;
+  align-items: stretch;
 }
 
-.corr-panel, .anomaly-panel {
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:var(--r-lg); overflow:hidden;
-  box-shadow:0 2px 16px rgba(0,0,0,0.3);
+/* ── Correlation panel — 60% ── */
+.corr-panel {
+  flex: 3;               /* 60% of space */
+  min-width: 0;          /* prevent flex blowout */
+  box-sizing: border-box;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); overflow: hidden;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+  display: flex; flex-direction: column;
+
+  /* Sticky — stays visible as page scrolls */
+  position: sticky;
+  top: 20px;
+  align-self: flex-start;
+  /* Override height so sticky doesn't collapse */
+  height: 420px;
+}
+
+/* Corr panel header — fixed, never scrolls */
+.corr-panel .panel-header {
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* Corr table — flex-grow fills remaining height in panel */
+.corr-panel .corr-table {
+  flex: 1;
+  overflow: hidden;        /* matrix itself doesn't scroll */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 12px;
+}
+
+.corr-grid {
+  display: grid;
+  grid-template-columns: minmax(36px, 8%) repeat(6, 1fr);
+  gap: 3px;
+  width: 100%;
+  box-sizing: border-box;
+  /* Cells grow to fill available height */
+  flex: 1;
+}
+
+/* Override corr-cell min-height to be auto so grid fills space */
+.corr-cell { min-height: 0; flex: 1; box-sizing: border-box; }
+
+/* ── Anomaly panel — 40% ── */
+.anomaly-panel {
+  flex: 2;               /* 40% of space */
+  min-width: 0;
+  box-sizing: border-box;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); overflow: hidden;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+  display: flex; flex-direction: column;
+  height: 420px;         /* explicit match to grid height */
+}
+
+/* Anomaly header — fixed */
+.anomaly-panel .panel-header {
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* Anomaly list — scrolls internally, never expands panel */
+.anomaly-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
+  box-sizing: border-box;
+  min-height: 0;         /* critical — allows flex child to shrink */
+}
+
+/* Custom dark minimal scrollbar — obsidian theme */
+.anomaly-list::-webkit-scrollbar       { width: 3px; }
+.anomaly-list::-webkit-scrollbar-track { background: transparent; }
+.anomaly-list::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 2px;
+}
+.anomaly-list::-webkit-scrollbar-thumb:hover { background: var(--dim); }
+/* Firefox */
+.anomaly-list {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
 }
 
 .panel-header {
@@ -829,7 +918,17 @@ body::before {
   .wrap         { padding:14px 12px; }
   .stats-bar    { grid-template-columns:repeat(3,1fr); gap:7px; }
   .heatmap-grid { grid-template-columns:repeat(2,1fr); }
-  .bottom-grid  { grid-template-columns:1fr; }
+  /* Stack bottom panels vertically, release fixed height */
+  .bottom-grid  {
+    flex-direction: column;
+    height: auto;
+  }
+  .corr-panel {
+    position: static;    /* no sticky on mobile */
+    height: 340px;
+    flex: none;
+  }
+  .anomaly-panel { height: 300px; flex: none; }
   .forge-panel  { flex-direction:column; align-items:flex-start; gap:14px; }
   .forge-stats  { gap:14px; flex-wrap:wrap; }
   .detail-body  { grid-template-columns:repeat(2,1fr); }
