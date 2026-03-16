@@ -290,14 +290,74 @@ body::before {
 
 /* ── Skeleton shimmer ───────────────────────────────────────────── */
 @keyframes shimmer {
-  0%   { background-position:-400px 0; }
-  100% { background-position: 400px 0; }
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
 }
+
+/* Base shimmer — safe for stats bar existing usage */
 .skeleton {
-  background: linear-gradient(90deg,#131820 25%,#1c2535 50%,#131820 75%);
+  background: linear-gradient(90deg, #0D1017 25%, #161D27 50%, #0D1017 75%);
   background-size: 800px 100%;
   animation: shimmer 1.6s infinite;
-  border-radius: 2px; display:inline-block; min-width:40px;
+  border-radius: 2px;
+  display: inline-block;
+  min-width: 40px;
+}
+
+/* ── CSS-only loading state on heatmap cards ──
+   Add .loading to card → pseudo-elements draw skeleton bars
+   Remove .loading on first data tick → elements show normally
+   Zero innerHTML conflict, zero JS complexity               */
+
+.heatmap-card.loading .hm-price,
+.heatmap-card.loading .hm-change {
+  color: transparent;  /* hide placeholder — in case text bleeds */
+  position: relative;
+}
+
+/* Price bar — matches hm-price size ~90×16px */
+.heatmap-card.loading .hm-price::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 88px; height: 16px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #0D1017 25%, #161D27 50%, #0D1017 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+/* Change bar — matches hm-change size ~60×10px */
+.heatmap-card.loading .hm-change::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 60px; height: 10px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #0D1017 25%, #161D27 50%, #0D1017 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+/* Badge — small pill skeleton */
+.heatmap-card.loading .hm-badge {
+  color: transparent;
+  background: linear-gradient(90deg, #0D1017 25%, #161D27 50%, #0D1017 75%) !important;
+  background-size: 800px 100% !important;
+  animation: shimmer 1.6s infinite;
+  border-color: transparent !important;
+  width: 36px;
+}
+
+/* Meta spans — narrow bars */
+.heatmap-card.loading .hm-meta span {
+  color: transparent;
+  background: linear-gradient(90deg, #0D1017 25%, #161D27 50%, #0D1017 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s infinite;
+  border-radius: 2px;
+  display: inline-block;
+  width: 44px; height: 7px;
 }
 
 /* ── Detail panel (expandable) ──────────────────────────────────── */
@@ -789,7 +849,23 @@ body::before {
 }
 .sc-tab.active       { color:var(--accent); border-bottom-color:var(--accent); }
 .sc-tab:hover:not(.active) { color:var(--text); }
-.sc-preview { padding:18px; background:var(--bg); }
+.sc-preview {
+  padding:18px; background:var(--bg);
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+/* Custom dark scrollbar on share modal preview */
+.sc-preview::-webkit-scrollbar       { width: 3px; }
+.sc-preview::-webkit-scrollbar-track { background: transparent; }
+.sc-preview::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+.sc-preview::-webkit-scrollbar-thumb:hover { background: var(--dim); }
+.sc-preview { scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
+
+/* Also apply to the sc-modal itself for overflow safety */
+.sc-modal::-webkit-scrollbar       { width: 3px; }
+.sc-modal::-webkit-scrollbar-track { background: transparent; }
+.sc-modal::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 .sc-card { border-radius:var(--r-sm); overflow:hidden; border:1px solid var(--border2); font-family:var(--mono); }
 .sc-card-header {
   background:linear-gradient(135deg,#07080e,#0b1120);
@@ -1035,7 +1111,19 @@ body::before {
   .heatmap-grid { grid-template-columns:1fr 1fr; }
   .forge-stats  { grid-template-columns:repeat(2,1fr); }
   .stat-value   { font-size:17px; }
-  /* Detail panel already vertical at 600px — just tighten fonts further */
+  /* Detail panel — strict single-column stack + taller chart */
+  .detail-sparkline  { height: 100px; }   /* more breathing room */
+  .detail-body       { flex-direction: column; }
+  .detail-stat {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 10px 14px;
+  }
+  .detail-stat-label { flex: none; margin-bottom: 2px; }
+  .detail-stat-right { text-align: left; width: 100%; }
+  .detail-stat-value { text-align: left; font-size: 18px; }
+  .detail-stat-sub   { text-align: left; }
   .detail-symbol     { font-size: 13px; }
   .detail-price      { font-size: 24px; }
   .detail-stat-label { font-size: 7px; }
@@ -1647,15 +1735,24 @@ function renderHeatmap() {
     const gainLoss = s.prevPrice ? (isUp ? 'gain' : 'loss') : '';
     card.className = `heatmap-card ${tierClass} ${gainLoss} ${feed.symbol === selectedSymbol ? 'selected' : ''}`;
 
+    // Strip .loading on first real data — skeleton disappears, values show
+    const cardEl = document.getElementById(`card-${feed.symbol}`);
+    if (cardEl && cardEl.classList.contains('loading') && s.price) {
+      cardEl.classList.remove('loading');
+    }
+
     document.getElementById(`badge-${feed.symbol}`).textContent = tierLabel;
-    document.getElementById(`price-${feed.symbol}`).textContent = s.price ? `$${fmt(s.price, feed.symbol)}` : '—';
+    const priceEl = document.getElementById(`price-${feed.symbol}`);
+    priceEl.textContent = s.price ? `$${fmt(s.price, feed.symbol)}` : '—';
 
     const chgEl = document.getElementById(`change-${feed.symbol}`);
     chgEl.textContent = s.prevPrice ? `${isUp?'▲':'▼'} ${isUp?'+':''}${chg.toFixed(4)}%` : '—';
     chgEl.className   = `hm-change ${isUp ? 'up' : 'down'}`;
 
-    document.getElementById(`vol-${feed.symbol}`).textContent  = `vol: ${(s.volatility*100).toFixed(3)}%`;
-    document.getElementById(`conf-${feed.symbol}`).textContent = `±${fmt(s.confidence, feed.symbol)}`;
+    const volEl  = document.getElementById(`vol-${feed.symbol}`);
+    const confEl = document.getElementById(`conf-${feed.symbol}`);
+    volEl.textContent  = `vol: ${(s.volatility*100).toFixed(3)}%`;
+    confEl.textContent = `±${fmt(s.confidence, feed.symbol)}`;
 
     // Confidence bar — higher conf interval = less certain
     const confPct = s.price ? Math.min(100, (s.confidence / s.price) * 100000) : 0;
@@ -1744,7 +1841,7 @@ function renderCorrelation() {
   // Need ≥3 ticks per symbol
   const ready = symbols.every(s => state[s].history.length >= 3);
   if (!ready) {
-    grid.innerHTML = `<div class="corr-waiting">WAITING FOR PRICE TICKS · UPDATES IN ~15s</div>`;
+    grid.innerHTML = `<div class="corr-waiting"><span class="skeleton" style="width:220px;height:10px;display:inline-block"></span></div>`;
     return;
   }
 
@@ -2361,22 +2458,22 @@ FEEDS.forEach(feed => {
   const grid = document.getElementById('heatmap-grid');
   const card = document.createElement('div');
   card.id        = `card-${feed.symbol}`;
-  card.className = `heatmap-card vol-calm`;
+  card.className = `heatmap-card vol-calm loading`;  // .loading drives CSS skeleton
   card.onclick   = () => openDetail(feed.symbol);
   card.innerHTML = `
     <div class="hm-top">
       <div class="hm-symbol">${coinLogo(feed.symbol, 16)}${feed.symbol}</div>
-      <div class="hm-badge" id="badge-${feed.symbol}">—</div>
+      <div class="hm-badge" id="badge-${feed.symbol}"> </div>
     </div>
-    <div class="hm-price" id="price-${feed.symbol}">—</div>
-    <div class="hm-change" id="change-${feed.symbol}">—</div>
+    <div class="hm-price" id="price-${feed.symbol}"> </div>
+    <div class="hm-change" id="change-${feed.symbol}"> </div>
     <svg class="hm-spark" id="spark-${feed.symbol}" viewBox="0 0 200 28" preserveAspectRatio="none">
       <path id="sa-${feed.symbol}" fill="rgba(255,255,255,0.03)"/>
       <path id="sl-${feed.symbol}" fill="none" stroke="#333" stroke-width="1"/>
     </svg>
     <div class="hm-meta">
-      <span id="vol-${feed.symbol}">vol —</span>
-      <span id="conf-${feed.symbol}">±—</span>
+      <span id="vol-${feed.symbol}"> </span>
+      <span id="conf-${feed.symbol}"> </span>
     </div>
     <div class="conf-bar"><div class="conf-fill" id="cf-${feed.symbol}" style="width:0%"></div></div>
     <button class="hm-share-btn" onclick="event.stopPropagation();openShareCard('asset','${feed.symbol}')">⬡</button>
