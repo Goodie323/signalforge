@@ -51,98 +51,10 @@
   --r-sm:      6px;
   --r-md:      10px;
   --r-lg:      14px;
-  /* Theme transition speed */
-  --theme-t:   0.22s;
-  /* Glass card surface — switches with theme */
-  --glass-bg:      rgba(8,11,16,0.82);
-  --glass-eq-bg:   rgba(0,0,0,0.20);
-  --overlay-bg:    rgba(0,0,0,0.85);
-  --dot-grid:      rgba(255,255,255,0.04);
-  --top-glow:      rgba(0,255,204,0.04);
 }
 
-/* ── Light mode token overrides ── */
-[data-theme="light"] {
-  --bg:       #F0F2F5;
-  --surface:  #FFFFFF;
-  --surface2: #F7F8FA;
-  --border:   #DDE1E7;
-  --border2:  #C8CDD6;
-  --muted:    #E2E5EA;
-  --text:     #3A4454;
-  --dim:      #7A8899;
-  --white:    #0A0C0F;
-  /* Accents stay the same — Neon Mint on light needs slight darken */
-  --accent:   #00C49A;
-  --accent2:  #0090CC;
-  --warn:     #E84040;
-  /* Light mode glass surfaces */
-  --glass-bg:      rgba(255,255,255,0.88);
-  --glass-eq-bg:   rgba(0,0,0,0.04);
-  --overlay-bg:    rgba(0,0,0,0.55);
-  --dot-grid:      rgba(0,0,0,0.04);
-  --top-glow:      rgba(0,196,154,0.06);
-}
 
-/* ── Light mode component overrides ── */
-[data-theme="light"] body::before {
-  opacity: 0.6;  /* soften dot grid on light */
-}
-[data-theme="light"] .price-block::before,
-[data-theme="light"] .chart-block::before,
-[data-theme="light"] .convergence-block::before {
-  opacity: 0.5;
-}
-[data-theme="light"] .voter-card {
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
-}
-[data-theme="light"] .voter-card.yes { box-shadow: 0 2px 12px rgba(0,196,154,0.15), inset 0 0 0 1px rgba(0,196,154,0.2); }
-[data-theme="light"] .voter-card.no  { box-shadow: 0 2px 12px rgba(232,64,64,0.12), inset 0 0 0 1px rgba(232,64,64,0.18); }
-[data-theme="light"] .pnl-block,
-[data-theme="light"] .metric-block,
-[data-theme="light"] .log-block,
-[data-theme="light"] .equity-block,
-[data-theme="light"] .convergence-block,
-[data-theme="light"] .countdown-block {
-  box-shadow: 0 1px 8px rgba(0,0,0,0.08);
-}
-[data-theme="light"] .conn-banner.connected {
-  background: rgba(0,196,154,0.06);
-  border-color: rgba(0,196,154,0.3);
-}
-[data-theme="light"] .section-title::after { background: var(--border); }
-[data-theme="light"] .log-row:hover { background: rgba(0,0,0,0.03); }
-[data-theme="light"] .check-dot { border-color: var(--border2); color: var(--dim); }
-[data-theme="light"] .progress-bar { background: var(--border); }
-[data-theme="light"] .equity-svg path { opacity: 0.8; }
-[data-theme="light"] .pair-menu {
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08),
-              inset 0 1px 0 rgba(255,255,255,0.9);
-}
-[data-theme="light"] .pair-option:hover:not(.disabled) {
-  background: var(--muted);
-}
-[data-theme="light"] .pair-btn { background: var(--surface); }
-[data-theme="light"] .pair-btn.open { border-color: var(--accent); }
 
-/* Suppress transitions on initial load — added/removed by JS */
-.preload *, .preload *::before, .preload *::after {
-  transition: none !important;
-}
-
-/* Smooth transition on theme switch for all relevant properties */
-*, *::before, *::after {
-  transition:
-    background-color var(--theme-t) ease,
-    border-color     var(--theme-t) ease,
-    color            var(--theme-t) ease,
-    box-shadow       var(--theme-t) ease;
-}
-/* But NOT transitions on transforms / opacity for animations */
-.ticker-inner, .status-dot, .logo-icon,
-.entry-banner::before, .voter-card::before,
-.check-dot, .progress-fill, .countdown-bar-fill,
-.skeleton { transition: none !important; }
 
 * { margin:0; padding:0; box-sizing:border-box; }
 
@@ -168,7 +80,7 @@ body::before {
 body::after {
   content: '';
   position: fixed; top: 0; left: 0; right: 0; height: 240px;
-  background: radial-gradient(ellipse 80% 100% at 50% 0%, var(--top-glow) 0%, transparent 70%);
+  background: radial-gradient(ellipse 80% 100% at 50% 0%, rgba(0,255,204,0.04) 0%, transparent 70%);
   pointer-events: none; z-index: 0;
 }
 
@@ -180,7 +92,7 @@ body::after {
 
 /* ── Glass surface mixin ── */
 .glass {
-  background: var(--glass-bg);
+  background: rgba(8,11,16,0.82);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
@@ -425,7 +337,7 @@ body::after {
 .price-hero { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
 
 .price-block, .chart-block {
-  background: var(--glass-bg);
+  background: rgba(8,11,16,0.82);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
@@ -469,7 +381,7 @@ body::after {
 .voters-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
 
 .voter-card {
-  background: var(--glass-bg);
+  background: rgba(8,11,16,0.82);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
@@ -530,7 +442,7 @@ body::after {
 .signal-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px; }
 
 .metric-block {
-  background: var(--glass-bg);
+  background: rgba(8,11,16,0.82);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border); border-radius: var(--r-md);
   padding: 18px; position: relative;
@@ -558,7 +470,7 @@ body::after {
 
 /* ── Convergence Tracker ── */
 .convergence-block {
-  background: var(--glass-bg);
+  background: rgba(8,11,16,0.82);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border); border-radius: var(--r-md);
   padding: 18px 22px; margin-bottom: 16px;
@@ -591,7 +503,7 @@ body::after {
 .progress-bar  { height:1px; background:var(--border); position:relative; overflow:hidden; border-radius:1px; }
 .progress-fill { height:100%; background:linear-gradient(90deg,var(--accent2),var(--accent)); transition:width 1s linear; }
 .countdown-block {
-  background: var(--glass-bg);
+  background: rgba(8,11,16,0.82);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border); border-radius: var(--r-md);
   padding: 16px 22px; margin-bottom: 16px;
@@ -615,7 +527,7 @@ body::after {
 
 /* ── Equity Curve ── */
 .equity-block {
-  background: var(--glass-bg);
+  background: rgba(8,11,16,0.82);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border); border-radius: var(--r-md);
   overflow: hidden; margin-bottom: 16px;
@@ -624,7 +536,7 @@ body::after {
 .equity-header {
   padding: 12px 18px; border-bottom: 1px solid var(--border);
   display: flex; justify-content: space-between; align-items: center;
-  background: var(--glass-eq-bg);
+  background: rgba(0,0,0,0.2);
 }
 .equity-title  { font-size:9px; font-family:var(--mono); letter-spacing:2.5px; text-transform:uppercase; color:var(--dim); }
 .equity-return { font-size:13px; font-family:var(--mono); font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
@@ -634,7 +546,7 @@ body::after {
 /* ── PnL grid ── */
 .pnl-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px; }
 .pnl-block {
-  background: var(--glass-bg);
+  background: rgba(8,11,16,0.82);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border); border-radius: var(--r-md);
   padding: 16px 18px;
@@ -648,7 +560,7 @@ body::after {
 
 /* ── Signal Log ── */
 .log-block {
-  background: var(--glass-bg);
+  background: rgba(8,11,16,0.82);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border); border-radius: var(--r-md);
   overflow: hidden;
@@ -657,7 +569,7 @@ body::after {
 .log-header {
   padding: 12px 18px; border-bottom: 1px solid var(--border);
   display: flex; justify-content: space-between; align-items: center;
-  background: var(--glass-eq-bg);
+  background: rgba(0,0,0,0.2);
 }
 .log-title { font-size:9px; font-family:var(--mono); letter-spacing:2.5px; text-transform:uppercase; color:var(--dim); }
 .log-count { font-size:9px; font-family:var(--mono); color:var(--accent); letter-spacing:1px; }
@@ -720,7 +632,7 @@ body::after {
 /* ── Share cards (preserved) ── */
 .share-modal-overlay {
   display:none; position:fixed; inset:0; z-index:400;
-  background:var(--overlay-bg); backdrop-filter:blur(8px);
+  background:rgba(0,0,0,0.85); backdrop-filter:blur(8px);
   align-items:center; justify-content:center;
 }
 .share-modal-overlay.open { display:flex; }
@@ -778,7 +690,7 @@ body::after {
 .sc-action-btn.close { background:var(--bg); color:var(--dim); border-color:var(--border); flex:0; padding:9px 13px; }
 .sf-share-btn { display:flex; align-items:center; gap:7px; padding:7px 14px; background:rgba(0,255,204,0.05); border:1px solid rgba(0,255,204,0.18); border-radius:var(--r-xs); color:var(--accent); font-size:9px; font-family:var(--mono); letter-spacing:2px; cursor:pointer; transition:all 0.2s; margin-left:auto; }
 .sf-share-btn:hover { background:rgba(0,255,204,0.10); border-color:rgba(0,255,204,0.4); }
-.sf-overlay { display:none; position:fixed; inset:0; z-index:300; background:var(--overlay-bg); backdrop-filter:blur(8px); align-items:center; justify-content:center; }
+.sf-overlay { display:none; position:fixed; inset:0; z-index:300; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center; }
 .sf-overlay.open { display:flex; }
 .sf-modal { width:480px; max-width:95vw; background:var(--surface); border:1px solid var(--border2); border-radius:var(--r-lg); overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,0.85); }
 .sf-modal-header { padding:12px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.3); }
@@ -870,7 +782,7 @@ body::after {
   border: 1px solid var(--border);
   margin-bottom: 16px;
   padding: 20px 24px;
-  background: var(--glass-bg);
+  background: rgba(8,11,16,0.82);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 4px 24px rgba(0,0,0,0.4);
   transition: border-color 0.4s, box-shadow 0.4s;
@@ -1063,18 +975,7 @@ body::after {
 }
 </style>
 </head>
-<body class="preload">
-<script>
-// Remove preload class after first paint to enable transitions
-window.addEventListener('load', () => {
-  requestAnimationFrame(() => document.body.classList.remove('preload'));
-});
-// Apply saved theme before render to prevent flash
-(function() {
-  const t = localStorage.getItem('sf-theme');
-  if (t === 'light') document.documentElement.setAttribute('data-theme','light');
-})();
-</script>
+<body>
 <div class="container">
 
   <!-- Header -->
@@ -1088,12 +989,6 @@ window.addEventListener('load', () => {
     </div>
     <div class="header-right">
       <a href="pulse.html" class="nav-link">◈ PULSE</a>
-      <button id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode" style="
-        padding:6px 10px; border:1px solid var(--border); border-radius:var(--r-xs);
-        background:none; color:var(--dim); font-size:14px; cursor:pointer;
-        transition:all 0.18s; line-height:1; display:flex; align-items:center;
-      " onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
-        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dim)'">☀</button>
       <span style="font-size:10px;color:var(--dim);letter-spacing:1px;padding:6px 0" id="user-display"></span>
       <button onclick="signOut()" style="padding:6px 14px;border:1px solid var(--border);border-radius:var(--r-xs);background:none;color:var(--dim);font-size:10px;letter-spacing:2px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--warn)';this.style.color='var(--warn)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dim)'">SIGN OUT</button>
       <div class="status-pill">
@@ -2269,31 +2164,7 @@ fetchBotStats();
 setInterval(fetchDOGE,     5000);   // Pyth price every 5s
 setInterval(fetchBotStats, 15000);  // Bot stats every 15s
 
-// ── THEME TOGGLE ─────────────────────────────────────────────────────
-(function initTheme() {
-  const saved = localStorage.getItem('sf-theme') || 'dark';
-  applyTheme(saved);
-})();
 
-function applyTheme(theme) {
-  const html = document.documentElement;
-  const btn  = document.getElementById('theme-toggle');
-  if (theme === 'light') {
-    html.setAttribute('data-theme', 'light');
-    if (btn) btn.textContent = '🌙';
-    if (btn) btn.title = 'Switch to dark mode';
-  } else {
-    html.removeAttribute('data-theme');
-    if (btn) btn.textContent = '☀';
-    if (btn) btn.title = 'Switch to light mode';
-  }
-  localStorage.setItem('sf-theme', theme);
-}
-
-function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme');
-  applyTheme(current === 'light' ? 'dark' : 'light');
-}
 
 // ── Pair dropdown ────────────────────────────────────────────────────
 function togglePairMenu() {
