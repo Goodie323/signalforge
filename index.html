@@ -38,9 +38,9 @@
   --surface2:  #0C0F16;
   --border:    #1A1D23;
   --border2:   #242830;
-  --accent:    #00FFCC;   /* Neon Mint */
-  --accent2:   #00BFFF;   /* Cyan */
-  --warn:      #FF5F5F;   /* Desaturated Coral */
+  --accent:    #00FFCC;
+  --accent2:   #00BFFF;
+  --warn:      #FF5F5F;
   --muted:     #2A3342;
   --text:      #B8C8D8;
   --dim:       #445566;
@@ -51,7 +51,45 @@
   --r-sm:      6px;
   --r-md:      10px;
   --r-lg:      14px;
+  /* Theme transition speed */
+  --theme-t:   0.22s;
 }
+
+/* ── Light mode token overrides ── */
+[data-theme="light"] {
+  --bg:       #F0F2F5;
+  --surface:  #FFFFFF;
+  --surface2: #F7F8FA;
+  --border:   #DDE1E7;
+  --border2:  #C8CDD6;
+  --muted:    #E2E5EA;
+  --text:     #3A4454;
+  --dim:      #7A8899;
+  --white:    #0A0C0F;
+  /* Accents stay the same — Neon Mint on light needs slight darken */
+  --accent:   #00C49A;
+  --accent2:  #0090CC;
+  --warn:     #E84040;
+}
+
+/* Suppress transitions on initial load — added/removed by JS */
+.preload *, .preload *::before, .preload *::after {
+  transition: none !important;
+}
+
+/* Smooth transition on theme switch for all relevant properties */
+*, *::before, *::after {
+  transition:
+    background-color var(--theme-t) ease,
+    border-color     var(--theme-t) ease,
+    color            var(--theme-t) ease,
+    box-shadow       var(--theme-t) ease;
+}
+/* But NOT transitions on transforms / opacity for animations */
+.ticker-inner, .status-dot, .logo-icon,
+.entry-banner::before, .voter-card::before,
+.check-dot, .progress-fill, .countdown-bar-fill,
+.skeleton { transition: none !important; }
 
 * { margin:0; padding:0; box-sizing:border-box; }
 
@@ -83,7 +121,8 @@ body::after {
 
 .container {
   position: relative; z-index: 1;
-  max-width: 960px; margin: 0 auto; padding: 28px 24px;
+  max-width: 1280px; margin: 0 auto; padding: 24px 32px;
+  width: 100%;
 }
 
 /* ── Glass surface mixin ── */
@@ -228,7 +267,6 @@ body::after {
 
   display: none;
   flex-direction: column;
-
   animation: menu-in 0.16s ease;
 }
 
@@ -237,7 +275,8 @@ body::after {
   to   { opacity:1; transform:translateY(0)    scale(1); }
 }
 
-.pair-menu.open { display: flex; }
+/* Use block not flex — flex children don't scroll reliably */
+.pair-menu.open { display: block; }
 
 /* Custom obsidian scrollbar */
 .pair-menu::-webkit-scrollbar       { width: 3px; }
@@ -249,13 +288,23 @@ body::after {
 
 .pair-option {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 11px 16px;        /* generous horizontal padding */
+  padding: 11px 16px;
   font-size: 11px; font-family: var(--mono); letter-spacing: 0.5px;
   cursor: pointer;
   border-bottom: 1px solid rgba(26,29,35,0.7);
-  /* Smooth hover transition */
   transition: background 0.14s ease, color 0.14s ease;
   white-space: nowrap;
+  width: 100%; box-sizing: border-box;
+}
+/* Label span — flex:1 so badge stays right-aligned */
+.pair-option > span:first-child {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .pair-option:last-child { border-bottom: none; }
 
@@ -688,6 +737,9 @@ body::after {
 .sf-btn-close { background:var(--bg); color:var(--dim); border-color:var(--border); flex:0; padding:9px 13px; }
 
 /* ── Responsive ── */
+@media (max-width:1280px) {
+  .container   { padding: 24px 24px; }
+}
 @media (max-width:900px) {
   .container   { padding:22px 16px; }
   .signal-row  { grid-template-columns:1fr 1fr; }
@@ -764,6 +816,18 @@ body::after {
 .entry-banner.standby {
   border-color: rgba(68,85,102,0.4);
 }
+
+/* ── NO BET state — converged but Kelly says skip ── */
+.entry-banner.no-bet {
+  border-color: rgba(255,140,0,0.28);
+  box-shadow: inset 0 1px 0 rgba(255,140,0,0.06), 0 4px 24px rgba(0,0,0,0.4);
+}
+.entry-banner.no-bet .entry-status-pill {
+  background: rgba(255,140,0,0.08);
+  border: 1px solid rgba(255,140,0,0.22);
+  color: #FF8C00;
+}
+.entry-banner.no-bet .entry-pill-dot { background: #FF8C00; }
 
 /* ── EXPIRED state — window closed ── */
 .entry-banner.expired {
@@ -924,7 +988,18 @@ body::after {
 }
 </style>
 </head>
-<body>
+<body class="preload">
+<script>
+// Remove preload class after first paint to enable transitions
+window.addEventListener('load', () => {
+  requestAnimationFrame(() => document.body.classList.remove('preload'));
+});
+// Apply saved theme before render to prevent flash
+(function() {
+  const t = localStorage.getItem('sf-theme');
+  if (t === 'light') document.documentElement.setAttribute('data-theme','light');
+})();
+</script>
 <div class="container">
 
   <!-- Header -->
@@ -938,8 +1013,14 @@ body::after {
     </div>
     <div class="header-right">
       <a href="pulse.html" class="nav-link">◈ PULSE</a>
+      <button id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode" style="
+        padding:6px 10px; border:1px solid var(--border); border-radius:var(--r-xs);
+        background:none; color:var(--dim); font-size:14px; cursor:pointer;
+        transition:all 0.18s; line-height:1; display:flex; align-items:center;
+      " onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dim)'">☀</button>
       <span style="font-size:10px;color:var(--dim);letter-spacing:1px;padding:6px 0" id="user-display"></span>
-      <button onclick="signOut()" style="padding:6px 14px;border:1px solid var(--border);background:none;color:var(--dim);font-size:10px;letter-spacing:2px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--warn)';this.style.color='var(--warn)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dim)'">SIGN OUT</button>
+      <button onclick="signOut()" style="padding:6px 14px;border:1px solid var(--border);border-radius:var(--r-xs);background:none;color:var(--dim);font-size:10px;letter-spacing:2px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--warn)';this.style.color='var(--warn)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--dim)'">SIGN OUT</button>
       <div class="status-pill">
         <div class="status-dot"></div>
         <span id="status-text">CONNECTING...</span>
@@ -1005,27 +1086,27 @@ body::after {
           </button>
           <div class="pair-menu" id="pair-menu">
             <div class="pair-option active" onclick="selectPair(this,'DOGE / USD')">
-              <span style="display:flex;align-items:center;gap:8px"><img src="https://assets.coingecko.com/coins/images/5/small/dogecoin.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> DOGE / USD</span>
+              <span><img src="https://assets.coingecko.com/coins/images/5/small/dogecoin.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> DOGE / USD</span>
               <span class="pair-live">LIVE</span>
             </div>
             <div class="pair-option disabled">
-              <span style="display:flex;align-items:center;gap:8px"><img src="https://assets.coingecko.com/coins/images/1/small/bitcoin.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> BTC / USD</span>
+              <span><img src="https://assets.coingecko.com/coins/images/1/small/bitcoin.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> BTC / USD</span>
               <span class="pair-soon">SOON</span>
             </div>
             <div class="pair-option disabled">
-              <span style="display:flex;align-items:center;gap:8px"><img src="https://assets.coingecko.com/coins/images/279/small/ethereum.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> ETH / USD</span>
+              <span><img src="https://assets.coingecko.com/coins/images/279/small/ethereum.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> ETH / USD</span>
               <span class="pair-soon">SOON</span>
             </div>
             <div class="pair-option disabled">
-              <span style="display:flex;align-items:center;gap:8px"><img src="https://assets.coingecko.com/coins/images/4128/small/solana.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> SOL / USD</span>
+              <span><img src="https://assets.coingecko.com/coins/images/4128/small/solana.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> SOL / USD</span>
               <span class="pair-soon">SOON</span>
             </div>
             <div class="pair-option disabled">
-              <span style="display:flex;align-items:center;gap:8px"><img src="https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> BNB / USD</span>
+              <span><img src="https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> BNB / USD</span>
               <span class="pair-soon">SOON</span>
             </div>
             <div class="pair-option disabled">
-              <span style="display:flex;align-items:center;gap:8px"><img src="https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> XRP / USD</span>
+              <span><img src="https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png" width="16" height="16" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'"> XRP / USD</span>
               <span class="pair-soon">SOON</span>
             </div>
           </div>
@@ -1514,6 +1595,8 @@ let countdownInterval = null;
 function startCountdown(expiryTs) {
   if (countdownInterval) clearInterval(countdownInterval);
 
+  let prevAlertOpen = null;   // track changes to alert window state
+
   function tick() {
     const now  = Math.floor(Date.now() / 1000);
     const left = Math.max(0, expiryTs - now);
@@ -1547,7 +1630,37 @@ function startCountdown(expiryTs) {
     document.getElementById('expiry-time').textContent =
       expDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    if (left === 0) clearInterval(countdownInterval);
+    // ── Push live time directly into entry banner every tick — no lag ──
+    const entryTimeEl = document.getElementById('entry-timeleft');
+    if (entryTimeEl) {
+      entryTimeEl.textContent = left > 0 ? display : 'EXPIRED';
+      // Colour matches urgency
+      entryTimeEl.style.color = left === 0    ? '#FF5F5F'
+                               : left < 600   ? '#FF5F5F'
+                               : left < 1200  ? '#FF8C00'
+                               : 'var(--accent)';
+    }
+    // Also update the window-line in the entry banner
+    const entryWindowEl = document.getElementById('entry-window-line');
+    if (entryWindowEl && alertOpen) {
+      entryWindowEl.textContent = 'Alert window OPEN · ' + display + ' remaining';
+    }
+
+    // ── Re-evaluate entry banner whenever alert window state changes ──
+    // This catches: window closing at 40min, and market expiring at 60min
+    if (alertOpen !== prevAlertOpen) {
+      prevAlertOpen = alertOpen;
+      if (lastStats) updateEntryBanner(lastStats);
+    }
+
+    if (left === 0) {
+      clearInterval(countdownInterval);
+      // Force banner to standby when market expires
+      if (lastStats) {
+        // Inject a synthetic stale-signal override — market is over
+        updateEntryBanner({ ...lastStats, streak: 0, signal: null });
+      }
+    }
   }
 
   tick();
@@ -1589,7 +1702,13 @@ function renderSignalLog(logs, wins, losses) {
     const resultClass = entry.result === 'win' ? 'win' : entry.result === 'loss' ? 'loss' : 'open';
     const resultText  = entry.result === 'win' ? '✓ WIN' : entry.result === 'loss' ? '✗ LOSS' : '● OPEN';
     const sigClass    = entry.signal === 'YES' ? 'yes' : 'no';
-    const betText     = entry.bet > 0 ? `$${entry.bet.toFixed(2)}` : '—';
+    // bet=0 with a bet_label means Kelly said skip — show explicitly
+    const isNoBetEntry = entry.bet === 0 && entry.bet_label && entry.bet_label.includes('No bet');
+    const betText      = entry.bet > 0
+      ? `$${entry.bet.toFixed(2)}`
+      : isNoBetEntry ? 'NO BET'
+      : '—';
+    const betClass     = entry.bet > 0 ? '' : isNoBetEntry ? 'style="color:var(--warn);font-size:9px"' : '';
 
     // Store entry data on row for share card
     row.dataset.time    = entry.time;
@@ -1604,7 +1723,7 @@ function renderSignalLog(logs, wins, losses) {
       <div class="log-cell log-signal ${sigClass}">${entry.signal}</div>
       <div class="log-cell log-price">$${entry.price}</div>
       <div class="log-cell log-elapsed">${entry.elapsed}m</div>
-      <div class="log-cell log-bet">${betText}</div>
+      <div class="log-cell log-bet" ${betClass}>${betText}</div>
       <div class="log-cell log-result ${resultClass}">${resultText}</div>
       <div class="log-share-icon" onclick="openHistoryShare(this.parentElement)">⬡ SHARE</div>
     `;
@@ -1826,22 +1945,35 @@ function updateEntryBanner(stats) {
   const awEl      = document.getElementById('alert-window');
   const alertOpen = awEl ? awEl.textContent.trim() === 'Open' : false;
 
-  // Countdown display for time-left stat
-  const cdEl     = document.getElementById('countdown-digits');
-  const timeLeft = cdEl ? cdEl.textContent : '—';
+  // Time left is owned by the countdown tick (updates every second)
+  // updateEntryBanner only sets colour/state — tick sets the actual value
 
   // Live price for threshold comparison
   const price  = priceHistory[priceHistory.length - 1] || 0;
   const above  = threshold ? price >= threshold : null;
 
   // ── State logic ──
-  const converged = streak >= 3;
-  const hasSignal = sig === 'YES' || sig === 'NO';
-  const isEnter   = hasSignal && converged && alertOpen;
+  const converged  = streak >= 3;
+  const hasSignal  = sig === 'YES' || sig === 'NO';
+
+  // Bet fields — resolve before state branching
+  const hasBet    = 'last_bet' in stats;
+  const betAmt    = hasBet ? stats.last_bet : (stats.next_bet || stats.kelly_bet || null);
+  const lastLog   = stats.signal_log && stats.signal_log.length > 0
+    ? stats.signal_log[stats.signal_log.length - 1] : null;
+  const betLabel  = (lastLog && lastLog.bet_label) ? lastLog.bet_label : '';
+  const isNoBet   = converged && hasSignal && alertOpen &&
+    ((hasBet && stats.last_bet === 0) || betLabel.includes('No bet') || betLabel.includes('🚫'));
+  const tierShort = betLabel.includes('Full')    ? '🔥 Full Kelly'
+                  : betLabel.includes('Half')    ? '⚡ Half Kelly'
+                  : betLabel.includes('Quarter') ? '💧 Quarter Kelly'
+                  : betAmt > 0 ? `${((betAmt/(stats.bankroll||100))*100).toFixed(1)}% bankroll` : '';
+
+  const isEnter   = hasSignal && converged && alertOpen && !isNoBet;
   const isExpired = hasSignal && converged && !alertOpen;
 
   banner.classList.add('visible');
-  banner.classList.remove('enter','standby','expired','yes-signal','no-signal');
+  banner.classList.remove('enter','no-bet','standby','expired','yes-signal','no-signal');
 
   const setEl = (id, text, color) => {
     const el = document.getElementById(id);
@@ -1859,22 +1991,55 @@ function updateEntryBanner(stats) {
     const thrLine = document.getElementById('entry-threshold-line');
     if (thrLine && threshold) {
       thrLine.textContent = 'Threshold $' + threshold.toFixed(6) + ' · DOGE ' + (above ? '▲ above' : '▼ below');
-      thrLine.className   = 'entry-meta ' + (above ? 'above' : 'below');
+      const threshGood = (sig === 'YES' && above) || (sig === 'NO' && !above);
+      thrLine.className = 'entry-meta ' + (threshGood ? 'above' : 'below');
     }
-    setEl('entry-window-line', 'Alert window OPEN · ' + timeLeft + ' remaining', 'var(--accent)');
-    setEl('entry-voters-line', (stats.votes && stats.votes.yes ? stats.votes.yes : 3) + '/3 voters agree');
-    setEl('entry-prob',        prob ? (prob*100).toFixed(1)+'%' : '—');
-
+    setEl('entry-window-line', 'Alert window OPEN', 'var(--accent)');
+    const winVotes = sig === 'YES'
+      ? (stats.votes && stats.votes.yes ? stats.votes.yes : 3)
+      : (stats.votes && stats.votes.no  ? stats.votes.no  : 3);
+    setEl('entry-voters-line', winVotes + '/3 voters agree · Signal: ' + sig);
+    setEl('entry-prob', prob ? (prob*100).toFixed(1)+'%' : '—');
     const edgeEl = document.getElementById('entry-edge');
     if (edgeEl) {
-      edgeEl.textContent  = edge ? (edge>0?'+':'') + edge.toFixed(1)+'%' : '—';
-      edgeEl.className    = 'entry-stat-val ' + (edge >= 0 ? 'green' : 'warn');
+      edgeEl.textContent = edge ? (edge>0?'+':'') + edge.toFixed(1)+'%' : '—';
+      edgeEl.className   = 'entry-stat-val ' + (edge >= 0 ? 'green' : 'warn');
     }
-    const betAmt = stats.next_bet || stats.kelly_bet || stats.bet || null;
-    setEl('entry-bet',         betAmt ? '$' + betAmt.toFixed(2) : '—', betAmt ? '#00FFCC' : 'var(--dim)');
-    setEl('entry-timeleft',    timeLeft, 'var(--accent)');
+    setEl('entry-bet', betAmt > 0 ? '$' + betAmt.toFixed(2) : '—', betAmt > 0 ? '#00FFCC' : 'var(--dim)');
+    const betStatSub = document.querySelector('#entry-bet')?.closest('.entry-stat')?.querySelector('.entry-stat-label');
+    if (betStatSub) betStatSub.textContent = tierShort || 'Bet Size';
+    // entry-timeleft colour set here, value owned by countdown tick
+    const etEl1 = document.getElementById('entry-timeleft');
+    if (etEl1) etEl1.style.color = 'var(--accent)';
     const shareBtn = document.getElementById('entry-share-btn');
     if (shareBtn) shareBtn.classList.remove('hidden');
+
+  } else if (isNoBet) {
+    // Signal converged + window open BUT Kelly says skip — distinct state
+    banner.classList.add('no-bet', sig === 'YES' ? 'yes-signal' : 'no-signal');
+    setEl('entry-status-text', 'NO BET');
+    setEl('entry-tag',         'Signal converged but edge below Kelly minimum — skip this market');
+    setEl('entry-direction',   sig,  'var(--dim)');
+    const thrLine = document.getElementById('entry-threshold-line');
+    if (thrLine && threshold) {
+      thrLine.textContent = 'Threshold $' + threshold.toFixed(6);
+      thrLine.className   = 'entry-meta';
+    }
+    setEl('entry-window-line', 'Alert window OPEN · Signal: ' + sig, 'var(--dim)');
+    setEl('entry-voters-line', 'Kelly sized below $3 minimum — no position');
+    setEl('entry-prob', prob ? (prob*100).toFixed(1)+'%' : '—');
+    const edgeEl = document.getElementById('entry-edge');
+    if (edgeEl) {
+      edgeEl.textContent = edge ? (edge>0?'+':'') + edge.toFixed(1)+'%' : '—';
+      edgeEl.className   = 'entry-stat-val ' + (edge >= 0 ? '' : 'warn');
+    }
+    setEl('entry-bet', 'SKIP', 'var(--dim)');
+    const betStatSub = document.querySelector('#entry-bet')?.closest('.entry-stat')?.querySelector('.entry-stat-label');
+    if (betStatSub) betStatSub.textContent = 'Weak edge';
+    const etEl1b = document.getElementById('entry-timeleft');
+    if (etEl1b) etEl1b.style.color = 'var(--dim)';
+    const shareBtn = document.getElementById('entry-share-btn');
+    if (shareBtn) shareBtn.classList.add('hidden');
 
   } else if (isExpired) {
     banner.classList.add('expired');
@@ -1888,7 +2053,8 @@ function updateEntryBanner(stats) {
     setEl('entry-prob',        '—');
     setEl('entry-edge',        '—');
     setEl('entry-bet',         '—', 'var(--dim)');
-    setEl('entry-timeleft',    timeLeft, '#FF5F5F');
+    const etEl2 = document.getElementById('entry-timeleft');
+    if (etEl2) etEl2.style.color = '#FF5F5F';
     const shareBtn = document.getElementById('entry-share-btn');
     if (shareBtn) shareBtn.classList.add('hidden');
 
@@ -1912,9 +2078,11 @@ function updateEntryBanner(stats) {
       edgeEl.textContent = edge ? (edge>0?'+':'') + edge.toFixed(1)+'%' : '—';
       edgeEl.className   = 'entry-stat-val';
     }
-    const betAmtS = stats.next_bet || stats.kelly_bet || stats.bet || null;
-    setEl('entry-bet',         betAmtS ? '$' + betAmtS.toFixed(2) : '—', 'var(--dim)');
-    setEl('entry-timeleft',    timeLeft, 'var(--text)');
+    const betAmtS  = ('last_bet' in stats) ? stats.last_bet : (stats.next_bet || null);
+    // During standby: 0.0 just means awaiting — don't say NO BET
+    setEl('entry-bet', betAmtS > 0 ? '$' + betAmtS.toFixed(2) : '—', 'var(--dim)');
+    const etEl3 = document.getElementById('entry-timeleft');
+    if (etEl3) etEl3.style.color = 'var(--text)';
     const shareBtn = document.getElementById('entry-share-btn');
     if (shareBtn) shareBtn.classList.add('hidden');
   }
@@ -1948,18 +2116,37 @@ function updatePnL(stats) {
   dEl.textContent = `${daily >= 0 ? '+' : ''}$${daily.toFixed(2)}`;
   dEl.className   = `pnl-value ${daily >= 0 ? 'pos' : 'neg'}`;
 
-  // Next bet size — from Kelly calculation
-  const nextBet = stats.next_bet || stats.kelly_bet || stats.bet || null;
-  const nbEl    = document.getElementById('next-bet');
-  const nbSub   = document.getElementById('next-bet-sub');
+  // last_bet resets to 0.0 at new market — only treat as "no bet" when a signal fired this market
+  const hasBetPnl  = 'last_bet' in stats;
+  const nextBet    = hasBetPnl ? stats.last_bet : (stats.next_bet || null);
+  const signalFired = stats.last_signal && stats.last_signal !== '';
+  const noBetPnl   = hasBetPnl && stats.last_bet === 0 && signalFired;
+  // Tier label from last signal_log entry
+  const lastLogPnl = stats.signal_log && stats.signal_log.length > 0
+    ? stats.signal_log[stats.signal_log.length - 1] : null;
+  const betLblPnl  = (lastLogPnl && lastLogPnl.bet_label) ? lastLogPnl.bet_label : '';
+  const tierPnl    = betLblPnl.includes('Full')    ? '🔥 Full Kelly'
+                   : betLblPnl.includes('Half')    ? '⚡ Half Kelly'
+                   : betLblPnl.includes('Quarter') ? '💧 Quarter Kelly'
+                   : '';
+  const nbEl  = document.getElementById('next-bet');
+  const nbSub = document.getElementById('next-bet-sub');
   if (nbEl) {
-    if (nextBet && nextBet > 0) {
+    if (noBetPnl) {
+      nbEl.textContent = 'NO BET';
+      nbEl.className   = 'pnl-value';
+      nbEl.style.color = 'var(--warn)';
+      if (nbSub) nbSub.textContent = 'Kelly < $3 minimum';
+    } else if (nextBet && nextBet > 0) {
       nbEl.textContent = '$' + nextBet.toFixed(2);
       nbEl.className   = 'pnl-value pos';
-      if (nbSub) nbSub.textContent = `${((nextBet / (stats.bankroll || 100)) * 100).toFixed(1)}% of bankroll`;
+      nbEl.style.color = '';
+      if (nbSub) nbSub.textContent = tierPnl || ((nextBet / (stats.bankroll || 100)) * 100).toFixed(1) + '% of bankroll';
     } else {
       nbEl.textContent = '—';
-      if (nbSub) nbSub.textContent = 'Kelly sized';
+      nbEl.className   = 'pnl-value pos';
+      nbEl.style.color = '';
+      if (nbSub) nbSub.textContent = 'Kelly sized · awaiting signal';
     }
   }
   // Ticker
@@ -1975,6 +2162,32 @@ fetchBotStats();
 
 setInterval(fetchDOGE,     5000);   // Pyth price every 5s
 setInterval(fetchBotStats, 15000);  // Bot stats every 15s
+
+// ── THEME TOGGLE ─────────────────────────────────────────────────────
+(function initTheme() {
+  const saved = localStorage.getItem('sf-theme') || 'dark';
+  applyTheme(saved);
+})();
+
+function applyTheme(theme) {
+  const html = document.documentElement;
+  const btn  = document.getElementById('theme-toggle');
+  if (theme === 'light') {
+    html.setAttribute('data-theme', 'light');
+    if (btn) btn.textContent = '🌙';
+    if (btn) btn.title = 'Switch to dark mode';
+  } else {
+    html.removeAttribute('data-theme');
+    if (btn) btn.textContent = '☀';
+    if (btn) btn.title = 'Switch to light mode';
+  }
+  localStorage.setItem('sf-theme', theme);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  applyTheme(current === 'light' ? 'dark' : 'light');
+}
 
 // ── Pair dropdown ────────────────────────────────────────────────────
 function togglePairMenu() {
