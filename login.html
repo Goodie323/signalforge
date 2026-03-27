@@ -737,7 +737,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 // ── Fetch live bot stats for explainer sidebar ────────────────────────
 (async () => {
   try {
-    const res   = await fetch('https://signalforge-production-bc9d.up.railway.app/stats', {
+    const res   = await fetch('https://first-bot-production-1172.up.railway.app/', {
       cache: 'no-store',
       signal: AbortSignal.timeout(4000)
     });
