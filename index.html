@@ -227,8 +227,9 @@ body::after {
 /* Menu — breaks container, overlays dashboard freely */
 .pair-menu {
   position: absolute;
-  top: calc(100% + 8px);   /* 8px gap between button and menu */
-  right: 0;
+  top: calc(100% + 8px);
+  left: 0;   /* 8px gap between button and menu */
+  right: auto;
   width: 280px;             /* fixed width — stable on all viewports */
   z-index: 999;             /* high-altitude — above all dashboard modules */
 
@@ -365,8 +366,7 @@ body::after {
 }
 
 /* ── Price hero ── */
-.price-hero { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
-
+.price-hero { display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:12px; margin-bottom:16px; }
 .price-block, .chart-block {
   background: rgba(8,11,16,0.82);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
@@ -378,6 +378,8 @@ body::after {
 /* Price block specifically needs overflow:visible so dropdown escapes card bounds */
 .price-block {
   overflow: visible;
+  position: relative;
+  z-index: 10;
 }
 /* Preserve the top accent line via a child element instead of ::before on overflow:visible */
 .price-block::before {
@@ -1012,6 +1014,30 @@ body::after {
   .entry-stat   { padding: 7px 8px; min-width: unset; }
   .entry-stat-val { font-size: 12px; }
 }
+@media (max-width: 768px) {
+  /* Forces the Hero sections to stack so the card has full width */
+  .price-hero { 
+    display: flex !important; 
+    flex-direction: column !important; 
+  }
+
+  /* Anchors menu to the left so it stays on the phone screen */
+  .pair-menu {
+    right: auto !important;
+    left: 0 !important;
+    width: calc(100vw - 48px) !important;
+    max-width: 320px !important;
+    z-index: 2000 !important;
+  }
+
+  /* Breaks the 'clipping jail' of the parent card */
+  .price-block {
+    position: relative !important;
+    z-index: 1001 !important;
+    overflow: visible !important;
+  }
+}
+/* ─── END OF NEW BLOCK ─── */
 </style>
 </head>
 <body>
