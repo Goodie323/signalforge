@@ -189,147 +189,178 @@ body::after {
 /* ── Pair selector ── */
 .pair-selector { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
 
+/* Trigger button — accent bordered, glass */
 .pair-btn {
   display: flex; align-items: center; gap: 9px;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
+  background: rgba(5,7,10,0.85);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0,255,204,0.28);
   border-radius: var(--r-sm);
-  color: var(--text); font-family: var(--mono);
-  font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
-  padding: 7px 13px; cursor: pointer; transition: all 0.18s;
+  color: var(--accent); font-family: var(--mono);
+  font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  padding: 8px 14px; cursor: pointer; transition: all 0.2s;
   white-space: nowrap;
+  box-shadow: 0 0 12px rgba(0,255,204,0.07), inset 0 1px 0 rgba(255,255,255,0.04);
 }
-.pair-btn:hover { border-color: var(--accent); color: var(--accent); }
+.pair-btn:hover {
+  border-color: rgba(0,255,204,0.55);
+  background: rgba(5,7,10,0.95);
+  box-shadow: 0 0 22px rgba(0,255,204,0.15), inset 0 1px 0 rgba(255,255,255,0.06);
+}
 .pair-btn .arrow {
-  font-size: 8px; color: var(--dim);
-  transition: transform 0.22s ease; margin-left: 4px;
+  font-size: 8px; color: var(--accent); opacity: 0.65;
+  transition: transform 0.22s ease; margin-left: 2px;
 }
-.pair-btn.open .arrow { transform: rotate(180deg); }
-.pair-btn.open { border-color: var(--accent); color: var(--accent); }
+.pair-btn.open .arrow { transform: rotate(180deg); opacity: 1; }
+.pair-btn.open {
+  border-color: rgba(0,255,204,0.6);
+  background: rgba(5,7,10,0.97);
+  box-shadow: 0 0 28px rgba(0,255,204,0.20), inset 0 1px 0 rgba(255,255,255,0.06);
+}
 
-.pair-dropdown-wrap { position: relative; }
+/* Wrapper — establishes stacking context the menu floats above */
+.pair-dropdown-wrap {
+  position: relative;
+  z-index: 200;          /* above card content */
+}
 
+/* Menu — floats completely above all card content */
 .pair-menu {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 6px);
   right: 0;
-  width: 260px;
+  width: 252px;
   z-index: 9999;
 
-  background: var(--surface);
-  border: 1px solid var(--border2);
+  /* Glass-Obsidian */
+  background: rgba(5,7,10,0.97);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #2B2F36;
   border-radius: var(--r-md);
-  box-shadow:
-    0 16px 48px rgba(0,0,0,0.6),
-    0 4px 12px rgba(0,0,0,0.4),
-    inset 0 1px 0 rgba(255,255,255,0.04);
 
-  /* Scroll */
-  max-height: 320px;
+  /* Intentional shadow — visually separates from card beneath */
+  box-shadow:
+    0 0 0 1px rgba(0,255,204,0.06),          /* inner accent ring */
+    0 8px 32px rgba(0,0,0,0.75),              /* depth */
+    0 2px 8px rgba(0,0,0,0.6),               /* close shadow */
+    0 -1px 0 rgba(255,255,255,0.04) inset;   /* top highlight */
+
+  /* Fixed height — never spills below viewport on any screen */
+  max-height: 240px;
   overflow-y: auto;
   overflow-x: hidden;
 
-  /* Hidden by default */
+  /* Animated open/close — visibility not display (preserves scroll) */
   visibility: hidden;
   opacity: 0;
   transform: translateY(-6px) scale(0.98);
   pointer-events: none;
-  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s linear 0.16s;
+  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s 0.16s;
 }
 .pair-menu.open {
   visibility: visible;
   opacity: 1;
   transform: translateY(0) scale(1);
   pointer-events: all;
-  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s linear 0s;
+  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0s 0s;
 }
 
-/* Custom obsidian scrollbar */
-.pair-menu::-webkit-scrollbar       { width: 3px; }
+/* Ultra-thin dark scrollbar — terminal aesthetic */
+.pair-menu::-webkit-scrollbar       { width: 2px; }
 .pair-menu::-webkit-scrollbar-track { background: transparent; }
-.pair-menu::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-.pair-menu::-webkit-scrollbar-thumb:hover { background: var(--dim); }
-.pair-menu { scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
+.pair-menu::-webkit-scrollbar-thumb {
+  background: #1A1D23;
+  border-radius: 2px;
+}
+.pair-menu::-webkit-scrollbar-thumb:hover { background: rgba(0,255,204,0.25); }
+.pair-menu { scrollbar-width: thin; scrollbar-color: #1A1D23 transparent; }
 
-/* Section label inside dropdown */
+/* Section labels — sticky, clearly muted headers */
 .pair-menu-label {
-  padding: 10px 16px 6px;
-  font-size: 8px; font-family: var(--mono);
-  letter-spacing: 2px; text-transform: uppercase;
-  color: var(--dim);
-  border-bottom: 1px solid var(--border);
+  padding: 9px 16px 6px;
+  font-size: 7px; font-family: var(--mono);
+  letter-spacing: 2.5px; text-transform: uppercase;
+  color: rgba(68,85,102,0.7);
+  background: rgba(5,7,10,0.98);      /* slightly darker — lifts above items */
+  border-bottom: 1px solid #1A1D23;
+  position: sticky; top: 0; z-index: 2;
 }
 
+/* COMING SOON section — visually distinct divider */
+.pair-coming-soon-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #2B2F36 20%, #2B2F36 80%, transparent);
+  margin: 2px 0;
+}
+
+/* List items — 12px vertical padding as spec'd */
 .pair-option {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
+  padding: 12px 16px;           /* 12px vertical — spec */
   font-size: 11px; font-family: var(--mono);
   letter-spacing: 0.5px;
   cursor: pointer;
-  border-bottom: 1px solid var(--border);
-  transition: background 0.12s ease, color 0.12s ease;
+  border-bottom: 1px solid rgba(26,29,35,0.8);
+  transition: background 0.14s ease;
   box-sizing: border-box;
   gap: 10px;
 }
 .pair-option:last-child { border-bottom: none; }
 
-/* Coin logo + name — takes available space */
+/* Coin logo + name */
 .pair-option-label {
   display: flex; align-items: center; gap: 9px;
-  flex: 1; min-width: 0;
-  overflow: hidden;
+  flex: 1; min-width: 0; overflow: hidden;
 }
 .pair-option-label img {
   width: 20px; height: 20px;
   border-radius: 50%; flex-shrink: 0;
-  border: 1px solid var(--border2);
+  border: 1px solid #2B2F36;
 }
 .pair-option-name {
   font-size: 12px; font-weight: 600;
   color: var(--text); letter-spacing: 0.3px;
   white-space: nowrap;
 }
-/* Badge column — fixed right */
 .pair-option-badge { flex-shrink: 0; }
 
+/* LIVE row — smooth accent hover */
 .pair-option:hover:not(.disabled) {
-  background: var(--surface2);
-  color: var(--white);
+  background: rgba(0,255,204,0.05);
 }
-.pair-option:hover:not(.disabled) .pair-option-name { color: var(--white); }
+.pair-option:hover:not(.disabled) .pair-option-name { color: var(--accent); }
 
-.pair-option.active { background: rgba(0,255,204,0.04); }
+/* Active/selected row */
+.pair-option.active { background: rgba(0,255,204,0.06); }
 .pair-option.active .pair-option-name { color: var(--accent); }
 
+/* SOON rows — 0.4 opacity on everything inside, no pointer */
 .pair-option.disabled {
   cursor: not-allowed;
-  opacity: 1;  /* controlled per element below */
+  opacity: 0.4;              /* spec: 0.4 opacity — text + icons both muted */
+  pointer-events: none;      /* completely non-interactive */
 }
-.pair-option.disabled .pair-option-name {
-  color: var(--dim);
-  opacity: 0.6;
-}
-.pair-option.disabled:hover { background: transparent; }
 
 /* LIVE badge */
 .pair-live {
-  font-size: 7px; font-family: var(--mono); font-weight: 600;
-  letter-spacing: 1.5px; padding: 2px 7px; border-radius: 2px;
-  background: rgba(0,255,204,0.08);
+  font-size: 7px; font-family: var(--mono); font-weight: 700;
+  letter-spacing: 1.5px; padding: 3px 8px; border-radius: 2px;
+  background: rgba(0,255,204,0.10);
   color: var(--accent);
-  border: 1px solid rgba(0,255,204,0.2);
+  border: 1px solid rgba(0,255,204,0.28);
+  text-transform: uppercase;
 }
 
-/* SOON badge */
+/* SOON badge — ghost border, clearly inactive */
 .pair-soon {
   font-size: 7px; font-family: var(--mono);
-  letter-spacing: 1px; padding: 2px 6px; border-radius: 2px;
+  letter-spacing: 1px; padding: 3px 7px; border-radius: 2px;
   background: transparent;
   color: var(--dim);
-  border: 1px solid var(--border2);
-  opacity: 0.7;
+  border: 1px solid #2B2F36;
+  text-transform: uppercase;
   flex-shrink: 0;
 }
 
@@ -1067,8 +1098,9 @@ body::after {
               <div class="pair-option-badge"><span class="pair-live">LIVE</span></div>
             </div>
 
-            <!-- COMING SOON section -->
-            <div class="pair-menu-label" style="margin-top:4px">Coming Soon</div>
+            <!-- COMING SOON section — visually separated -->
+            <div class="pair-coming-soon-divider"></div>
+            <div class="pair-menu-label">Coming Soon</div>
             <div class="pair-option disabled">
               <div class="pair-option-label">
                 <img src="https://assets.coingecko.com/coins/images/1/small/bitcoin.png"
