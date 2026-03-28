@@ -1019,15 +1019,19 @@ body::after {
   .price-hero { 
     display: flex !important; 
     flex-direction: column !important; 
+    width: 100% !important;
   }
 
   /* Anchors menu to the left so it stays on the phone screen */
   .pair-menu {
-    right: auto !important;
-    left: 0 !important;
-    width: calc(100vw - 48px) !important;
-    max-width: 320px !important;
+    position: absolute !important;
+    left: 10px !important;   /* Small gap from left edge */
+    right: 10px !important;  /* Small gap from right edge */
+    width: auto !important;  /* Let left/right dictate width */
+    max-width: none !important;
+    top: calc(100% + 10px) !important;
     z-index: 2000 !important;
+    box-sizing: border-box !important; /* Critical: includes padding in width */
   }
 
   /* Breaks the 'clipping jail' of the parent card */
