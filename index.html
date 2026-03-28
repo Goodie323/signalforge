@@ -1014,34 +1014,37 @@ body::after {
   .entry-stat   { padding: 7px 8px; min-width: unset; }
   .entry-stat-val { font-size: 12px; }
 }
+/* ── MOBILE UI LOCK: FULL-WIDTH OVERLAY ── */
 @media (max-width: 768px) {
-  /* Forces the Hero sections to stack so the card has full width */
-  .price-hero { 
-    display: flex !important; 
-    flex-direction: column !important; 
-    width: 100% !important;
-  }
-
-  /* Anchors menu to the left so it stays on the phone screen */
-  .pair-menu {
-    position: absolute !important;
-    left: 10px !important;   /* Small gap from left edge */
-    right: 10px !important;  /* Small gap from right edge */
-    width: auto !important;  /* Let left/right dictate width */
-    max-width: none !important;
-    top: calc(100% + 10px) !important;
-    z-index: 2000 !important;
-    box-sizing: border-box !important; /* Critical: includes padding in width */
-  }
-
-  /* Breaks the 'clipping jail' of the parent card */
+  /* 1. Break the clipping jail */
   .price-block {
-    position: relative !important;
-    z-index: 1001 !important;
     overflow: visible !important;
   }
+
+  /* 2. Float the menu in the center of the screen */
+  .pair-menu {
+    position: fixed !important; 
+    left: 16px !important;       /* Consistent gap from left */
+    right: 16px !important;      /* Consistent gap from right */
+    width: auto !important;      /* Let it stretch between left and right */
+    top: 50% !important;         /* Center vertically */
+    transform: translateY(-50%) !important; /* Perfect vertical alignment */
+    max-height: 70vh !important; /* Scrollable if list is too long */
+    overflow-y: auto !important;
+    z-index: 9999 !important;    /* Above everything else */
+    background: rgba(10, 15, 25, 0.98) !important; 
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 255, 204, 0.3);
+    box-shadow: 0 0 100px rgba(0,0,0,1);
+    border-radius: 16px !important;
+  }
+
+  /* 3. Make options easier to tap */
+  .pair-option {
+    padding: 20px 16px !important;
+    font-size: 14px !important;
+  }
 }
-/* ─── END OF NEW BLOCK ─── */
 </style>
 </head>
 <body>
