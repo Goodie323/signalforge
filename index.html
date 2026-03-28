@@ -220,17 +220,17 @@ body::after {
 
 /* Wrapper — establishes stacking context the menu floats above */
 .pair-dropdown-wrap {
-  position: relative;
-  z-index: 200;          /* above card content */
+  position: relative;    /* menu is absolute relative to this */
+  z-index: 200;          /* above card content — menu at 999 floats above all */
 }
 
-/* Menu — floats completely above all card content */
+/* Menu — breaks container, overlays dashboard freely */
 .pair-menu {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);   /* 8px gap between button and menu */
   right: 0;
-  width: 252px;
-  z-index: 9999;
+  width: 280px;             /* fixed width — stable on all viewports */
+  z-index: 999;             /* high-altitude — above all dashboard modules */
 
   /* Glass-Obsidian */
   background: rgba(5,7,10,0.97);
@@ -238,19 +238,19 @@ body::after {
   border: 1px solid #2B2F36;
   border-radius: var(--r-md);
 
-  /* Intentional shadow — visually separates from card beneath */
+  /* Deep shadow — secret sauce for dark-mode terminal depth */
   box-shadow:
+    0 20px 50px rgba(0,0,0,0.80),            /* heavy depth shadow */
+    0 4px 16px rgba(0,0,0,0.60),             /* close shadow */
     0 0 0 1px rgba(0,255,204,0.06),          /* inner accent ring */
-    0 8px 32px rgba(0,0,0,0.75),              /* depth */
-    0 2px 8px rgba(0,0,0,0.6),               /* close shadow */
-    0 -1px 0 rgba(255,255,255,0.04) inset;   /* top highlight */
+    inset 0 1px 0 rgba(255,255,255,0.05);    /* top highlight */
 
-  /* Fixed height — never spills below viewport on any screen */
+  /* Fixed height — never spills regardless of item count */
   max-height: 240px;
   overflow-y: auto;
   overflow-x: hidden;
 
-  /* Animated open/close — visibility not display (preserves scroll) */
+  /* Animated — visibility not display (preserves scroll) */
   visibility: hidden;
   opacity: 0;
   transform: translateY(-6px) scale(0.98);
@@ -374,6 +374,14 @@ body::after {
   border-radius: var(--r-md);
   padding: 24px; position: relative; overflow: hidden;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.35);
+}
+/* Price block specifically needs overflow:visible so dropdown escapes card bounds */
+.price-block {
+  overflow: visible;
+}
+/* Preserve the top accent line via a child element instead of ::before on overflow:visible */
+.price-block::before {
+  border-radius: var(--r-md) var(--r-md) 0 0;  /* clip to card top corners */
 }
 .price-block::before {
   content:''; position:absolute; top:0; left:0; right:0; height:1px;
