@@ -795,6 +795,39 @@ body::after {
   .log-col-elapsed,.log-col-bet { display:none !important; }
   .conn-banner { font-size:9px; padding:7px 12px; }
   .section-title { font-size:8px; letter-spacing:1.5px; }
+
+  /* ── Pair dropdown — mobile fix ──
+     position:fixed escapes ALL containing blocks (overflow:visible, transforms, etc.)
+     Anchored to top of screen, centered, compact                                    */
+  .pair-menu {
+    position: fixed;
+    top: auto;                /* override calc(100% + ...) — irrelevant on fixed */
+    bottom: auto;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%) translateY(-6px) scale(0.98);
+    width: calc(100vw - 32px);   /* full width minus page padding */
+    max-width: 360px;
+    max-height: 55vh;            /* max 55% of screen height — never full screen */
+    z-index: 10000;              /* above everything on mobile */
+    margin-top: 0;
+  }
+  .pair-menu.open {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+
+  /* Overlay backdrop when menu is open on mobile */
+  .pair-menu-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    backdrop-filter: blur(2px);
+  }
+  .pair-menu-backdrop.open { display: block; }
+
+  /* Price block — revert to hidden on mobile, dropdown is fixed so doesn't need it */
+  .price-block { overflow: hidden; }
 }
 @media (max-width:480px) {
   .price-value     { font-size:26px; }
@@ -1221,6 +1254,8 @@ body::after {
 
           </div>
         </div>
+        <!-- Mobile backdrop — closes menu on tap outside -->
+        <div class="pair-menu-backdrop" id="pair-backdrop" onclick="togglePairMenu()"></div>
       </div>
       <div class="price-value" id="live-price">0.<span id="price-dec">——————</span></div>
       <div class="price-change" id="price-change">Fetching live price...</div>
@@ -2277,10 +2312,19 @@ setInterval(fetchBotStats, 15000);  // Bot stats every 15s
 
 // ── Pair dropdown ────────────────────────────────────────────────────
 function togglePairMenu() {
-  const menu = document.getElementById('pair-menu');
-  const btn  = document.getElementById('pair-btn');
-  const open = menu.classList.toggle('open');
+  const menu     = document.getElementById('pair-menu');
+  const btn      = document.getElementById('pair-btn');
+  const backdrop = document.getElementById('pair-backdrop');
+  const open     = menu.classList.toggle('open');
   btn.classList.toggle('open', open);
+  if (backdrop) backdrop.classList.toggle('open', open);
+  // On mobile fixed positioning — calculate position relative to button
+  if (open && window.innerWidth <= 700) {
+    const btnRect = btn.getBoundingClientRect();
+    menu.style.top = (btnRect.bottom + 10) + 'px';
+  } else {
+    menu.style.top = '';
+  }
 }
 
 function selectPair(el, pair) {
