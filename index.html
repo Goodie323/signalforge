@@ -796,37 +796,7 @@ body::after {
   .conn-banner { font-size:9px; padding:7px 12px; }
   .section-title { font-size:8px; letter-spacing:1.5px; }
 
-  /* ── Pair dropdown — mobile fix ──
-     position:fixed escapes ALL containing blocks (overflow:visible, transforms, etc.)
-     Anchored to top of screen, centered, compact                                    */
-  .pair-menu {
-    position: fixed;
-    top: auto;                /* override calc(100% + ...) — irrelevant on fixed */
-    bottom: auto;
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%) translateY(-6px) scale(0.98);
-    width: calc(100vw - 32px);   /* full width minus page padding */
-    max-width: 360px;
-    max-height: 55vh;            /* max 55% of screen height — never full screen */
-    z-index: 10000;              /* above everything on mobile */
-    margin-top: 0;
-  }
-  .pair-menu.open {
-    transform: translateX(-50%) translateY(0) scale(1);
-  }
-
-  /* Overlay backdrop when menu is open on mobile */
-  .pair-menu-backdrop {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 9999;
-    backdrop-filter: blur(2px);
-  }
-  .pair-menu-backdrop.open { display: block; }
-
-  /* Price block — revert to hidden on mobile, dropdown is fixed so doesn't need it */
+  /* Price block — overflow hidden on mobile, dropdown is fixed */
   .price-block { overflow: hidden; }
 }
 @media (max-width:480px) {
@@ -1047,72 +1017,80 @@ body::after {
   .entry-stat   { padding: 7px 8px; min-width: unset; }
   .entry-stat-val { font-size: 12px; }
 }
-/* --- PREMIUM BOTTOM-SHEET OVERLAY --- */
+/* ── Mobile pair dropdown — bottom sheet ──────────────────────── */
 @media (max-width: 768px) {
-  /* 1. Reset the parent so it doesn't interfere */
-  .price-block { overflow: visible !important; position: static !important; }
 
-  /* 2. Transform the menu into a Bottom Sheet */
+  /* Backdrop — dims dashboard behind open menu */
+  .pair-menu-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 9998;
+  }
+  .pair-menu-backdrop.open { display: block; }
+
+  /* Bottom sheet — slides up from bottom of screen */
   .pair-menu {
     position: fixed !important;
-    bottom: 0 !important;      /* Anchored to bottom */
+    bottom: 0 !important;
     left: 0 !important;
     right: 0 !important;
-    top: auto !important;     /* Reset top */
+    top: auto !important;
     width: 100% !important;
-    max-width: none !important;
-    height: auto !important;
-    max-height: 60vh !important; /* Cap height to 60% of screen */
-    
-    /* Premium Glass-morphism */
-    background: rgba(13, 17, 23, 0.98) !important;
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    
-    /* Rounded top corners only */
-    border-top: 1px solid rgba(0, 255, 204, 0.3) !important;
-    border-radius: 24px 24px 0 0 !important;
-    box-shadow: 0 -10px 40px rgba(0,0,0,0.8) !important;
-    
-    /* Layout & Scroll */
-    display: flex !important;
-    flex-direction: column !important;
+    max-width: 100% !important;
+    max-height: 52vh !important;
+    border-radius: 20px 20px 0 0 !important;
+    border: none !important;
+    border-top: 1px solid rgba(0,255,204,0.2) !important;
+    background: rgba(8,10,14,0.98) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.8) !important;
+    z-index: 9999 !important;
     overflow-y: auto !important;
-    padding: 20px 0 40px 0 !important; /* Extra bottom padding for thumb clearance */
-    z-index: 10000 !important;
-    animation: slideUp 0.3s ease-out; /* Smooth entry */
+    overflow-x: hidden !important;
+    padding-bottom: 32px !important;
+
+    /* Animate from below */
+    visibility: hidden !important;
+    opacity: 0 !important;
+    transform: translateY(100%) !important;
+    transition: transform 0.28s cubic-bezier(0.32,0.72,0,1),
+                opacity 0.2s ease,
+                visibility 0s 0.28s !important;
+  }
+  .pair-menu.open {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    transition: transform 0.28s cubic-bezier(0.32,0.72,0,1),
+                opacity 0.2s ease,
+                visibility 0s 0s !important;
   }
 
-  /* Add a "Handle" at the top of the menu to look like an app */
+  /* Drag handle */
   .pair-menu::before {
-    content: "";
-    width: 40px;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
+    content: '';
+    display: block;
+    width: 36px; height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px;
+    margin: 14px auto 10px;
+    flex-shrink: 0;
   }
 
-  /* 3. Make the asset rows chunky and touchable */
+  /* Chunkier touch rows */
   .pair-option {
-    padding: 20px !important;
-    margin: 0 !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
+    padding: 16px 20px !important;
+    min-height: 56px !important;
   }
+  .pair-option-label img { width: 24px !important; height: 24px !important; }
+  .pair-option-name { font-size: 13px !important; }
 
-  .pair-option:active { background: rgba(0, 255, 204, 0.1) !important; }
-
-  /* Animation for sliding up */
-  @keyframes slideUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
-  }
+  /* Price block stays normal */
+  .price-block { overflow: hidden !important; position: relative !important; }
 }
 </style>
 </head>
@@ -2318,12 +2296,9 @@ function togglePairMenu() {
   const open     = menu.classList.toggle('open');
   btn.classList.toggle('open', open);
   if (backdrop) backdrop.classList.toggle('open', open);
-  // On mobile fixed positioning — calculate position relative to button
-  if (open && window.innerWidth <= 700) {
-    const btnRect = btn.getBoundingClientRect();
-    menu.style.top = (btnRect.bottom + 10) + 'px';
-  } else {
-    menu.style.top = '';
+  // Lock body scroll when sheet is open on mobile
+  if (window.innerWidth <= 768) {
+    document.body.style.overflow = open ? 'hidden' : '';
   }
 }
 
