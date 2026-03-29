@@ -816,6 +816,50 @@ body::after {
   .header-right    { gap:5px; }
 }
 
+/* ── Mobile pair selector — dropdown disabled, static label only ── */
+@media (max-width: 768px) {
+  /* Hide the interactive button entirely */
+  .pair-btn { display: none !important; }
+
+  /* Hide the dropdown menu entirely */
+  .pair-menu, .pair-menu-backdrop { display: none !important; }
+
+  /* Show static label instead */
+  .pair-static-label {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    cursor: not-allowed;
+    user-select: none;
+    position: relative;
+  }
+
+  /* Toast popup on tap */
+  .pair-static-toast {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(8,10,14,0.95);
+    border: 1px solid var(--border2);
+    border-radius: var(--r-sm);
+    padding: 6px 12px;
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--dim);
+    white-space: nowrap;
+    z-index: 999;
+    pointer-events: none;
+  }
+  .pair-static-toast.show { display: block; }
+}
+
 /* ══════════════════════════════════════════════════════════════════
    ENTRY SIGNAL BANNER
    ══════════════════════════════════════════════════════════════════ */
@@ -1017,81 +1061,7 @@ body::after {
   .entry-stat   { padding: 7px 8px; min-width: unset; }
   .entry-stat-val { font-size: 12px; }
 }
-/* ── Mobile pair dropdown — bottom sheet ──────────────────────── */
-@media (max-width: 768px) {
 
-  /* Backdrop — dims dashboard behind open menu */
-  .pair-menu-backdrop {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
-    z-index: 9998;
-  }
-  .pair-menu-backdrop.open { display: block; }
-
-  /* Bottom sheet — slides up from bottom of screen */
-  .pair-menu {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    max-height: 52vh !important;
-    border-radius: 20px 20px 0 0 !important;
-    border: none !important;
-    border-top: 1px solid rgba(0,255,204,0.2) !important;
-    background: rgba(8,10,14,0.98) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    box-shadow: 0 -8px 40px rgba(0,0,0,0.8) !important;
-    z-index: 9999 !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    padding-bottom: 32px !important;
-
-    /* Animate from below */
-    visibility: hidden !important;
-    opacity: 0 !important;
-    transform: translateY(100%) !important;
-    transition: transform 0.28s cubic-bezier(0.32,0.72,0,1),
-                opacity 0.2s ease,
-                visibility 0s 0.28s !important;
-  }
-  .pair-menu.open {
-    visibility: visible !important;
-    opacity: 1 !important;
-    transform: translateY(0) !important;
-    transition: transform 0.28s cubic-bezier(0.32,0.72,0,1),
-                opacity 0.2s ease,
-                visibility 0s 0s !important;
-  }
-
-  /* Drag handle */
-  .pair-menu::before {
-    content: '';
-    display: block;
-    width: 36px; height: 4px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 4px;
-    margin: 14px auto 10px;
-    flex-shrink: 0;
-  }
-
-  /* Chunkier touch rows */
-  .pair-option {
-    padding: 16px 20px !important;
-    min-height: 56px !important;
-  }
-  .pair-option-label img { width: 24px !important; height: 24px !important; }
-  .pair-option-name { font-size: 13px !important; }
-
-  /* Price block stays normal */
-  .price-block { overflow: hidden !important; position: relative !important; }
-}
 </style>
 </head>
 <body>
@@ -1168,6 +1138,14 @@ body::after {
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <div class="price-label" style="margin-bottom:0">Live via Pyth Network</div>
         <div class="pair-dropdown-wrap">
+          <!-- Static label on mobile — no dropdown -->
+          <div class="pair-static-label" style="display:none" title="Only DOGE/USD available"
+               onclick="showPairToast()">
+            <img src="https://assets.coingecko.com/coins/images/5/small/dogecoin.png" width="18" height="18" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'">
+            <span>DOGE / USD</span>
+            <div class="pair-static-toast" id="pair-toast">🚫 Only DOGE/USD available</div>
+          </div>
+          <!-- Interactive button on desktop only -->
           <button class="pair-btn" id="pair-btn" onclick="togglePairMenu()">
             <img src="https://assets.coingecko.com/coins/images/5/small/dogecoin.png" width="18" height="18" style="border-radius:50%;vertical-align:middle" onerror="this.style.display='none'">
             <span id="pair-label">DOGE / USD</span>
@@ -2290,16 +2268,19 @@ setInterval(fetchBotStats, 15000);  // Bot stats every 15s
 
 // ── Pair dropdown ────────────────────────────────────────────────────
 function togglePairMenu() {
-  const menu     = document.getElementById('pair-menu');
-  const btn      = document.getElementById('pair-btn');
-  const backdrop = document.getElementById('pair-backdrop');
-  const open     = menu.classList.toggle('open');
+  // Mobile — button is hidden, this never fires
+  if (window.innerWidth <= 768) return;
+  const menu = document.getElementById('pair-menu');
+  const btn  = document.getElementById('pair-btn');
+  const open = menu.classList.toggle('open');
   btn.classList.toggle('open', open);
-  if (backdrop) backdrop.classList.toggle('open', open);
-  // Lock body scroll when sheet is open on mobile
-  if (window.innerWidth <= 768) {
-    document.body.style.overflow = open ? 'hidden' : '';
-  }
+}
+
+function showPairToast() {
+  const toast = document.getElementById('pair-toast');
+  if (!toast) return;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 1800);
 }
 
 function selectPair(el, pair) {
